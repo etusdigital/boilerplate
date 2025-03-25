@@ -35,11 +35,10 @@ $ npm install
 ## Compile and run the project
 
 ```bash
-# development
-$ npm run start
-
 # watch mode
 $ npm run start:dev
+$ npx typeorm-extension seed:run -d dist/database/ormconfig.js
+$ npx typeorm migration:run -d dist/database/ormconfig.js
 
 # production mode
 $ npm run start:prod
