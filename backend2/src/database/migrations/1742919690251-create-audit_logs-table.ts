@@ -5,6 +5,13 @@ export class CreateAuditLogsTable1742919690251 implements MigrationInterface {
         name: 'audit_logs',
         columns: [
             {
+                name: 'id',
+                type: 'integer',
+                isPrimary: true,
+                isGenerated: true,
+                generationStrategy: 'increment',
+            },
+            {
                 name: 'transaction_id',
                 type: 'varchar',
                 length: '255',

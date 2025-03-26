@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner, Table, TableForeignKey, TableUnique } 
 
 export class CreateAccountsUsersTable1742921564029 implements MigrationInterface {
     private table = new Table({
-        name: 'accounts_users',
+        name: 'users_accounts',
         columns: [
             {
                 name: 'account_id',
@@ -20,7 +20,7 @@ export class CreateAccountsUsersTable1742921564029 implements MigrationInterface
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(this.table);
         await queryRunner.createForeignKeys(
-            'accounts_users',
+            'users_accounts',
             [
                 new TableForeignKey({
                     columnNames: ['account_id'],
@@ -34,7 +34,7 @@ export class CreateAccountsUsersTable1742921564029 implements MigrationInterface
                 })
             ]
         );
-        await queryRunner.createUniqueConstraint('accounts_users', new TableUnique({ columnNames: ['account_id', 'user_id'] }));
+        await queryRunner.createUniqueConstraint('users_accounts', new TableUnique({ columnNames: ['account_id', 'user_id'] }));
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

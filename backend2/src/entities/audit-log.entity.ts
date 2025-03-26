@@ -4,32 +4,35 @@ import { User } from './user.entity';
 
 @Entity('audit_logs')
 export class AuditLog {
-    @Column({ type: 'varchar', length: 255 })
-    transaction_id: string;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-    @Column({ type: 'integer' })
-    account_id: number;
+    @Column({ name: 'transaction_id', type: 'varchar', length: 255 })
+    transactionId: string;
 
-    @Column({ type: 'integer' })
-    user_id: number;
+    @Column({ name: 'account_id', type: 'integer' })
+    accountId: number;
+
+    @Column({ name: 'user_id', type: 'integer' })
+    userId: number;
 
     @Column({ type: 'varchar', length: 255, nullable: true })
     entity: string;
 
-    @PrimaryColumn()
-    entity_id: number;
+    @Column({ name: 'entity_id' })
+    entityId: number;
 
-    @Column({ type: 'varchar', length: 255 })
-    transaction_type: string;
+    @Column({ name: 'transaction_type', type: 'varchar', length: 255 })
+    transactionType: string;
 
     @Column({ type: 'json' })
     json: any;
 
-    @Column({ type: 'varchar', length: 255, nullable: true })
-    ip_address: string;
+    @Column({ name: 'ip_address', type: 'varchar', length: 255, nullable: true })
+    ipAddress: string;
 
-    @Column({ type: 'varchar', length: 600, nullable: true })
-    user_agent: string;
+    @Column({ name: 'user_agent', type: 'varchar', length: 600, nullable: true })
+    userAgent: string;
 
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     timestamp: Date;

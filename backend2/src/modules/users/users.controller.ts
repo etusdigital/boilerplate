@@ -10,6 +10,16 @@ export class UsersController {
     return await this.usersService.find();
   }
 
+  @Post('/accounts')
+  async createUserAccounts(@Body() userAccounts: any) {
+    return await this.usersService.createUserAccounts(userAccounts);
+  }
+
+  @Delete('/accounts')
+  async deleteUserAccounts(@Body() userAccounts: any) {
+    return await this.usersService.deleteUserAccounts(userAccounts);
+  }
+
   @Post()
   async create(@Body() user: any) {
     return await this.usersService.create(user);
