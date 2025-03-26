@@ -8,11 +8,16 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build --force"
+    "type-check": "vue-tsc --build --force",
+    "test": "vitest"
   },
   "dependencies": {
+    "@BRIUS/design-system": "2.1.16",
+    "@vue/test-utils": "^2.4.6",
     "axios": "^1.6.8",
     "pinia": "^3.0.1",
+    "tailwindcss": "^4.0.17",
+    "vitest": "^3.0.9",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },
@@ -21,6 +26,7 @@
     "@types/node": "^18.19.26",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/tsconfig": "^0.5.1",
+    "jsdom": "^26.0.0",
     "npm-run-all2": "^7.0.2",
     "typescript": "~5.4.2",
     "vite": "^5.1.6",

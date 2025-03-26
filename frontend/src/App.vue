@@ -1,33 +1,75 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-
-const message = ref('Bem-vindo ao Vue 3 + TypeScript!')
-</script>
-
 <template>
-  <div class="app">
-    <header>
-      <h1>Minha Aplicação Vue 3</h1>
-    </header>
-    <main>
-      <p>{{ message }}</p>
-    </main>
-  </div>
+  <b-confirm style="z-index: 2000" />
+  <b-toast />
+  <BNavbar
+        title="BackOffice"
+        :profile="{ name: 'rafa', src: 'https://gitlab.com/uploads/-/system/project/avatar/64374217/martin-luther-king-land-of-dreams.jpg' }"
+        class="sticky top-0"
+        style="z-index: 50"
+    >
+        <div />
+    </BNavbar>
+    <div class="flex">
+        <Menu v-model="selectedMenu" :expanded="menuExpanded" :menuItems="menuItems" @update:selectedMenu="handleMenuSelect" />
+
+        <div class="flex-1 p-base pt-0">
+            <router-view />
+        </div>
+    </div>
 </template>
 
+<script setup lang="ts">
+import { ref, provide, watch } from 'vue';
+import Menu from './components/Menu.vue';
+import { useRouter, useRoute } from 'vue-router';
+
+const router = useRouter();
+const route = useRoute();
+provide('router', router);
+provide('route', route);
+// Define the type for menu items
+type MenuItem = {
+    label: string;
+    value: string;
+    icon: string;
+    path: string;
+    bottom?: boolean;
+    subItems?: MenuItem[];
+};
+
+const menuExpanded = ref(false);
+const menuItems = ref<MenuItem[]>([
+	{
+		label: "Home",
+		value: "home",
+		icon: "home",
+		path: "/home",
+	},
+  	{
+		label: "Users",
+		value: "users",
+		icon: "group",
+		path: "/users",
+	},
+	{
+		label: "Configurações",
+		value: "settings",
+		icon: "settings",
+		path: "/settings",
+		bottom: true,
+		subItems: []
+	},
+]);
+const selectedMenu = ref( menuItems.value.find((item) => item.path === route.path)?.value || '' );
+
+const handleMenuSelect = (value: string) => {
+    selectedMenu.value = value;
+};
+
+watch(() => route.path, (newPath) => {
+	selectedMenu.value = menuItems.value.find((item) => item.path === newPath)?.value || '';
+});
+</script>
+
 <style scoped>
-.app {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-header {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-h1 {
-  color: #2c3e50;
-}
 </style>
