@@ -9,17 +9,17 @@ export class User {
   name: string;
 
   @Column({ type: 'varchar', length: 500, unique: true })
-  email: string;
+  email: string | null;
 
-  @Column({ type: 'varchar', length: 500, nullable: true })
-  profile_image: string;
+  @Column({ name: 'profile_image', type: 'varchar', length: 500, nullable: true })
+  profileImage: string;
 
-  @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'datetime', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'datetime', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 
-  @DeleteDateColumn({ type: 'datetime', nullable: true })
-  deleted_at: Date;
+  @DeleteDateColumn({ name: 'deleted_at', type: 'datetime', nullable: true })
+  deletedAt?: Date;
 }
