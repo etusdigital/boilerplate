@@ -79,10 +79,8 @@ Para criar um novo CRUD, você tem duas opções:
 1. Consulte o arquivo `@cursor-rules.md` na raiz do projeto para ver a arquitetura completa
 2. No Cursor, digite o comando para criar um novo CRUD seguindo o formato:
    ```
-   "Crie um novo CRUD seguindo as regras do arquivo @cursor-rules.md para a entidade X com as seguintes tabelas:
-   - Tabela 1 com campos [...]
-   - Tabela 2 com campos [...]
-   - Tabela 3 com campos [...]"
+   "Crie um novo CRUD seguindo as regras do arquivo @cursor-rules.md para a entidade X com a seguinte tabela:
+   - Tabela 1 com campos [...]"
    ```
 3. O Cursor irá gerar automaticamente todos os arquivos necessários seguindo os padrões arquiteturais definidos, incluindo:
    - Migrations

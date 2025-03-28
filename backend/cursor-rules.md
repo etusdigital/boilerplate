@@ -1,5 +1,7 @@
 # Cursor Rules - API CRUD Architecture Guide
 
+**Important Note**: All paths mentioned in this document MUST be created within the `/backend` directory. For example, if a path is mentioned as `/src/entities`, it should be created as `/backend/src/entities`.
+
 This document outlines the architectural patterns and steps to create new CRUD APIs in our NestJS backend application.
 
 ## Table of Contents
@@ -14,7 +16,7 @@ This document outlines the architectural patterns and steps to create new CRUD A
 
 ## 1. Database Migration
 
-Migrations should be created in the `src/database/migrations` directory. Follow these naming conventions:
+Migrations should be created in the `/backend/src/database/migrations` directory. Follow these naming conventions:
 
 ```typescript
 {timestamp}-create-{entity-name}-table.ts
@@ -74,7 +76,7 @@ Key points:
 
 ## 2. Entity Creation
 
-Entities should be created in the `src/entities` directory. Follow these conventions:
+Entities should be created in the `/backend/src/entities` directory. The complete path should be `/backend/src/entities/{entity-name}.entity.ts`. Follow these conventions:
 
 ```typescript
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
@@ -108,24 +110,19 @@ Key points:
 
 ### 3.1 Module File
 
-Create a new directory in `src/modules/{entity-name}` with the following structure:
+Create a new directory in `/backend/src/modules/{entity-name}`. The complete path structure should be:
 
-```typescript
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrmProvider } from 'src/database/providers/orm.provider';
-import { EntityName } from 'src/entities/entity-name.entity';
-import { EntityNameController } from './entity-name.controller';
-import { EntityNameService } from './entity-name.service';
-
-@Module({
-    imports: [
-        TypeOrmModule.forFeature([EntityName])
-    ],
-    controllers: [EntityNameController],
-    providers: [EntityNameService, OrmProvider],
-})
-export class EntityNameModule { }
+```
+/backend
+  └── src
+      └── modules
+          └── {entity-name}
+              ├── entity-name.module.ts
+              ├── entity-name.controller.ts
+              ├── entity-name.service.ts
+              ├── entity-name.spec.ts
+              └── dto
+                  └── entity-name.dto.ts
 ```
 
 ### 3.2 Controller
@@ -214,7 +211,7 @@ export class EntityNameService {
 
 ### 3.4 DTOs
 
-Create a `dto` directory inside your module with:
+Create a `dto` directory inside your module at `/backend/src/modules/{entity-name}/dto` with:
 
 ```typescript
 // dto/entity-name.dto.ts
@@ -231,7 +228,7 @@ export class EntityNameDto {
 
 ### 3.5 Tests
 
-Create `entity-name.spec.ts` for your tests:
+Create `entity-name.spec.ts` in your module directory `/backend/src/modules/{entity-name}`:
 
 ```typescript
 import { Test, TestingModule } from '@nestjs/testing';
@@ -297,4 +294,25 @@ describe('EntityNameController', () => {
 5. **Testing**:
    - Write unit tests for controllers and services
    - Mock dependencies appropriately
-   - Test both success and error scenarios 
+   - Test both success and error scenarios
+
+## Module Import in App Module
+
+After creating a new module, it must be properly imported in the `/backend/src/app.module.ts` file:
+
+1. Import the new module at the top of `app.module.ts`:
+```typescript
+import { EntityNameModule } from './modules/entity-name/entity-name.module';
+```
+
+2. Add the module to the imports array in the `@Module` decorator:
+```typescript
+@Module({
+  imports: [
+    // ... existing imports ...
+    EntityNameModule,
+  ],
+})
+export class AppModule {
+  // ... existing code ...
+} 
