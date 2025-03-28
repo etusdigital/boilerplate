@@ -4,28 +4,19 @@
         <h1>Adicionar Usuário</h1>
           <div class="flex justify-between items-center gap-4 w-full">
             <BInput
-              errorMessage="O nome precisa ter ao menos 3 caracteres  "
-              :isError="false"
-              :isTextArea="false"
+              errorMessage="O nome precisa ter ao menos 3 caracteres"
               labelValue="Name"
-              :required="false"
-              size="base"
-              textAlign="start"
-              tooltipMinWidth="none"
+              :required="true"
+              size="sm"
               type="text"
             />
-          </div>
-
-          <div class="flex justify-between items-center gap-4 w-full">
             <BInput
               errorMessage="O email precisa ser válido"
               :isError="false"
               :isTextArea="false"
-              labelValue="Name"
-              :required="false"
-              size="base"
-              textAlign="start"
-              tooltipMinWidth="none"
+              labelValue="Email"
+              :required="true"
+              size="sm"
               type="email"
             />
           </div>
