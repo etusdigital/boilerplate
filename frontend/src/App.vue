@@ -71,5 +71,8 @@ watch(() => route.path, (newPath) => {
 });
 </script>
 
-<style scoped>
+<style>
+div[type] {
+    border: unset;
+}
 </style>
