@@ -5,7 +5,7 @@ import { v7 as uuidv7 } from 'uuid';
 
 @Injectable()
 export class AccountMiddleware implements NestMiddleware {
-  constructor(private readonly cls: ClsService) {}
+  constructor(private readonly cls: ClsService) { }
 
   async use(req: Request, res: Response, next: NextFunction) {
     const account = req.header('account-id');
@@ -15,7 +15,7 @@ export class AccountMiddleware implements NestMiddleware {
     }
 
     this.cls.set('accountId', account);
-    this.cls.set('user', JSON.parse(user || '{}'));
+    this.cls.set('user', JSON.parse(user || '{"id": 0}'));
     this.cls.set('transactionId', uuidv7());
 
     next();

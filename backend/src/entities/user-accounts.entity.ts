@@ -12,9 +12,9 @@ export class UserAccount {
 
     @ManyToOne(() => Account, { eager: false })
     @JoinColumn({ name: 'account_id' })
-    account: Account;
+    account?: Account;
 
     @ManyToOne(() => User, { eager: false })
     @JoinColumn({ name: 'user_id' })
-    user: User;
+    user?: User;
 }

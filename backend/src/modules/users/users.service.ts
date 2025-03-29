@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClsService } from 'nestjs-cls';
-import { OrmProvider } from 'src/database/providers/orm.provider';
-import { UserAccount } from 'src/entities/user-accounts.entity';
-import { User } from 'src/entities/user.entity';
+import { OrmProvider } from '../../database/providers/orm.provider';
+import { UserAccount } from '../../entities/user-accounts.entity';
+import { User } from '../../entities/user.entity';
 import { Repository } from 'typeorm';
+import { UserDto } from './dto/user.dto';
+import { UserAccountDto } from './dto/user-account.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,20 +27,20 @@ export class UsersService {
     return await this.userRepository.find({ where: { id: this.cls.get('user').id } });
   }
 
-  async create(user) {
+  async create(user: UserDto) {
     const newUser = await this.userRepository.create(user);
     return await this.ormProvider.createEntity(newUser, this.userRepository);
   }
 
-  async update(id, user) {
+  async update(id: number, user: UserDto) {
     return await this.ormProvider.updateEntity(id, user, this.userRepository);
   }
 
-  async delete(id) {
+  async delete(id: number) {
     return await this.ormProvider.softDeleteEntity(id, this.userRepository);
   }
 
-  async createUserAccounts(userAccounts) {
+  async createUserAccounts(userAccounts: UserAccountDto[]) {
     for (const userAccount of userAccounts) {
       const newUserAccount = await this.userAccountRepository.create(userAccount);
       await this.ormProvider.createEntity(newUserAccount, this.userAccountRepository);
@@ -47,7 +49,7 @@ export class UsersService {
     return { success: true };
   }
 
-  async deleteUserAccounts(userAccounts) {
+  async deleteUserAccounts(userAccounts: UserAccountDto[]) {
     for (const userAccount of userAccounts) {
       await this.ormProvider.deleteEntity(userAccount, this.userAccountRepository);
     }

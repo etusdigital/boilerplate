@@ -14,7 +14,7 @@ export class AccountsService {
   ) { }
 
   async find() {
-    // return await this.accountRepository.find();
-    return await this.logRepository.find();
+    return await this.accountRepository.find();
+    // return await this.logRepository.find();
   }
 }

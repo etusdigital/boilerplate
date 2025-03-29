@@ -20,7 +20,7 @@ export class OrmProvider {
             await queryRunner.manager.save(AuditLog, this.formattedAudit(entity, newEntity.id || 0, repository, 'insert'));
             await queryRunner.commitTransaction();
 
-            return { success: true };
+            return newEntity;
         } catch (error) {
             await queryRunner.rollbackTransaction();
             throw new Error(`Erro na transação: ${error.message}`);
@@ -38,11 +38,11 @@ export class OrmProvider {
         await queryRunner.startTransaction();
 
         try {
-            await queryRunner.manager.update(repository.target, entityId, entity);
+            const updateEntity = await queryRunner.manager.update(repository.target, entityId, entity);
             await queryRunner.commitTransaction();
             await queryRunner.manager.save(AuditLog, this.formattedAudit(entity, entityId, repository, 'update'));
 
-            return { success: true };
+            return updateEntity;
         } catch (error) {
             await queryRunner.rollbackTransaction();
             throw new Error(`Erro na transação: ${error.message}`);
