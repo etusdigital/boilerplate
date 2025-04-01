@@ -3,11 +3,11 @@ import { UsersService } from './users.service';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
 import { ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+//import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('users')
 @Controller('/users')
-@UseGuards(AuthGuard(['jwt']))
+//@UseGuards(AuthGuard(['jwt']))
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
