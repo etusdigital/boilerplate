@@ -82,4 +82,7 @@ div[type] {
    max-width: 1900px;
    margin: 0 auto;
 }
+.form-container {
+    min-height: 80px;
+}
 </style>

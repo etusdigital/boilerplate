@@ -31,7 +31,7 @@
           <!-- TODO: Corrigir o estilo dos inputs -->
           <BInput
               v-model="editingUser.profileImage"
-              errorMessage=""
+              errorMessage="A url da imagem não é válida"
               :isError="!isValidUrl"
               :isTextArea="false"
               labelValue="Profile Image"
@@ -69,14 +69,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, inject } from 'vue';
+import { ref, watch, inject, computed } from 'vue';
 import axios from 'axios';
 import type { User } from '@/types';
 
 const width = 1000;
 const toast = inject('toast') as any;
 const show = ref(true);
-const isValidUrl = ref(false);
 
 const props = defineProps<{
   user: User
@@ -91,25 +90,22 @@ const emit = defineEmits<{
 
 const isEditing = ref(!!props.user.id);
 
-// Watch para monitorar mudanças em props.user.profileImage
-watch(
-  () => props.user.profileImage,
-  (newValue) => {
-    try {
-      new URL(newValue || ''); // Tenta criar um novo URL
-      isValidUrl.value = true; // Se não houver erro, a URL é válida
-    } catch (error) {
-      isValidUrl.value = false; // Se houver erro, a URL é inválida
-    }
+const isValidUrl = computed(() => {
+  try {
+    new URL(editingUser.value.profileImage || '');
+    return true;
+  } catch (error) {
+    return false;
   }
-);
+});
+
 const toastOptions =  {
   timeout: 3500,
   type: 'error',
   top: true,
   right: true,
 };
-    
+
 const saveUser = async () => {
   const method = isEditing.value ? axios.put : axios.post;
   const saveUrl = isEditing.value ? `${import.meta.env.VITE_BACKEND_URL}/users/${editingUser.value.id}` : `${import.meta.env.VITE_BACKEND_URL}/users`;
@@ -127,10 +123,10 @@ const saveUser = async () => {
     toast({
         message: `Usuário: ${editingUser.value.email} salvo com sucesso`,
         ...toastOptions,
-        ...{type: 'success' }  
+        ...{type: 'success' }
     });
   } catch (error: any) {
-    
+
     toast({
         message: `Erro ao salvar usuário: ${error.response.data.message}`,
         ...toastOptions
