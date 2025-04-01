@@ -42,7 +42,7 @@
           </template>
         </b-table>
         <!-- fim b-table -->
-        <UserForm v-if="showForm" :user="editingUser" @save="onSave" @close="onCloseForm" />
+      <UserForm v-model="showForm" :user="editingUser" @save="onSave" @close="onCloseForm" />
         <!-- início b-dialog usado para deletar o usuário e constrolado por flags como: showDelete e closeDelete -->
         <b-dialog v-model="showDelete" :width="1000" class="op">
           <div class="form-wrapper">
@@ -130,9 +130,7 @@ const editingUser = ref<User>({} as User);
 const deletingUser = ref({} as any);
 const editingIndex = ref(0);
 
-const showForm = computed(() => {
-  return !isLoading.value && !!tdata.value.length && !!Object.keys(editingUser.value).length;
-});
+const showForm = ref(false);
 
 const fetchUsers = async () => {
   isLoading.value = true;
@@ -177,6 +175,7 @@ const createUser = () => {
     email: '',
   } as User;
   editingIndex.value = 0;
+  showForm.value = true;
 }
 
 const showDelete = ref(false);
@@ -184,6 +183,7 @@ const showDelete = ref(false);
 const onEdit = (val: any, index: number) => {
   editingUser.value = val;
   editingIndex.value = index;
+  showForm.value = true;
   console.log('editingUser', editingUser.value, index);
 }
 
@@ -206,6 +206,7 @@ const onCloseForm = (data: any ) => {
     tdata.value[editingIndex.value] = data;
   }
   editingUser.value = {} as User;
+  showForm.value = false;
 }
 
 onMounted(() => {
