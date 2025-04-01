@@ -13,4 +13,20 @@ export class UserDto {
   @ApiProperty({ required: false })
   @IsOptional()
   profileImage?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  id?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  createdAt?: Date; 
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  updatedAt?: Date; 
+  
+  @ApiProperty({ required: false })
+  @IsOptional()
+  deletedAt?: Date;
 }

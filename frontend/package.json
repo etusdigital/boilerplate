@@ -12,7 +12,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@BRIUS/design-system": "^1.2.15",
+    "@BRIUS/design-system": "2.1.16",
     "@vue/test-utils": "^2.4.6",
     "axios": "^1.6.8",
     "pinia": "^3.0.1",

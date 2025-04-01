@@ -75,4 +75,11 @@ watch(() => route.path, (newPath) => {
 div[type] {
     border: unset;
 }
+.table-action {
+    cursor: pointer;
+}
+.main-container {
+   max-width: 1900px;
+   margin: 0 auto;
+}
 </style>
