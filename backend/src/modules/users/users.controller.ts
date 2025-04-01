@@ -1,11 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
 import { ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('users')
 @Controller('/users')
+@UseGuards(AuthGuard(['jwt']))
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 

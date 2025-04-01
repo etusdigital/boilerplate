@@ -6,11 +6,13 @@ import { AppDataSource } from './database/ormconfig';
 import { AccountMiddleware } from './middlewares/account.middleware';
 import { AccountsModule } from './modules/accounts/accounts.module';
 import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(AppDataSource.options),
+    AuthModule,
     AccountsModule,
     UsersModule,
     ClsModule.forRoot({
