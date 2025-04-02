@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
 import { LoginDto } from './dto/login.dto';
+import { Auth0Provider } from './providers/auth0.provider';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,8 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserAccount)
     private readonly userAccountRepository: Repository<UserAccount>,
-    private readonly cls: ClsService
+    private readonly cls: ClsService,
+    private readonly auth0Provider: Auth0Provider
   ) { }
 
   async find() {
@@ -47,7 +49,7 @@ export class UsersService {
       }));
       await this.createUserAccounts(userAccounts);
     }
-
+    await this.auth0Provider.sendInvitation(user.email, user.name);
     return savedUser;
   }
 
