@@ -32,7 +32,6 @@
 import { ref, provide, watch } from 'vue'
 import Menu from '@/shared/components/Menu.vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useMainStore } from '@/app/stores'
 
 const router = useRouter()
 const route = useRoute()
