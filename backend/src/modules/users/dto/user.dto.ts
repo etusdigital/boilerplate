@@ -1,5 +1,10 @@
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+
+class UserAccountInput {
+  @ApiProperty()
+  accountId: number;
+}
 
 export class UserDto {
   @ApiProperty()
@@ -29,4 +34,16 @@ export class UserDto {
   @ApiProperty({ required: false })
   @IsOptional()
   deletedAt?: Date;
+  @IsString()
+  status?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  providerId?: string;
+
+  @ApiProperty({ required: false, type: [UserAccountInput] })
+  @IsOptional()
+  @IsArray()
+  userAccounts?: UserAccountInput[];
 }
