@@ -69,9 +69,12 @@
 import { ref, watch, inject, computed } from 'vue';
 import axios from 'axios';
 import type { User } from '@/types';
+import { useMainStore } from '@/stores/main'
 
 const width = 1000;
 const toast = inject('toast') as any;
+const mainStore = useMainStore();
+const toastOptions = mainStore.toastOptions;
 
 const props = defineProps<{
   modelValue: boolean;
@@ -98,12 +101,6 @@ const isValidUrl = computed(() => {
   }
 });
 
-const toastOptions =  {
-  timeout: 3500,
-  type: 'error',
-  top: true,
-  right: true,
-};
 
 watch(() => props.modelValue, (value) => {
   model.value = value;
@@ -122,7 +119,7 @@ const saveUser = async () => {
       //TODO: Injetar no header dados provenientes da store, para pegar os dados do usuário logado
       headers: {
         'account-id': 1,
-        'user': JSON.stringify({ "id": 1 })
+        'user': JSON.stringify(mainStore.user)
       }
     });
 

@@ -42,8 +42,8 @@
           </template>
         </b-table>
         <!-- fim b-table -->
-      <UserForm v-model="showForm" :user="editingUser" @save="onSave" @close="onCloseForm" />
-        <!-- início b-dialog usado para deletar o usuário e constrolado por flags como: showDelete e closeDelete -->
+        <UserForm v-if="showForm" v-model="showForm" :user="editingUser" @save="onSave" @close="onCloseForm" />
+        <!-- início b-dialog usado para deletar o usuário e controlado por flags como: showDelete e closeDelete -->
         <b-dialog v-model="showDelete" :width="1000" class="op">
           <div class="form-wrapper">
             <h1>Deletar Usuário</h1>
@@ -84,15 +84,12 @@
   import UserForm from '@/components/UserForm.vue';
   import axios from 'axios';
   import type { User } from '@/types';
+  import { useMainStore } from '@/stores/main'
+
+  const mainStore = useMainStore();
+  const toastOptions = mainStore.toastOptions;
 
   const toast = inject('toast') as any;
-  //TODO: Remover o toastOptions e usar do estado
-  const toastOptions =  {
-    timeout: 3500,
-    type: 'error',
-    top: true,
-    right: true,
-  };
 
   const isLoading = ref(true);
   const itemsPerPage = ref(100);
@@ -130,7 +127,9 @@ const editingUser = ref<User>({} as User);
 const deletingUser = ref({} as any);
 const editingIndex = ref(0);
 
-const showForm = ref(false);
+const showForm = computed(() => {
+  return !isLoading.value && !!tdata.value.length && !!Object.keys(editingUser.value).length;
+}); 
 
 const fetchUsers = async () => {
   isLoading.value = true;
@@ -139,7 +138,7 @@ const fetchUsers = async () => {
     {
       headers: {
         'account-id': 1,
-        'user': JSON.stringify({ "id": 1 })
+        'user': JSON.stringify(mainStore.user)
       }
     }
   );
@@ -155,7 +154,7 @@ const deleteUser = async (val: any) => {
   await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/users/${val.id}`, {
     headers: {
       'account-id': 1,
-      'user': JSON.stringify({ "id": 1 })
+      'user': JSON.stringify(mainStore.user)
     }
   });
 
@@ -175,7 +174,6 @@ const createUser = () => {
     email: '',
   } as User;
   editingIndex.value = 0;
-  showForm.value = true;
 }
 
 const showDelete = ref(false);
@@ -183,8 +181,6 @@ const showDelete = ref(false);
 const onEdit = (val: any, index: number) => {
   editingUser.value = val;
   editingIndex.value = index;
-  showForm.value = true;
-  console.log('editingUser', editingUser.value, index);
 }
 
 const onSave = (val: any) => {
@@ -206,7 +202,6 @@ const onCloseForm = (data: any ) => {
     tdata.value[editingIndex.value] = data;
   }
   editingUser.value = {} as User;
-  showForm.value = false;
 }
 
 onMounted(() => {

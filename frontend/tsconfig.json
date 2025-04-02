@@ -15,6 +15,7 @@
     }
   ],  
   "compilerOptions": {      
-    "composite": true
+    "composite": true,
+    "module": "esnext"
   }
 }
