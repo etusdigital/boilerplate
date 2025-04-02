@@ -1,9 +1,9 @@
+import DesignSystem from '@BRIUS/design-system'
+import '@BRIUS/design-system/styles.css'
 import './assets/main.css'
 
 import { createApp, watch } from 'vue'
 import { createPinia } from 'pinia'
-import DesignSystem from '@BRIUS/design-system'
-import '@BRIUS/design-system/styles.css'
 import App from './App.vue'
 import router from './router'
 import { auth0 } from './Auth/index'

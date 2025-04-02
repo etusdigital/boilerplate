@@ -1,71 +1,68 @@
 <template>
-  <Transition name="fade">
-    <b-dialog v-model="show" :width="width" class="op">
-      <div class="form-wrapper">
-        <h1>Adicionar Usuário</h1>
-          <div class="flex justify-between items-center w-full form-container">
-            <BInput
-              v-model="editingUser.name"
-              errorMessage="O nome precisa ter ao menos 3 caracteres"
-              labelValue="Name"
-              :required="true"
-              size="base"
-              type="text"
-            />
-
-            <BInput
-              v-model="editingUser.email"
-              errorMessage="O email precisa ser válido"
-              :isError="false"
-              :isTextArea="false"
-              labelValue="Email"
-              :required="true"
-              size="base"
-              type="email"
-              :disabled="isEditing"
-            />
-
-            <img v-if="isEditing && editingUser.profileImage" :src="editingUser.profileImage" alt="Profile Image" class="profile-img">
-        </div>
-        <div class="flex justify-between items-center w-full form-container">
-          <!-- TODO: Corrigir o estilo dos inputs -->
+  <b-dialog v-model="model" :width="width" class="op" @update:model-value="updateModelValue">
+    <div class="form-wrapper">
+      <h1>Adicionar Usuário</h1>
+        <div class="flex justify-between items-start gap-xs w-full">
           <BInput
-              v-model="editingUser.profileImage"
-              errorMessage="A url da imagem não é válida"
-              :isError="!isValidUrl"
-              :isTextArea="false"
-              labelValue="Profile Image"
-              :required="true"
-              size="base"
-              type="text"
-            />
-        </div>
-      </div>
+            v-model="editingUser.name"
+            errorMessage="O nome precisa ter ao menos 3 caracteres"
+            labelValue="Name"
+            :required="true"
+            size="base"
+            type="text"
+          />
 
-      <div class="form-actions">
-        <b-button
-            color="danger"
-            :disabled="false"
-            :loading="false"
-            size="medium"
-            type="button"
-            @click="closeForm"
-        >
-            Cancelar
-        </b-button>
-        <b-button
-            color="success"
-            :disabled="false"
-            :loading="false"
-            size="medium"
-            type="button"
-            @click="saveUser"
-        >
-            Salvar
-        </b-button>
+          <BInput
+            v-model="editingUser.email"
+            errorMessage="O email precisa ser válido"
+            :isError="false"
+            :isTextArea="false"
+            labelValue="Email"
+            :required="true"
+            size="base"
+            type="email"
+            :disabled="isEditing"
+          />
+
+          <img v-if="isEditing && editingUser.profileImage" :src="editingUser.profileImage" alt="Profile Image" class="profile-img">
       </div>
-    </b-dialog>
-  </Transition>
+      <div class="flex justify-between items-center w-full">
+        <BInput
+            v-model="editingUser.profileImage"
+            errorMessage="A url da imagem não é válida"
+            :isError="!isValidUrl"
+            :isTextArea="false"
+            labelValue="Profile Image"
+            :required="true"
+            size="base"
+            type="text"
+          />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <b-button
+          color="danger"
+          :disabled="false"
+          :loading="false"
+          size="medium"
+          type="button"
+          @click="closeForm"
+      >
+          Cancelar
+      </b-button>
+      <b-button
+          color="success"
+          :disabled="false"
+          :loading="false"
+          size="medium"
+          type="button"
+          @click="saveUser"
+      >
+          Salvar
+      </b-button>
+    </div>
+  </b-dialog>
 </template>
 
 <script setup lang="ts">
@@ -75,17 +72,19 @@ import type { User } from '@/types';
 
 const width = 1000;
 const toast = inject('toast') as any;
-const show = ref(true);
 
 const props = defineProps<{
+  modelValue: boolean;
   user: User
 }>();
 
+const model = defineModel<boolean>('modelValue');
 const editingUser = ref({...props.user});
 
 const emit = defineEmits<{
   (e: 'save', user: User): void;
   (e: 'close', user?: User | null): void;
+  (e: 'update:modelValue', value: boolean): void;
 }>();
 
 const isEditing = ref(!!props.user.id);
@@ -104,6 +103,15 @@ const toastOptions =  {
   type: 'error',
   top: true,
   right: true,
+};
+
+watch(() => props.modelValue, (value) => {
+  model.value = value;
+});
+
+const updateModelValue = (value: boolean) => {
+  model.value = value;
+  emit('update:modelValue', value);
 };
 
 const saveUser = async () => {
@@ -141,7 +149,10 @@ const closeForm = () => {
 
 <style>
 .form-wrapper {
-    padding: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 50px;
 }
 
 .form-container {
