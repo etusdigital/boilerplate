@@ -22,15 +22,15 @@
 import { ref, provide, watch } from 'vue';
 import Menu from './components/Menu.vue';
 import { useRouter, useRoute } from 'vue-router';
-//import { useMainStore } from './stores/main'
+import { useMainStore } from './stores/main'
 
 const router = useRouter();
 const route = useRoute();
 provide('router', router);
 provide('route', route);
 // Define the type for menu items
-//const mainStore = useMainStore();
-//console.log(mainStore.user);
+const mainStore = useMainStore();
+console.log(mainStore.user);
 type MenuItem = {
     label: string;
     value: string;
