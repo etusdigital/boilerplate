@@ -5,6 +5,13 @@ export class CreateAccountsUsersTable1742921564029 implements MigrationInterface
         name: 'users_accounts',
         columns: [
             {
+                name: 'id',
+                type: 'integer',
+                isPrimary: true,
+                isGenerated: true,
+                generationStrategy: 'increment',
+            },
+            {
                 name: 'account_id',
                 type: 'integer',
                 isNullable: false,

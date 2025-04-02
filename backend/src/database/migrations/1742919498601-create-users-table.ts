@@ -31,6 +31,18 @@ export class CreateUsersTable1742919498601 implements MigrationInterface {
                 isNullable: true,
             },
             {
+                name: 'status',
+                type: 'varchar',
+                length: '20',
+                isNullable: true,
+            },
+            {
+                name: 'provider_id',
+                type: 'varchar',
+                length: '255',
+                isNullable: true,
+            },
+            {
                 name: 'created_at',
                 type: 'TIMESTAMP',
                 isNullable: false,

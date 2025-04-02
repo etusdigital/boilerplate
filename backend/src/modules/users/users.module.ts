@@ -13,5 +13,6 @@ import { AuditModule } from '../audit/audit.module';
   ],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule { }

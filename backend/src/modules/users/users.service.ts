@@ -6,6 +6,7 @@ import { User } from '../../entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,9 +26,29 @@ export class UsersService {
     return await this.userRepository.find({ where: { id: this.cls.get('user').id } });
   }
 
+  async findByProviderId(providerId: string) {
+    return await this.userRepository.findOne({ where: { providerId, status: 'accepted' } });
+  }
+
   async create(user: UserDto) {
-    const newUser = await this.userRepository.create(user);
-    return await this.userRepository.save(newUser);
+    const newUser = await this.userRepository.create({ 
+      name: user.name, 
+      email: user.email, 
+      profileImage: user.profileImage, 
+      status: 'invited' 
+    });
+    
+    const savedUser = await this.userRepository.save(newUser);
+
+    if (user.userAccounts?.length) {
+      const userAccounts = user.userAccounts.map(account => ({
+        ...account,
+        userId: savedUser.id
+      }));
+      await this.createUserAccounts(userAccounts);
+    }
+
+    return savedUser;
   }
 
   async update(id: number, user: UserDto) {
@@ -36,6 +57,16 @@ export class UsersService {
 
   async delete(id: number) {
     return await this.userRepository.softDelete(id);
+  }
+
+  async login(userLogin: LoginDto, jwtUser) {
+    const user = await this.userRepository.findOne({ where: { email: userLogin.email } });
+    if (user && user.status === 'invited') {
+      user.status = 'accepted';
+      user.providerId = jwtUser.userId;
+      await this.userRepository.save(user);
+    }
+    return user;
   }
 
   async createUserAccounts(userAccounts: UserAccountDto[]) {

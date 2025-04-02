@@ -7,6 +7,9 @@ import { AccountMiddleware } from './middlewares/account.middleware';
 import { AccountsModule } from './modules/accounts/accounts.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/guards/roles.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Module({
   imports: [
@@ -23,12 +26,22 @@ import { AuthModule } from './auth/auth.module';
     }),
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard('jwt'),
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(ClsMiddleware, AccountMiddleware)
+      .exclude('users/login')
       .forRoutes('*');
   }
 }
