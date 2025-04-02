@@ -1,4 +1,4 @@
-import { createAuth0 } from "@auth0/auth0-vue";
+import { createAuth0 } from '@auth0/auth0-vue'
 
 export const auth0 = createAuth0({
   domain: import.meta.env.VITE_AUTH0_DOMAIN,
@@ -6,4 +6,4 @@ export const auth0 = createAuth0({
   authorizationParams: {
     redirect_uri: import.meta.env.VITE_AUTH0_REDIRECT_URI,
   },
-});
+})

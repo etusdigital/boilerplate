@@ -2,7 +2,7 @@
   <b-dialog v-model="model" :width="width" class="op" @update:model-value="updateModelValue">
     <div class="form-wrapper">
       <h1>Adicionar Usuário</h1>
-      <div class="flex justify-between items-start gap-xs w-full">
+      <div class="flex items-start justify-between w-full gap-xs">
         <BInput
           v-model="editingUser.name"
           errorMessage="O nome precisa ter ao menos 3 caracteres"
@@ -31,7 +31,7 @@
           class="profile-img"
         />
       </div>
-      <div class="flex justify-between items-center w-full">
+      <div class="flex items-center justify-between w-full">
         <BInput
           v-model="editingUser.profileImage"
           errorMessage="A url da imagem não é válida"
@@ -46,14 +46,7 @@
     </div>
 
     <div class="form-actions">
-      <b-button
-        color="danger"
-        :disabled="false"
-        :loading="false"
-        size="medium"
-        type="button"
-        @click="closeForm"
-      >
+      <b-button color="danger" :disabled="false" :loading="false" size="medium" type="button" @click="closeForm">
         Cancelar
       </b-button>
       <b-button
@@ -71,55 +64,55 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, inject, computed } from "vue";
-import type { User } from "@/features/users/types/user.type";
-import { useMainStore } from "@/app/stores";
+import { ref, watch, inject, computed } from 'vue'
+import type { User } from '@/features/users/types/user.type'
+import { useMainStore } from '@/app/stores'
 
-const width = 1000;
-const toast = inject("toast") as any;
-const mainStore = useMainStore();
-const toastOptions = mainStore.toastOptions;
+const width = 1000
+const toast = inject('toast') as any
+const mainStore = useMainStore()
+const toastOptions = mainStore.toastOptions
 
 const props = defineProps<{
-  modelValue: boolean;
-  user: User;
-}>();
+  modelValue: boolean
+  user: User
+}>()
 
-const model = defineModel<boolean>("modelValue");
-const editingUser = ref({ ...props.user });
+const model = defineModel<boolean>('modelValue')
+const editingUser = ref({ ...props.user })
 
 const emit = defineEmits<{
-  (e: "save", user: User, isEditing: boolean): void;
-  (e: "close", user?: User | null): void;
-  (e: "update:modelValue", value: boolean): void;
-}>();
+  (e: 'save', user: User, isEditing: boolean): void
+  (e: 'close', user?: User | null): void
+  (e: 'update:modelValue', value: boolean): void
+}>()
 
-const isEditing = ref(!!props.user.id);
+const isEditing = ref(!!props.user.id)
 
 const isValidUrl = computed(() => {
   try {
-    new URL(editingUser.value.profileImage || "");
-    return true;
+    new URL(editingUser.value.profileImage || '')
+    return true
   } catch (error) {
-    return false;
+    return false
   }
-});
+})
 
 watch(
   () => props.modelValue,
   (value) => {
-    model.value = value;
-  }
-);
+    model.value = value
+  },
+)
 
 const updateModelValue = (value: boolean) => {
-  model.value = value;
-  emit("update:modelValue", value);
-};
+  model.value = value
+  emit('update:modelValue', value)
+}
 
 const closeForm = () => {
-  emit("close", isEditing.value ? props.user : null);
-};
+  emit('close', isEditing.value ? props.user : null)
+}
 </script>
 
 <style>

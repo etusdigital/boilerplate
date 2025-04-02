@@ -13,13 +13,5 @@
     {
       "path": "./tsconfig.vitest.json"
     }
-  ],  
-  "compilerOptions": {      
-    "composite": true,
-    "module": "esnext",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
-  }
+  ],
 }

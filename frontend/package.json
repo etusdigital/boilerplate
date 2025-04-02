@@ -9,11 +9,13 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
-    "test": "vitest"
+    "test": "vitest",
+    "lint": "eslint . --fix",
+    "format": "prettier --write src/"
   },
   "dependencies": {
-    "@auth0/auth0-vue": "^2.4.0",
     "@BRIUS/design-system": "2.1.18",
+    "@auth0/auth0-vue": "^2.4.0",
     "@vue/test-utils": "^2.4.6",
     "axios": "^1.6.8",
     "pinia": "^3.0.1",
@@ -27,10 +29,16 @@
     "@tsconfig/node18": "^18.2.4",
     "@types/node": "^18.19.26",
     "@vitejs/plugin-vue": "^5.0.4",
+    "@vitest/eslint-plugin": "^1.1.39",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.5.0",
     "@vue/tsconfig": "^0.5.1",
     "autoprefixer": "^10.4.21",
+    "eslint": "^9.23.0",
+    "eslint-plugin-vue": "^10.0.0",
     "jsdom": "^26.0.0",
     "npm-run-all2": "^7.0.2",
+    "prettier": "^3.5.3",
     "typescript": "~5.4.2",
     "vite": "^5.1.6",
     "vue-tsc": "^2.0.6"

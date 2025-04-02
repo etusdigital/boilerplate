@@ -36,13 +36,7 @@
         </template>
       </b-table>
       <!-- fim b-table -->
-      <UserForm
-        v-if="showForm"
-        v-model="showForm"
-        :user="editingUser"
-        @save="onSave"
-        @close="onCloseForm"
-      />
+      <UserForm v-if="showForm" v-model="showForm" :user="editingUser" @save="onSave" @close="onCloseForm" />
       <!-- início b-dialog usado para deletar o usuário e controlado por flags como: showDelete e closeDelete -->
       <b-dialog v-model="showDelete" :width="1000" class="op">
         <div class="form-wrapper">
@@ -53,7 +47,7 @@
           </p>
           <p class="text-danger">Esta ação é irreversível.</p>
           <div class="form-actions">
-            <div class="flex justify-between items-center w-full form-container">
+            <div class="flex items-center justify-between w-full form-container">
               <b-button
                 color="primary"
                 :disabled="false"
@@ -83,105 +77,105 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, inject } from "vue";
-import UserForm from "@/features/users/components/UserForm.vue";
-import type { User } from "@/features/users/types/user.type";
-import { useUsers } from "@/features/users/composables/useUsers";
+import { ref, computed, onMounted, inject } from 'vue'
+import UserForm from '@/features/users/components/UserForm.vue'
+import type { User } from '@/features/users/types/user.type'
+import { useUsers } from '@/features/users/composables/useUsers'
 
-const isLoading = ref(true);
-const itemsPerPage = ref(100);
-const page = ref(1);
+const isLoading = ref(true)
+const itemsPerPage = ref(100)
+const page = ref(1)
 const tcolumns = ref([
   {
-    text: "Name",
-    label: "Name",
-    value: "name",
+    text: 'Name',
+    label: 'Name',
+    value: 'name',
     sortable: true,
-    width: "50%",
+    width: '50%',
   },
   {
-    text: "Email",
-    label: "Email",
-    value: "email",
-    sortable: true,
-  },
-  {
-    text: "Join Date",
-    label: "Join Date",
-    value: "created_at",
+    text: 'Email',
+    label: 'Email',
+    value: 'email',
     sortable: true,
   },
   {
-    text: "End Date",
-    label: "End Date",
-    value: "deleted_at",
+    text: 'Join Date',
+    label: 'Join Date',
+    value: 'created_at',
     sortable: true,
   },
-]);
+  {
+    text: 'End Date',
+    label: 'End Date',
+    value: 'deleted_at',
+    sortable: true,
+  },
+])
 
-const tdata = ref<Array<User>>([]);
-const editingUser = ref<User>({} as User);
-const deletingUser = ref({} as any);
-const editingIndex = ref(0);
-const { getAllUsers, saveUser, deleteUser } = useUsers();
+const tdata = ref<Array<User>>([])
+const editingUser = ref<User>({} as User)
+const deletingUser = ref({} as any)
+const editingIndex = ref(0)
+const { getAllUsers, saveUser, deleteUser } = useUsers()
 
 const showForm = computed(() => {
-  return !isLoading.value && !!tdata.value.length && !!Object.keys(editingUser.value).length;
-});
+  return !isLoading.value && !!tdata.value.length && !!Object.keys(editingUser.value).length
+})
 
 const onDeleteUser = async (val: any) => {
-  await deleteUser(val);
-  closeDelete();
-  fetchUsers();
-};
+  await deleteUser(val)
+  closeDelete()
+  fetchUsers()
+}
 
 const createUser = () => {
   editingUser.value = {
-    name: "",
-    email: "",
-  } as User;
-  editingIndex.value = 0;
-};
+    name: '',
+    email: '',
+  } as User
+  editingIndex.value = 0
+}
 
-const showDelete = ref(false);
+const showDelete = ref(false)
 
 const onEdit = (val: any, index: number) => {
-  editingUser.value = val;
-  editingIndex.value = index;
-};
+  editingUser.value = val
+  editingIndex.value = index
+}
 
 const fetchUsers = async () => {
-  isLoading.value = true;
-  tdata.value = await getAllUsers();
-  editingUser.value = {} as User;
-  isLoading.value = false;
-};
+  isLoading.value = true
+  tdata.value = await getAllUsers()
+  editingUser.value = {} as User
+  isLoading.value = false
+}
 
 const onSave = async (editingUser: any, isEditing: boolean) => {
-  await saveUser(editingUser, isEditing);
-  fetchUsers();
-};
+  await saveUser(editingUser, isEditing)
+  fetchUsers()
+}
 
 const closeDelete = () => {
-  showDelete.value = false;
-  deletingUser.value = {};
-};
+  showDelete.value = false
+  deletingUser.value = {}
+}
 
 const onDelete = async (val: any) => {
-  deletingUser.value = val;
-  showDelete.value = true;
-};
+  deletingUser.value = val
+  showDelete.value = true
+}
 
 const onCloseForm = (data: any) => {
   if (data && tdata.value[editingIndex.value]) {
-    tdata.value[editingIndex.value] = data;
+    tdata.value[editingIndex.value] = data
   }
-  editingUser.value = {} as User;
-};
+  editingUser.value = {} as User
+}
 
 onMounted(() => {
-  fetchUsers();
-});
+  fetchUsers()
+})
 </script>
 
 <style>

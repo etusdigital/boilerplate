@@ -5,8 +5,8 @@
     <h1 class="status-code">404</h1>
     <h2 class="message-title">Oops! Page Not Found</h2>
     <p class="message-body">
-      Sorry, we couldn't find the page you were looking for. It might have been moved, deleted, or
-      maybe it never existed.
+      Sorry, we couldn't find the page you were looking for. It might have been moved, deleted, or maybe it never
+      existed.
     </p>
     <router-link to="/" class="home-link-button"> Go Back to Home </router-link>
   </div>
@@ -21,7 +21,7 @@
   text-align: center;
   padding: 3rem 1rem;
   min-height: calc(100vh - 150px); /* Adjust based on header/footer height */
-  font-family: "Arial", sans-serif; /* Use your project's font */
+  font-family: 'Arial', sans-serif; /* Use your project's font */
   color: #333;
 }
 
@@ -57,7 +57,9 @@
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
-  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+  transition:
+    background-color 0.2s ease-in-out,
+    transform 0.1s ease;
 }
 
 .home-link-button:hover {
