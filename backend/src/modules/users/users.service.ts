@@ -28,8 +28,17 @@ export class UsersService {
   }
 
   async create(user: UserDto) {
+    console.log('chegou aqui', user);
     const newUser = await this.userRepository.create(user);
-    return await this.ormProvider.createEntity(newUser, this.userRepository);
+    console.log('chegou aqui2', user, newUser);
+    try {
+      const entity = await this.ormProvider.createEntity(newUser, this.userRepository);
+      console.log('chegou aqui3', entity);
+      return entity;
+    } catch (error) {
+      console.log('chegou aqui4', error);
+      throw error;
+    }
   }
 
   async update(id: number, user: UserDto) {
