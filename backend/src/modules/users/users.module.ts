@@ -5,6 +5,7 @@ import { User } from 'src/entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { AuditModule } from '../audit/audit.module';
+import { Auth0Provider } from './providers/auth0.provider';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { AuditModule } from '../audit/audit.module';
     AuditModule
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, Auth0Provider],
   exports: [UsersService],
 })
 export class UsersModule { }
