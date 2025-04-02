@@ -28,9 +28,6 @@ const router = useRouter();
 const route = useRoute();
 provide('router', router);
 provide('route', route);
-// Define the type for menu items
-const mainStore = useMainStore();
-console.log(mainStore.user);
 type MenuItem = {
     label: string;
     value: string;

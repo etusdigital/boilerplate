@@ -1,0 +1,558 @@
+users:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: username
+    type: String
+    unique: true
+    nullable: false
+  - name: email
+    type: String
+    unique: true
+    nullable: false
+  - name: password_hash
+    type: String
+    nullable: false
+  - name: first_name
+    type: String
+    nullable: false
+  - name: last_name
+    type: String
+    nullable: false
+  - name: profile_picture_url
+    type: String
+    nullable: true
+  - name: is_active
+    type: Boolean
+    nullable: false
+    default: true
+  - name: last_login_at
+    type: Date
+    nullable: true
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+roles:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: name
+    type: String
+    unique: true
+    nullable: false
+  - name: description
+    type: String
+    nullable: true
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+user_roles:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: user_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: role_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: roles
+      column: uid
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+permissions:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: name
+    type: String
+    unique: true
+    nullable: false
+  - name: description
+    type: String
+    nullable: true
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+role_permissions:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: role_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: roles
+      column: uid
+  - name: permission_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: permissions
+      column: uid
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+folders:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: name
+    type: String
+    nullable: false
+  - name: description
+    type: String
+    nullable: true
+  - name: parent_folder_uid
+    type: String
+    nullable: true
+    foreignKey:
+      table: folders
+      column: uid
+  - name: created_by
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: path
+    type: String
+    nullable: false
+  - name: is_deleted
+    type: Boolean
+    nullable: false
+    default: false
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+folder_permissions:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: folder_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: folders
+      column: uid
+  - name: role_uid
+    type: String
+    nullable: true
+    foreignKey:
+      table: roles
+      column: uid
+  - name: user_uid
+    type: String
+    nullable: true
+    foreignKey:
+      table: users
+      column: uid
+  - name: permission_level
+    type: String
+    nullable: false
+  - name: inherit_to_subfolders
+    type: Boolean
+    nullable: false
+    default: true
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+assets:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: title
+    type: String
+    nullable: false
+  - name: description
+    type: String
+    nullable: true
+  - name: file_name
+    type: String
+    nullable: false
+  - name: file_path
+    type: String
+    nullable: false
+  - name: file_size
+    type: Number
+    nullable: false
+  - name: file_type
+    type: String
+    nullable: false
+  - name: folder_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: folders
+      column: uid
+  - name: created_by
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: thumbnail_path
+    type: String
+    nullable: true
+  - name: is_deleted
+    type: Boolean
+    nullable: false
+    default: false
+  - name: version_count
+    type: Number
+    nullable: false
+    default: 1
+  - name: current_version_uid
+    type: String
+    nullable: true
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+asset_versions:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: asset_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: assets
+      column: uid
+  - name: version_number
+    type: Number
+    nullable: false
+  - name: file_path
+    type: String
+    nullable: false
+  - name: file_size
+    type: Number
+    nullable: false
+  - name: created_by
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: change_notes
+    type: String
+    nullable: true
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+asset_metadata:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: asset_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: assets
+      column: uid
+  - name: metadata_key
+    type: String
+    nullable: false
+  - name: metadata_value
+    type: String
+    nullable: true
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+tags:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: name
+    type: String
+    unique: true
+    nullable: false
+  - name: created_by
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+asset_tags:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: asset_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: assets
+      column: uid
+  - name: tag_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: tags
+      column: uid
+  - name: created_by
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+favorites:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: user_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: asset_uid
+    type: String
+    nullable: true
+    foreignKey:
+      table: assets
+      column: uid
+  - name: folder_uid
+    type: String
+    nullable: true
+    foreignKey:
+      table: folders
+      column: uid
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+recent_items:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: user_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: asset_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: assets
+      column: uid
+  - name: access_type
+    type: String
+    nullable: false
+  - name: accessed_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+saved_searches:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: user_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: name
+    type: String
+    nullable: false
+  - name: search_query
+    type: JSON
+    nullable: false
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+asset_shares:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: asset_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: assets
+      column: uid
+  - name: shared_by
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: shared_with_user
+    type: String
+    nullable: true
+    foreignKey:
+      table: users
+      column: uid
+  - name: share_link
+    type: String
+    nullable: true
+  - name: link_token
+    type: String
+    nullable: true
+    unique: true
+  - name: permission_level
+    type: String
+    nullable: false
+  - name: password_hash
+    type: String
+    nullable: true
+  - name: expiry_date
+    type: Date
+    nullable: true
+  - name: access_count
+    type: Number
+    nullable: false
+    default: 0
+  - name: max_access_count
+    type: Number
+    nullable: true
+  - name: is_active
+    type: Boolean
+    nullable: false
+    default: true
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+
+user_folders:
+  - name: uid
+    type: String
+    unique: true
+    nullable: false
+    primaryKey: true
+  - name: user_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: users
+      column: uid
+  - name: folder_uid
+    type: String
+    nullable: false
+    foreignKey:
+      table: folders
+      column: uid
+  - name: access_type
+    type: String
+    nullable: false
+  - name: created_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"
+  - name: updated_at
+    type: Date
+    nullable: false
+    default: "CURRENT_TIMESTAMP"

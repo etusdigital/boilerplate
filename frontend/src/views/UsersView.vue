@@ -66,7 +66,7 @@
                     :disabled="false"
                     size="medium"
                     type="submit"
-                    @click="deleteUser(deletingUser)"
+                    @click="onDeleteUser(deletingUser)"
                 >
                     Deletar
                 </b-button>
@@ -82,14 +82,9 @@
 <script setup lang="ts">
   import { ref, computed, onMounted, inject } from 'vue';
   import UserForm from '@/components/UserForm.vue';
-  import axios from 'axios';
   import type { User } from '@/types';
   import { useMainStore } from '@/stores/main'
-
-  const mainStore = useMainStore();
-  const toastOptions = mainStore.toastOptions;
-
-  const toast = inject('toast') as any;
+  import { useUsers } from '@/composables/useUsers';
 
   const isLoading = ref(true);
   const itemsPerPage = ref(100);
@@ -126,44 +121,14 @@ const tdata = ref<Array<User>>([]);
 const editingUser = ref<User>({} as User);
 const deletingUser = ref({} as any);
 const editingIndex = ref(0);
+const { getAllUsers, saveUser, deleteUser } = useUsers();
 
 const showForm = computed(() => {
   return !isLoading.value && !!tdata.value.length && !!Object.keys(editingUser.value).length;
-}); 
+});
 
-const fetchUsers = async () => {
-  isLoading.value = true;
-  const response = await axios.get(
-    `${import.meta.env.VITE_BACKEND_URL}/users`, 
-    {
-      headers: {
-        'account-id': 1,
-        'user': JSON.stringify(mainStore.user)
-      }
-    }
-  );
-  tdata.value = response.data;
-  editingUser.value = {} as User;
-  isLoading.value = false;
-}
-
-const deleteUser = async (val: any) => {
-  deletingUser.value = val;
-  showDelete.value = true;
-
-  await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/users/${val.id}`, {
-    headers: {
-      'account-id': 1,
-      'user': JSON.stringify(mainStore.user)
-    }
-  });
-
-  toast({
-        message: `Usuário: ${deletingUser.value.email} deletado com sucesso`,
-        ...toastOptions,
-        ...{type: 'success' }  
-    });
-
+const onDeleteUser = async (val: any) => {
+  await deleteUser(val);
   closeDelete();
   fetchUsers();
 }
@@ -183,7 +148,15 @@ const onEdit = (val: any, index: number) => {
   editingIndex.value = index;
 }
 
-const onSave = (val: any) => {
+const fetchUsers = async () => {
+  isLoading.value = true;
+  tdata.value = await getAllUsers();
+  editingUser.value = {} as User;
+  isLoading.value = false;
+}
+
+const onSave = async (editingUser: any, isEditing: boolean) => {
+  await saveUser(editingUser, isEditing);
   fetchUsers();
 }
 

@@ -16,6 +16,10 @@
   ],  
   "compilerOptions": {      
     "composite": true,
-    "module": "esnext"
+    "module": "esnext",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   }
 }

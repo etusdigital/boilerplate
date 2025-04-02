@@ -57,7 +57,7 @@
           :loading="false"
           size="medium"
           type="button"
-          @click="saveUser"
+          @click="emit('save', editingUser, isEditing)"
       >
           Salvar
       </b-button>
@@ -67,7 +67,6 @@
 
 <script setup lang="ts">
 import { ref, watch, inject, computed } from 'vue';
-import axios from 'axios';
 import type { User } from '@/types';
 import { useMainStore } from '@/stores/main'
 
@@ -85,7 +84,7 @@ const model = defineModel<boolean>('modelValue');
 const editingUser = ref({...props.user});
 
 const emit = defineEmits<{
-  (e: 'save', user: User): void;
+  (e: 'save', user: User, isEditing: boolean): void;
   (e: 'close', user?: User | null): void;
   (e: 'update:modelValue', value: boolean): void;
 }>();
@@ -101,7 +100,6 @@ const isValidUrl = computed(() => {
   }
 });
 
-
 watch(() => props.modelValue, (value) => {
   model.value = value;
 });
@@ -111,33 +109,6 @@ const updateModelValue = (value: boolean) => {
   emit('update:modelValue', value);
 };
 
-const saveUser = async () => {
-  const method = isEditing.value ? axios.put : axios.post;
-  const saveUrl = isEditing.value ? `${import.meta.env.VITE_BACKEND_URL}/users/${editingUser.value.id}` : `${import.meta.env.VITE_BACKEND_URL}/users`;
-  try {
-    const response = await method(saveUrl, { ...editingUser.value }, {
-      //TODO: Injetar no header dados provenientes da store, para pegar os dados do usuário logado
-      headers: {
-        'account-id': 1,
-        'user': JSON.stringify(mainStore.user)
-      }
-    });
-
-    emit( 'save', editingUser.value );
-
-    toast({
-        message: `Usuário: ${editingUser.value.email} salvo com sucesso`,
-        ...toastOptions,
-        ...{type: 'success' }
-    });
-  } catch (error: any) {
-
-    toast({
-        message: `Erro ao salvar usuário: ${error.response.data.message}`,
-        ...toastOptions
-    });
-  }
-}
 
 const closeForm = () => {
   emit('close', isEditing.value ? props.user : null);
@@ -159,7 +130,6 @@ const closeForm = () => {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
-    padding: 50px;
 }
 .profile-img {
     width: 50px;

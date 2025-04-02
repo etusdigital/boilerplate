@@ -1,0 +1,58 @@
+{
+  "version": "1.0",
+  "rules": {
+    "general": {
+      "max_line_length": 100,
+      "indent_size": 2,
+      "end_of_line": "lf",
+      "charset": "utf-8",
+      "trim_trailing_whitespace": true,
+      "insert_final_newline": true
+    },
+    "typescript": {
+      "quotes": "single",
+      "semi": true,
+      "trailing_comma": "es5",
+      "bracket_spacing": true,
+      "arrow_parens": "avoid",
+      "print_width": 100,
+      "tab_width": 2,
+      "use_tabs": false,
+      "single_quote": true,
+      "jsx_single_quote": false,
+      "bracket_same_line": false,
+      "jsx_bracket_same_line": false,
+      "prose_wrap": "preserve",
+      "html_whitespace_sensitivity": "css",
+      "end_of_line": "lf"
+    },
+    "ignore": {
+      "files": [
+        "node_modules/**",
+        "dist/**",
+        "build/**",
+        ".git/**",
+        "*.min.js",
+        "*.min.css",
+        ".env",
+        ".env.*",
+        "coverage/**",
+        "*.log",
+        "*.lock"
+      ]
+    },
+    "search": {
+      "exclude_patterns": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/.git/**",
+        "**/coverage/**",
+        "**/*.min.js",
+        "**/*.min.css",
+        "**/*.log",
+        "**/*.lock"
+      ]
+    }
+  }
+} 
