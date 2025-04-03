@@ -1,11 +1,12 @@
 import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { auth0 } from '../auth/index'
-const { isAuthenticated, isLoading, loginWithRedirect, logout, user: authUser } = auth0
+const { isAuthenticated, isLoading, loginWithRedirect, logout, user: authUser, getAccessTokenSilently } = auth0
 
 const user = ref({})
 
 watch(authUser, async (newValue) => {
+  console.log('authUser mudou', authUser.value)
   if (isAuthenticated.value && authUser.value) {
     user.value = authUser.value
     const email = authUser.value.email
@@ -43,6 +44,7 @@ export const useMainStore = defineStore('main', {
         right: true,
       },
       logout,
+      getAccessTokenSilently,
     }
   },
 })

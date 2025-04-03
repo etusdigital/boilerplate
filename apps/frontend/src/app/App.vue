@@ -2,24 +2,15 @@
   <div>
     <b-confirm style="z-index: 2000" />
     <b-toast />
-    <BNavbar
-      title="BackOffice"
-      :profile="{
-        name: 'rafa',
-        src: 'https://gitlab.com/uploads/-/system/project/avatar/64374217/martin-luther-king-land-of-dreams.jpg',
-      }"
-      class="sticky top-0"
-      style="z-index: 50"
-    >
+    <BNavbar title="BackOffice" :profile="{
+      name: 'rafa',
+      src: 'https://gitlab.com/uploads/-/system/project/avatar/64374217/martin-luther-king-land-of-dreams.jpg',
+    }" class="sticky top-0" style="z-index: 50">
       <div />
     </BNavbar>
     <div class="flex">
-      <Menu
-        v-model="selectedMenu"
-        :expanded="menuExpanded"
-        :menuItems="menuItems"
-        @update:selectedMenu="handleMenuSelect"
-      />
+      <Menu v-model="selectedMenu" :expanded="menuExpanded" :menuItems="menuItems"
+        @update:selectedMenu="handleMenuSelect" />
 
       <div class="flex-1 pt-0 p-base">
         <router-view />
@@ -88,13 +79,16 @@ watch(
 div[type] {
   border: unset;
 }
+
 .table-action {
   cursor: pointer;
 }
+
 .main-container {
   max-width: 1900px;
   margin: 0 auto;
 }
+
 .form-container {
   min-height: 80px;
 }

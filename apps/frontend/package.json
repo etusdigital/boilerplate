@@ -14,8 +14,9 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@BRIUS/design-system": "2.1.18",
+    "@auth0/auth0-spa-js": "^2.1.3",
     "@auth0/auth0-vue": "^2.4.0",
+    "@BRIUS/design-system": "2.1.18",
     "@vue/test-utils": "^2.4.6",
     "axios": "^1.6.8",
     "pinia": "^3.0.1",

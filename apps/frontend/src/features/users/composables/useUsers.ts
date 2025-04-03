@@ -9,10 +9,11 @@ export function useUsers() {
   const toast = inject('toast') as any
 
   const getAllUsers = async () => {
+    const accessToken = await mainStore.getAccessTokenSilently()
     const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users`, {
       headers: {
         'account-id': 1,
-        user: JSON.stringify(mainStore.user),
+        Authorization: `Bearer ${accessToken}`,
       },
     })
 
@@ -25,6 +26,7 @@ export function useUsers() {
       ? `${import.meta.env.VITE_BACKEND_URL}/users/${editingUser.id}`
       : `${import.meta.env.VITE_BACKEND_URL}/users`
     try {
+      const accessToken = await mainStore.getAccessTokenSilently()
       const response = await method(
         saveUrl,
         { ...editingUser },
@@ -32,7 +34,7 @@ export function useUsers() {
           //TODO: Injetar no header dados provenientes da store, para pegar os dados do usuário logado
           headers: {
             'account-id': 1,
-            user: JSON.stringify(mainStore.user),
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       )
