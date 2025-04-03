@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
@@ -13,7 +25,7 @@ import { LoginDto } from './dto/login.dto';
 @Controller('/users')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   @Roles(Role.ADMIN, Role.MASTER_ADMIN)
@@ -30,7 +42,7 @@ export class UsersController {
   @ApiBody({
     type: LoginDto,
     isArray: true,
-    description: 'Login of auth0 user'
+    description: 'Login of auth0 user',
   })
   async login(@Body() userLogin: LoginDto, @Req() request) {
     return await this.usersService.login(userLogin, request.user);
@@ -44,7 +56,7 @@ export class UsersController {
   @ApiBody({
     type: UserAccountDto,
     isArray: true,
-    description: 'Array of user accounts to create'
+    description: 'Array of user accounts to create',
   })
   async createUserAccounts(@Body() userAccounts: UserAccountDto[]) {
     return await this.usersService.createUserAccounts(userAccounts);
@@ -57,7 +69,7 @@ export class UsersController {
   @ApiBody({
     type: UserAccountDto,
     isArray: true,
-    description: 'Array of user accounts to delete'
+    description: 'Array of user accounts to delete',
   })
   async deleteUserAccounts(@Body() userAccounts: UserAccountDto[]) {
     return await this.usersService.deleteUserAccounts(userAccounts);

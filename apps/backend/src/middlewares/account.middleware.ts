@@ -52,7 +52,7 @@ export class AccountMiddleware implements NestMiddleware {
     );
     if (!user) {
       throw new HttpException(
-        '[Unauthorized] - Account not exists',
+        '[Unauthorized] - User not exists',
         HttpStatus.UNAUTHORIZED,
       );
     }

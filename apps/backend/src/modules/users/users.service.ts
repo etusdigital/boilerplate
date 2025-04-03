@@ -17,35 +17,39 @@ export class UsersService {
     @InjectRepository(UserAccount)
     private readonly userAccountRepository: Repository<UserAccount>,
     private readonly cls: ClsService,
-    private readonly auth0Provider: Auth0Provider
-  ) { }
+    private readonly auth0Provider: Auth0Provider,
+  ) {}
 
   async find() {
     return await this.userRepository.find();
   }
 
   async findById() {
-    return await this.userRepository.find({ where: { id: this.cls.get('user').id } });
+    return await this.userRepository.find({
+      where: { id: this.cls.get('user').id },
+    });
   }
 
   async findByProviderId(providerId: string) {
-    return await this.userRepository.findOne({ where: { providerId, status: 'accepted' } });
+    return await this.userRepository.findOne({
+      where: { providerId, status: 'accepted' },
+    });
   }
 
   async create(user: UserDto) {
-    const newUser = await this.userRepository.create({ 
-      name: user.name, 
-      email: user.email, 
-      profileImage: user.profileImage, 
-      status: 'invited' 
+    const newUser = await this.userRepository.create({
+      name: user.name,
+      email: user.email,
+      profileImage: user.profileImage,
+      status: 'invited',
     });
-    
+
     const savedUser = await this.userRepository.save(newUser);
 
     if (user.userAccounts?.length) {
-      const userAccounts = user.userAccounts.map(account => ({
+      const userAccounts = user.userAccounts.map((account) => ({
         ...account,
-        userId: savedUser.id
+        userId: savedUser.id,
       }));
       await this.createUserAccounts(userAccounts);
     }
@@ -62,7 +66,9 @@ export class UsersService {
   }
 
   async login(userLogin: LoginDto, jwtUser) {
-    const user = await this.userRepository.findOne({ where: { email: userLogin.email } });
+    const user = await this.userRepository.findOne({
+      where: { email: userLogin.email },
+    });
     if (user && user.status === 'invited') {
       user.status = 'accepted';
       user.providerId = jwtUser.userId;
@@ -73,7 +79,8 @@ export class UsersService {
 
   async createUserAccounts(userAccounts: UserAccountDto[]) {
     for (const userAccount of userAccounts) {
-      const newUserAccount = await this.userAccountRepository.create(userAccount);
+      const newUserAccount =
+        await this.userAccountRepository.create(userAccount);
       await this.userAccountRepository.save(newUserAccount);
     }
 
@@ -82,7 +89,10 @@ export class UsersService {
 
   async deleteUserAccounts(userAccounts: UserAccountDto[]) {
     for (const userAccount of userAccounts) {
-      await this.userAccountRepository.delete({ userId: userAccount.userId, accountId: userAccount.accountId });
+      await this.userAccountRepository.delete({
+        userId: userAccount.userId,
+        accountId: userAccount.accountId,
+      });
     }
 
     return { success: true };

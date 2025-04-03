@@ -6,7 +6,6 @@ const { isAuthenticated, isLoading, loginWithRedirect, logout, user: authUser, g
 const user = ref({})
 
 watch(authUser, async (newValue) => {
-  console.log('authUser mudou', authUser.value)
   if (isAuthenticated.value && authUser.value) {
     user.value = authUser.value
     const email = authUser.value.email

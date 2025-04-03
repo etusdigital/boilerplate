@@ -24,9 +24,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(payload: any): any {
+    if (!process.env.AUTH0_ROLES_NAME) {
+      throw new Error('Missing AUTH0_ROLES_NAME environment variable');
+    }
+
     return {
       userId: payload.sub,
-      roles: payload['etus_roles/roles'],
+      roles: payload[process.env.AUTH0_ROLES_NAME],
       permissions: payload.permissions,
       email: payload.email,
     };

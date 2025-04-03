@@ -1,4 +1,10 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, UnauthorizedException } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Response } from 'express';
 
 @Catch()
@@ -10,7 +16,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (exception && exception.status === 401) {
       return response.status(401).json({
         statusCode: 401,
-        message: 'Unauthorized'
+        message: 'Unauthorized',
       });
     }
 
@@ -21,7 +27,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     console.error(exception);
     return response.status(500).json({
       statusCode: 500,
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
-} 
+}
