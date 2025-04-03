@@ -1,4 +1,9 @@
-import { Injectable, NestMiddleware, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { ClsService } from 'nestjs-cls';
 import { v7 as uuidv7 } from 'uuid';
@@ -11,23 +16,41 @@ dotenv.config();
 
 @Injectable()
 export class AccountMiddleware implements NestMiddleware {
-  constructor(private readonly cls: ClsService, private readonly userService: UsersService) { }
+  constructor(
+    private readonly cls: ClsService,
+    private readonly userService: UsersService,
+  ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
     const account = req.header('account-id');
     if (!account) {
-      throw new HttpException('[Unauthorized] - Account not exists', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        '[Unauthorized] - Account not exists',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
-    const decodedToken = token ? jwt.decode(token) as any : '';
-    const user = await this.userService.findByProviderId(decodedToken?.sub || '');
+    if (!token) {
+      throw new HttpException(
+        '[Unauthorized] - Token not exists',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const decodedToken = jwt.decode(token) as any;
+    const user = await this.userService.findByProviderId(
+      decodedToken?.sub || '',
+    );
     if (!user) {
-      throw new HttpException('[Unauthorized] - Account not exists', HttpStatus.UNAUTHORIZED);   
+      throw new HttpException(
+        '[Unauthorized] - Account not exists',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     this.cls.set('accountId', account);
-    this.cls.set('user', {...user, userAccounts: null});
+    this.cls.set('user', { ...user, userAccounts: null });
     this.cls.set('transactionId', uuidv7());
 
     next();
