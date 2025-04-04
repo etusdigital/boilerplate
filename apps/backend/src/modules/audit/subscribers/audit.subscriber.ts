@@ -58,15 +58,6 @@ export class AuditSubscriber implements EntitySubscriberInterface {
     );
   }
 
-  async beforeUpdate(event: UpdateEvent<any>): Promise<void> {
-    if (!this.shouldAudit(event.metadata.name) || !event.entity) return;
-
-    event.entity.__oldData = await event.manager.findOne(
-      event.metadata.target,
-      { where: { id: event.entity.id } }
-    );
-  }
-
   async afterUpdate(event: UpdateEvent<any>): Promise<void> {
     if (!this.shouldAudit(event.metadata.name) || !event.entity) return;
 
@@ -77,19 +68,13 @@ export class AuditSubscriber implements EntitySubscriberInterface {
     );
   }
 
-  async beforeRemove(event: RemoveEvent<any>): Promise<void> {
-    if (!this.shouldAudit(event.metadata.name) || !event.entity) return;
-
-    event.entity.__oldData = { ...event.entity };
-  }
-
   async afterRemove(event: RemoveEvent<any>): Promise<void> {
     if (!this.shouldAudit(event.metadata.name) || !event.entity) return;
 
     await this.createAuditLog(
       event,
       'DELETE',
-      event.entity.__oldData
+      event.entity
     );
   }
 } 
