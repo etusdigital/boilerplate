@@ -1,5 +1,6 @@
 <template>
-  <Transition name="page" mode="out-in">
+  <div>
+    <h1 class="core-app-title">Settings</h1>
     <div class="settings-wrapper">
       <b-card v-for="route in settingsRoutes" :key="route.path" class="settings-card cursor-pointer"
         @click="navigateTo(route.path)">
@@ -10,7 +11,7 @@
         <p>{{ route.description }}</p>
       </b-card>
     </div>
-  </Transition>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -44,6 +45,7 @@ const settingsRoutes = [
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
+  margin-top: 2rem;
 }
 
 .settings-card {

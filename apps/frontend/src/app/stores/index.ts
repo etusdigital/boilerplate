@@ -78,7 +78,7 @@ export const useMainStore = defineStore('main', {
       user,
       toastOptions: {
         timeout: 3500,
-        type: 'error',
+        type: 'danger',
         top: true,
         right: true,
       },

@@ -9,21 +9,24 @@ export function useUsers() {
   const toast = inject('toast') as any
 
   const getAllUsers = async () => {
-    const accessToken = await mainStore.getAccessTokenSilently()
-    console.log('isLoading', mainStore.isLoading)
+    try {
+      const accessToken = await mainStore.getAccessTokenSilently()
 
-    setTimeout(() => {
-      console.log('isLoading', mainStore.isLoading)
-    }, 5000)
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users`, {
+        headers: {
+          'account-id': 1,
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
 
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users`, {
-      headers: {
-        'account-id': 1,
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-
-    return response.data
+      return response.data
+    } catch (error: any) {
+      console.log('error', error)
+      toast({
+        message: `Error fetching users: ${error.response.data.message}`,
+        ...toastOptions,
+      })
+    }
   }
 
   const saveUser = async (editingUser: User, isEditing: boolean) => {
@@ -53,8 +56,9 @@ export function useUsers() {
         ...{ type: 'success' },
       })
     } catch (error: any) {
+      console.log('error', error)
       toast({
-        message: `Erro ao salvar usuário: ${error.response.data.message}`,
+        message: `Error saving user: ${error.response.data.message}`,
         ...toastOptions,
       })
     }
@@ -76,9 +80,8 @@ export function useUsers() {
       })
     } catch (error: any) {
       toast({
-        message: `Erro ao deletar o usuário: ${val.email}. ${error.response.data.message}`,
+        message: `Error deleting user: ${val.email}. ${error.response.data.message}`,
         ...toastOptions,
-        ...{ type: 'error' },
       })
     }
   }

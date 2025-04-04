@@ -1,18 +1,17 @@
 <template>
-    <b-dialog v-model="model" :width="width" class="op" @update:model-value="updateModelValue">
+    <b-sidebar v-model="model" :noOutsideClose="true" width="40%" @update:model-value="updateModelValue">
         <div class="form-wrapper">
             <h1>Add Account</h1>
-            <div class="flex items-start justify-between w-full gap-xs">
+            <div class="flex flex-col items-start justify-between w-full gap-xl">
                 <BInput v-model="editingAccount.name" errorMessage="Name is required"
                     :isError="editingAccount.name.length < 3" labelValue="Account Name" :required="true" size="base"
                     type="text" :disabled="isEditing" />
 
                 <BInput v-model="editingAccount.domain" errorMessage="Domain is invalid" :isError="!isValidDomain"
                     labelValue="Domain" :required="true" size="base" type="text" />
-            </div>
-            <div class="flex items-center justify-between w-full">
+
                 <BInput v-model="editingAccount.description" errorMessage="Description is required"
-                    :isError="editingAccount.description.length < 3" labelValue="Description" :required="true"
+                    :isError="editingAccount.description?.length < 3" labelValue="Description" :required="true"
                     :isTextArea="true" size="base" type="text" />
             </div>
         </div>
@@ -26,7 +25,7 @@
                 Salvar
             </b-button>
         </div>
-    </b-dialog>
+    </b-sidebar>
 </template>
 
 <script setup lang="ts">
@@ -94,6 +93,10 @@ const closeForm = () => {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
+    position: absolute;
+    bottom: 0;
+    width: calc(100% - 60px);
+    margin: 30px;
 }
 
 .profile-img {
@@ -103,5 +106,6 @@ const closeForm = () => {
     object-fit: cover;
     margin-left: auto;
     margin-right: 15px;
+    border: 1px solid rgba(var(--primary-interaction-selected), 0.9);
 }
 </style>

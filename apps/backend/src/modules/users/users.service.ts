@@ -53,8 +53,10 @@ export class UsersService {
       }));
       await this.createUserAccounts(userAccounts);
     }
+    /*
     await this.auth0Provider.sendInvitation(user.email, user.name);
     return savedUser;
+    */
   }
 
   async update(id: number, user: UserDto) {

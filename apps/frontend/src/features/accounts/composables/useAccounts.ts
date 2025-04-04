@@ -6,16 +6,25 @@ import type { Account } from '@/features/accounts/types/account.type'
 export function useAccounts() {
   const mainStore = useMainStore()
   const toast = inject('toast') as any
+  const toastOptions = mainStore.toastOptions
 
   const getAllAccounts = async () => {
-    const accessToken = await mainStore.getAccessTokenSilently()
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/accounts`, {
-      headers: {
-        'account-id': 1,
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-    return response.data
+    try {
+      const accessToken = await mainStore.getAccessTokenSilently()
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/accounts`, {
+        headers: {
+          'account-id': 1,
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      return response.data
+    } catch (error: any) {
+      toast({
+        message: `Error fetching accounts: ${error.response.data.message}`,
+        ...toastOptions,
+      })
+      return []
+    }
   }
 
   const saveAccount = async (editingAccount: Account, isEditing: boolean) => {
@@ -36,14 +45,15 @@ export function useAccounts() {
         },
       )
       toast({
-        message: `Conta: ${editingAccount.name} salva com sucesso`,
-        type: 'success',
+        message: `Account: ${editingAccount.name} ${isEditing ? 'updated' : 'created'} successfully`,
+        ...toastOptions,
+        ...{ type: 'success' },
       })
     } catch (error: any) {
       console.log('qubrou ao salvar conta', error)
       toast({
-        message: `Erro ao salvar conta: ${error.response.data.message}`,
-        type: 'error',
+        message: `Error ${isEditing ? 'updating' : 'creating'} account: ${error.response.data.message}`,
+        ...toastOptions,
       })
     }
   }
@@ -56,13 +66,14 @@ export function useAccounts() {
         },
       })
       toast({
-        message: `Conta: ${val.name} deletada com sucesso`,
-        type: 'success',
+        message: `Account: ${val.name} deleted successfully`,
+        ...toastOptions,
+        ...{ type: 'success' },
       })
     } catch (error: any) {
       toast({
-        message: `Erro ao deletar a conta: ${val.name}. ${error.response.data.message}`,
-        type: 'error',
+        message: `Error deleting account: ${val.name}. ${error.response.data.message}`,
+        ...toastOptions,
       })
     }
   }

@@ -8,6 +8,14 @@
           :absolute="true" :items="selectItems" :required="false" :searchable="false" :secondary="false"
           valueKey="value" />
       </div>
+      <template #actions>
+        <img :src="profile.src" alt="profile" class="profile-image">
+        <div class="profile-details">
+          <div class="profile-name">{{ profile.name }}</div>
+          <div class="profile-email">{{ profile.email }}</div>
+        </div>
+        <b-icon name="logout" @click="mainStore.logout()" class="cursor-pointer" />
+      </template>
     </BNavbar>
     <div class="flex">
       <Menu v-model="selectedMenu" :expanded="menuExpanded" :menuItems="menuItems"
@@ -34,7 +42,8 @@ const mainStore = useMainStore();
 
 const profile = ref({
   name: mainStore.user.name,
-  src: mainStore.user.profileImage
+  src: mainStore.user.profileImage,
+  email: mainStore.user.email
 });
 
 const selectItems = mainStore.user.userAccounts.map((account) => ({
@@ -106,5 +115,29 @@ div[type] {
 
 .form-container {
   min-height: 80px;
+}
+
+.profile-image {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 1rem;
+}
+
+.profile-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.profile-email {
+  font-size: 12px;
+  font-weight: 400;
 }
 </style>
