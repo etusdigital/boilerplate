@@ -5,12 +5,10 @@ import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export default class UserSeeder implements Seeder {
-  public async run(
-    dataSource: DataSource
-  ): Promise<any> {
+  public async run(dataSource: DataSource): Promise<any> {
     const repository = dataSource.getRepository(User);
     await repository.insert([
-      { name: 'Unum', email: 'teste@unum.com', status: 'accepted' }
+      { name: 'Unum', email: 'teste@unum.com', status: 'accepted' },
     ]);
   }
 }

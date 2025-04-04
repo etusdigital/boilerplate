@@ -32,7 +32,7 @@ export class UsersService {
 
   async findByProviderId(providerId: string) {
     return await this.userRepository.findOne({
-      where: { providerId, status: 'accepted' },
+      where: { providerId },
     });
   }
 
@@ -58,7 +58,9 @@ export class UsersService {
   }
 
   async update(id: number, user: UserDto) {
-    return await this.userRepository.update(id, user);
+    return await this.userRepository.save(user);
+    //TODO: fix it to use update method
+    //return await this.userRepository.update(id, user);
   }
 
   async delete(id: number) {

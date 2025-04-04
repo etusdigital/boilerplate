@@ -10,6 +10,12 @@ export function useUsers() {
 
   const getAllUsers = async () => {
     const accessToken = await mainStore.getAccessTokenSilently()
+    console.log('isLoading', mainStore.isLoading)
+
+    setTimeout(() => {
+      console.log('isLoading', mainStore.isLoading)
+    }, 5000)
+
     const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users`, {
       headers: {
         'account-id': 1,
@@ -21,11 +27,13 @@ export function useUsers() {
   }
 
   const saveUser = async (editingUser: User, isEditing: boolean) => {
+    editingUser.status = 'accepted'
     const method = isEditing ? axios.put : axios.post
     const saveUrl = isEditing
       ? `${import.meta.env.VITE_BACKEND_URL}/users/${editingUser.id}`
       : `${import.meta.env.VITE_BACKEND_URL}/users`
     try {
+      console.log('isLoaded', mainStore.isLoading)
       const accessToken = await mainStore.getAccessTokenSilently()
       const response = await method(
         saveUrl,
@@ -66,7 +74,7 @@ export function useUsers() {
         ...toastOptions,
         ...{ type: 'success' },
       })
-    } catch (error: AxiosError) {
+    } catch (error: any) {
       toast({
         message: `Erro ao deletar o usuário: ${val.email}. ${error.response.data.message}`,
         ...toastOptions,

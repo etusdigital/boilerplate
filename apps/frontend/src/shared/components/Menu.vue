@@ -1,5 +1,5 @@
 <template>
-  <BMenu v-model="selected" :items="menuItems" @update:model-value="updateSelectedMenu" />
+  <BMenu :expanded="true" v-model="selected" :items="filteredMenuItems" @update:model-value="updateSelectedMenu" />
 </template>
 
 <script setup lang="ts">
@@ -8,6 +8,12 @@ import { computed } from 'vue'
 const props = defineProps({
   selectedMenu: String,
   menuItems: Array,
+});
+
+const filteredMenuItems = computed(() => {
+  return props.menuItems.filter((item: any) => {
+    return item.show ? item.show : true
+  })
 })
 
 const emit = defineEmits<{

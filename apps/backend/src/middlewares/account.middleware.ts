@@ -29,30 +29,16 @@ export class AccountMiddleware implements NestMiddleware {
         HttpStatus.UNAUTHORIZED,
       );
     }
-
     const tokenExtractor = ExtractJwt.fromAuthHeaderAsBearerToken();
     const token = tokenExtractor(req);
-    if (!token) {
-      throw new HttpException(
-        '[Unauthorized] - Missing token',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    const decodedToken = jwt.decode(token) as jwt.JwtPayload;
-    if (!decodedToken) {
-      throw new HttpException(
-        '[Unauthorized] - Invalid token',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
+    const decodedToken = token ? (jwt.decode(token) as any) : '';
     const user = await this.userService.findByProviderId(
       decodedToken?.sub || '',
     );
+
     if (!user) {
       throw new HttpException(
-        '[Unauthorized] - User not exists',
+        '[Unauthorized] - Account not exists',
         HttpStatus.UNAUTHORIZED,
       );
     }

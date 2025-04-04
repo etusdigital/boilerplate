@@ -13,6 +13,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
+    console.log('exception', exception);
+
     if (exception && exception.status === 401) {
       return response.status(401).json({
         statusCode: 401,

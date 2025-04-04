@@ -5,4 +5,5 @@ export interface User {
   profileImage?: string
   created_at: string
   deleted_at?: string
+  status?: string
 }

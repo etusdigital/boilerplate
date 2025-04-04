@@ -3,20 +3,11 @@
     <div class="main-container">
       <h1 class="core-app-title">Users</h1>
       <!-- início b-round-button usado para adicionar um novo usuário -->
-      <template v-if="true">
-        <b-round-button text="Adicionar Usuário" @click="createUser" />
-      </template>
+      <b-round-button text="Adicionar Usuário" @click="createUser" />
       <!-- fim b-round-button -->
       <!-- início b-table usada para listar os usuários -->
-      <b-table
-        :headers="tcolumns"
-        :items="tdata"
-        :options="{ sortBy: 'name', sortDesc: false }"
-        :loading="isLoading"
-        :itemsPerPage="itemsPerPage"
-        v-model:page="page"
-        v-model:items-per-page="itemsPerPage"
-      >
+      <b-table :headers="tcolumns" :items="tdata" :options="{ sortBy: 'name', sortDesc: false }" :loading="isLoading"
+        :itemsPerPage="itemsPerPage" v-model:page="page" v-model:items-per-page="itemsPerPage">
         <template v-for="(metric, index) in tcolumns" v-slot:[metric.value]="{ item }">
           <td v-if="item && metric.value" :key="`child-${index}-${item.value}`">
             {{ item[metric.value] }}
@@ -42,29 +33,17 @@
         <div class="form-wrapper">
           <h1>Deletar Usuário</h1>
           <p class="text-danger">
-            Tem certeza que deseja deletar o usuário: <b>{{ deletingUser.email }}</b
-            >?
+            Tem certeza que deseja deletar o usuário: <b>{{ deletingUser.email }}</b>?
           </p>
           <p class="text-danger">Esta ação é irreversível.</p>
           <div class="form-actions">
             <div class="flex items-center justify-between w-full form-container">
-              <b-button
-                color="primary"
-                :disabled="false"
-                :loading="false"
-                size="medium"
-                type="button"
-                @click="closeDelete"
-              >
+              <b-button color="primary" :disabled="false" :loading="false" size="medium" type="button"
+                @click="closeDelete">
                 Cancelar
               </b-button>
-              <b-button
-                color="danger"
-                :disabled="false"
-                size="medium"
-                type="submit"
-                @click="onDeleteUser(deletingUser)"
-              >
+              <b-button color="danger" :disabled="false" size="medium" type="submit"
+                @click="onDeleteUser(deletingUser)">
                 Deletar
               </b-button>
             </div>
@@ -102,13 +81,13 @@ const tcolumns = ref([
   {
     text: 'Join Date',
     label: 'Join Date',
-    value: 'created_at',
+    value: 'createdAt',
     sortable: true,
   },
   {
     text: 'End Date',
     label: 'End Date',
-    value: 'deleted_at',
+    value: 'deletedAt',
     sortable: true,
   },
 ])
@@ -182,6 +161,7 @@ onMounted(() => {
 .form-card {
   padding: 2rem;
 }
+
 p.text-danger {
   margin-bottom: 0.75rem;
 }

@@ -21,7 +21,7 @@ import { AuthGuard } from '@nestjs/passport';
     ClsModule.forRoot({
       global: true,
       middleware: {
-        mount: false
+        mount: false,
       },
     }),
   ],

@@ -3,20 +3,28 @@ import '@BRIUS/design-system/styles.css'
 import './assets/main.css'
 import { useMainStore } from '@/app/stores'
 
-import { createApp } from 'vue'
+import { createApp, watch, computed } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
-import { auth0 } from './auth/index';
-
+import { auth0 } from './auth/index'
 
 const app = createApp(App)
 
 app.use(createPinia())
-app.use(router)
 app.use(DesignSystem)
 app.use(auth0)
 
-useMainStore();
+const store = useMainStore()
 
-app.mount('#app')
+const isLoading = computed(() => store.isLoading)
+let isMounted = false
+
+watch(isLoading, (newValue: boolean) => {
+  if (!newValue && !isMounted) {
+    isMounted = true
+    console.log('remount', newValue)
+    app.use(router)
+    app.mount('#app')
+  }
+})

@@ -2,7 +2,7 @@
   "files": [],
   "include": [
     "src/**/*"
-  ],
+, "src/features/users"  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
