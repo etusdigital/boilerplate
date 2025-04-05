@@ -53,14 +53,55 @@ export class UsersService {
       }));
       await this.createUserAccounts(userAccounts);
     }
-    /*
     await this.auth0Provider.sendInvitation(user.email, user.name);
+
     return savedUser;
-    */
   }
 
   async update(id: number, user: UserDto) {
-    return await this.userRepository.update(id, { ...user, id });
+    const userToUpdate = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if (userToUpdate) {
+      const receivedAccounts = [...(user.userAccounts || [])];
+
+      user.userAccounts = userToUpdate.userAccounts || [];
+      const uaAdd: UserAccountDto[] = [];
+      const uaDel: UserAccountDto[] = [];
+
+      receivedAccounts.forEach((account) => {
+        if (
+          !user.userAccounts?.some((a) => a.accountId === account.accountId)
+        ) {
+          uaAdd.push({
+            ...account,
+            userId: id,
+          });
+        }
+      });
+
+      user.userAccounts.forEach((account) => {
+        if (!receivedAccounts.some((a) => a.accountId === account.accountId)) {
+          uaDel.push({
+            accountId: account.accountId,
+            userId: id,
+          });
+        }
+      });
+
+      delete user.userAccounts;
+
+      await this.userRepository.update(id, { ...user, id });
+
+      await this.createUserAccounts(uaAdd);
+
+      await this.deleteUserAccounts(uaDel);
+
+      return await this.userRepository.findOne({
+        where: { id },
+      });
+    }
   }
 
   async delete(id: number) {
