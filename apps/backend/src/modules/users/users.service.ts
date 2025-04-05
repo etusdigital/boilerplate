@@ -60,9 +60,7 @@ export class UsersService {
   }
 
   async update(id: number, user: UserDto) {
-    return await this.userRepository.save(user);
-    //TODO: fix it to use update method
-    //return await this.userRepository.update(id, user);
+    return await this.userRepository.update(id, { ...user, id });
   }
 
   async delete(id: number) {
