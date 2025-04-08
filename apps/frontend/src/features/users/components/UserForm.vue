@@ -125,7 +125,8 @@ watch(
   (value) => {
     model.value = value
   },
-)
+);
+
 </script>
 
 <style>
