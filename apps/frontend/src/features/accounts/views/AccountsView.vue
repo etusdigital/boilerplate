@@ -163,7 +163,7 @@ const onCloseForm = (data: any): void => {
     tdata.value[editingIndex.value] = data
   }
   editingAccount.value = {} as Account
-  showFormControl.value = false
+  showForm.value = false
   forceResetForm()
 }
 

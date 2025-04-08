@@ -115,10 +115,6 @@ const closeForm = () => {
   emit('close', isEditing.value ? props.user : null)
 }
 
-const updateSelectedAccounts = (value: any) => {
-  allAccountsParsed.value = value
-}
-
 watch(
   () => props.modelValue,
   (value) => {

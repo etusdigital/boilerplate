@@ -1,7 +1,16 @@
 <template>
   <b-sidebar v-model="model" :noOutsideClose="true" width="40%" @update:model-value="updateModelValue">
     <div class="form-wrapper">
-      <h1>Add Account</h1>
+      <div class="form-header flex flex-row items-center gap-4">
+        <BIcon name="close" @click="closeForm" class="cursor-pointer" />
+        <div class="title">{{ isEditing ? 'Edit Account' : 'Add Account' }}</div>
+        <div class="save-container">
+          <b-button color="success" :disabled="false" :loading="false" size="medium" type="button"
+            @click="emit('save', editingAccount, isEditing)">
+            Salvar
+          </b-button>
+        </div>
+      </div>
       <div class="flex flex-col items-start justify-between w-full gap-xl">
         <BInput v-model="editingAccount.name" errorMessage="Name is required" :isError="editingAccount.name.length < 3"
           labelValue="Account Name" :required="true" size="base" type="text" :disabled="isEditing" />
@@ -13,16 +22,6 @@
           :isError="editingAccount.description?.length < 3" labelValue="Description" :required="true" :isTextArea="true"
           size="base" type="text" />
       </div>
-    </div>
-
-    <div class="form-actions">
-      <b-button color="danger" :disabled="false" :loading="false" size="medium" type="button" @click="closeForm">
-        Cancelar
-      </b-button>
-      <b-button color="success" :disabled="false" :loading="false" size="medium" type="button"
-        @click="emit('save', editingAccount, isEditing)">
-        Salvar
-      </b-button>
     </div>
   </b-sidebar>
 </template>
@@ -94,13 +93,20 @@ watch(
   margin: 30px;
 }
 
-.profile-img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-left: auto;
-  margin-right: 15px;
-  border: 1px solid rgba(var(--primary-interaction-selected), 0.9);
+.form-header .title {
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-neutral-800, #1B1F22);
+  font-family: var(--font-family-Font-Family, Poppins);
+  font-size: var(--font-size-2xl, 24px);
+  font-style: normal;
+  font-weight: var(--font-weight-bold, 700);
+  line-height: 120%;
+}
+
+.save-container {
+  position: absolute;
+  right: 50px;
 }
 </style>
