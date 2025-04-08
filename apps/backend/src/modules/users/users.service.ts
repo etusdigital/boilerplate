@@ -100,10 +100,8 @@ export class UsersService {
       await this.userRepository.update(id, { ...user, id });
 
       await this.createUserAccounts(uaAdd);
-      console.log('uaAdd', uaAdd, user);
 
       await this.deleteUserAccounts(uaDel);
-      console.log('uaDel', uaDel, user);
 
       return await this.userRepository.findOne({
         where: { id },

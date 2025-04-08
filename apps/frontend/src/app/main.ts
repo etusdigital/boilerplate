@@ -23,7 +23,6 @@ let isMounted = false
 watch(isLoading, (newValue: boolean) => {
   if (!newValue && !isMounted) {
     isMounted = true
-    console.log('remount', newValue)
     app.use(router)
     app.mount('#app')
   }

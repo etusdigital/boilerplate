@@ -27,7 +27,6 @@ watch(authUser, async (newValue) => {
 })
 
 const getLogin = async (email: string) => {
-  console.log('getLogin', email)
   const accessToken = await getAccessTokenSilently()
   const response = await axios.post(
     `${import.meta.env.VITE_BACKEND_URL}/users/login`,
@@ -47,7 +46,6 @@ const getSelectedAccount = async (): Promise<Account> => {
     const found = window.localStorage.getItem('selected_account')
     try {
       if (found) {
-        console.log('found', { ...user.value.userAccounts.find((account) => account.account.id == found).account })
         return Object.assign(
           selectedAccount,
           user.value.userAccounts.find((account) => account.account.id == found).account,
