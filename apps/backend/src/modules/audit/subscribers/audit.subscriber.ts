@@ -61,7 +61,6 @@ export class AuditSubscriber implements EntitySubscriberInterface {
   }
 
   async afterRemove(event: RemoveEvent<any>): Promise<void> {
-    console.log('event', event);
     if (!this.shouldAudit(event.metadata.name) || !event.entity) return;
 
     await this.createAuditLog(event, 'DELETE', event.entity);

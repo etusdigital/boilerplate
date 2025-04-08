@@ -21,7 +21,6 @@ export function useUsers() {
 
       return response.data
     } catch (error: any) {
-      console.log('error', error)
       toast({
         message: `Error fetching users: ${error.response?.data?.message || 'Unknown error'}`,
         ...toastOptions,
@@ -37,7 +36,6 @@ export function useUsers() {
       ? `${import.meta.env.VITE_BACKEND_URL}/users/${editingUser.id}`
       : `${import.meta.env.VITE_BACKEND_URL}/users`
     try {
-      console.log('isLoaded', mainStore.isLoading)
       const accessToken = await mainStore.getAccessTokenSilently()
       const response = await method(
         saveUrl,
@@ -59,7 +57,6 @@ export function useUsers() {
 
       return response.data
     } catch (error: any) {
-      console.log('error', error)
       toast({
         message: `Error saving user: ${error.response.data.message}`,
         ...toastOptions,

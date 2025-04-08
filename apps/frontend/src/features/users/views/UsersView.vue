@@ -149,13 +149,11 @@ const fetchUsers = async () => {
     label: account.name,
     value: account.id,
   }))
-  console.log('allAccounts', allAccounts)
   editingUser.value = {} as User
   isLoading.value = false
 }
 
 const onSave = async (editingUser: any, isEditing: boolean) => {
-  console.log('onSave', editingUser, isEditing)
   await saveUser(editingUser, isEditing)
   fetchUsers()
 }

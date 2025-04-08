@@ -1,5 +1,5 @@
 <template>
-  <b-sidebar v-model="model" :noOutsideClose="true" width="50%" @update:model-value="updateModelValue">
+  <b-sidebar v-model="model" :noOutsideClose="true" width="40%" @update:model-value="updateModelValue">
     <div class="form-wrapper">
       <div class="form-header flex flex-row items-center gap-4">
         <BIcon name="close" @click="closeForm" class="cursor-pointer" />
@@ -29,7 +29,7 @@
             type="text" />
 
           <UserRolesSelect :roles="parsedPermissions" :allAccounts="allAccountsParsed" :allowSuperAdmin="true"
-            @update:model-value="updateSelectedPermissions" />
+            @roles-updated="updateSelectedPermissions" />
 
         </div>
       </div>
@@ -67,10 +67,15 @@ allAccountsParsed.value = allAccountsParsed.value.map((account) => ({
 
 const parsedPermissions: Ref<string[]> = ref([]);
 
+const getParsedRole = (role: string) => {
+  const lowerCaseRole = role.toLowerCase();
+  return (lowerCaseRole.charAt(0).toUpperCase() + lowerCaseRole.slice(1)) as 'Reader' | 'Writer' | 'Admin';
+}
+
 parsedPermissions.value = editingUser.value.userAccounts.map((acc) => ({
   accountId: acc.accountId,
-  role: acc.role || 'Reader',
-  accountName: acc.account.name
+  role: getParsedRole(acc.role) || 'Reader',
+  accountName: acc.account.name,
 } as Role));
 
 const emit = defineEmits<{
@@ -90,14 +95,15 @@ const isValidUrl = computed(() => {
   }
 })
 
+const editedUserAccounts = ref([]);
+
 const editingUserBind = computed(() => ({
   ...editingUser.value,
-  userAccounts: allAccountsParsed.value.filter(ac => ac.selected).map(ac => { return { "accountId": ac.value } })
+  userAccounts: editedUserAccounts.value
 }))
 
-//TODO: update selected permissions
-const updateSelectedPermissions = (value: string[]) => {
-  console.log('updated permissions', value)
+const updateSelectedPermissions = (value: any[]) => {
+  editedUserAccounts.value = value.map(p => ({ ...p, role: p.role.toLowerCase() as 'reader' | 'writer' | 'admin' }));
 }
 
 const updateModelValue = (value: boolean) => {

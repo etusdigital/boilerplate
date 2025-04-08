@@ -84,7 +84,6 @@ export class AddNewColumnToUserAccount1744144647710
     await queryRunner.query(
       `INSERT INTO "users"("id", "name", "email", "profile_image", "status", "provider_id", "created_at", "updated_at", "deleted_at") SELECT "id", "name", "email", "profile_image", "status", "provider_id", "created_at", "updated_at", "deleted_at" FROM "temporary_users"`,
     );
-    await queryRunner.query(`DROP TABLE "temporary_users"`);
     await queryRunner.query(
       `ALTER TABLE "accounts" RENAME TO "temporary_accounts"`,
     );
@@ -94,7 +93,6 @@ export class AddNewColumnToUserAccount1744144647710
     await queryRunner.query(
       `INSERT INTO "accounts"("id", "name", "description", "domain", "created_at", "updated_at", "deleted_at") SELECT "id", "name", "description", "domain", "created_at", "updated_at", "deleted_at" FROM "temporary_accounts"`,
     );
-    await queryRunner.query(`DROP TABLE "temporary_accounts"`);
     await queryRunner.query(
       `ALTER TABLE "users_accounts" RENAME TO "temporary_users_accounts"`,
     );
@@ -125,5 +123,7 @@ export class AddNewColumnToUserAccount1744144647710
       `INSERT INTO "users_accounts"("id", "account_id", "user_id") SELECT "id", "account_id", "user_id" FROM "temporary_users_accounts"`,
     );
     await queryRunner.query(`DROP TABLE "temporary_users_accounts"`);
+    await queryRunner.query(`DROP TABLE "temporary_users"`);
+    await queryRunner.query(`DROP TABLE "temporary_accounts"`);
   }
 }
