@@ -124,6 +124,7 @@ const createUser = () => {
     name: '',
     email: '',
     profileImage: '',
+    userAccounts: [],
   } as User
   editingIndex.value = 0
 
