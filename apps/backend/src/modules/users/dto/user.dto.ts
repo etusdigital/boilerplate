@@ -1,4 +1,11 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsArray } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsArray,
+  IsBoolean,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 class UserAccountInput {
@@ -25,12 +32,12 @@ export class UserDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  createdAt?: Date; 
+  createdAt?: Date;
 
   @ApiProperty({ required: false })
   @IsOptional()
-  updatedAt?: Date; 
-  
+  updatedAt?: Date;
+
   @ApiProperty({ required: false })
   @IsOptional()
   deletedAt?: Date;
@@ -46,4 +53,8 @@ export class UserDto {
   @IsOptional()
   @IsArray()
   userAccounts?: UserAccountInput[];
+
+  @ApiProperty({ required: true })
+  @IsBoolean()
+  isSuperAdmin?: boolean;
 }

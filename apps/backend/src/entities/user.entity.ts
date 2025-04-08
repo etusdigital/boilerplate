@@ -34,6 +34,9 @@ export class User {
   @Column({ name: 'provider_id', type: 'varchar', length: 255, nullable: true })
   providerId: string;
 
+  @Column({ name: 'is_super_admin', type: 'boolean', default: false })
+  isSuperAdmin: boolean;
+
   @OneToMany(() => UserAccount, (userAccount) => userAccount.user, {
     eager: true,
   })

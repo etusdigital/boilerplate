@@ -29,7 +29,8 @@
             type="text" />
 
           <UserRolesSelect :roles="parsedPermissions" :allAccounts="allAccountsParsed" :allowSuperAdmin="true"
-            @roles-updated="updateSelectedPermissions" />
+            @roles-updated="updateSelectedPermissions" @change-super-admin="changeSuperAdmin"
+            :isSuperAdmin="editingUser.isSuperAdmin" />
 
         </div>
       </div>
@@ -104,6 +105,10 @@ const editingUserBind = computed(() => ({
 
 const updateSelectedPermissions = (value: any[]) => {
   editedUserAccounts.value = value.map(p => ({ ...p, role: p.role.toLowerCase() as 'reader' | 'writer' | 'admin' }));
+}
+
+const changeSuperAdmin = (value: boolean) => {
+  editingUser.value.isSuperAdmin = value
 }
 
 const updateModelValue = (value: boolean) => {

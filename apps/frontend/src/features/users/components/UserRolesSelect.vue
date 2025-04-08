@@ -60,7 +60,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['roles-updated']);
+const emit = defineEmits(['roles-updated', 'change-super-admin']);
 
 const userRoles = ref([...props.roles]);
 const isSuperAdmin = ref(props.isSuperAdmin);
@@ -100,6 +100,10 @@ const removeRole = (index: number) => {
 watch(userRoles, () => {
   emit('roles-updated', userRoles.value);
 }, { deep: true });
+
+watch(isSuperAdmin, () => {
+  emit('change-super-admin', isSuperAdmin.value);
+});
 </script>
 
 <style>
