@@ -15,12 +15,12 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router' // Importa useRouter
+import { useRouter } from 'vue-router'
 
-const router = useRouter() // Cria uma instância do router
+const router = useRouter()
 
 const navigateTo = (path) => {
-  router.push(path) // Navega para a rota especificada
+  router.push(path)
 }
 
 const settingsRoutes = [

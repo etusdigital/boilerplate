@@ -1,10 +1,10 @@
-import { 
-  EntitySubscriberInterface, 
-  EventSubscriber, 
-  InsertEvent, 
-  UpdateEvent, 
+import {
+  EntitySubscriberInterface,
+  EventSubscriber,
+  InsertEvent,
+  UpdateEvent,
   RemoveEvent,
-  DataSource
+  DataSource,
 } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { AuditLog } from '../../../entities/audit-log.entity';
@@ -15,7 +15,7 @@ import { ClsService } from 'nestjs-cls';
 export class AuditSubscriber implements EntitySubscriberInterface {
   constructor(
     private readonly cls: ClsService,
-    dataSource: DataSource
+    dataSource: DataSource,
   ) {
     dataSource.subscribers.push(this);
   }
@@ -27,7 +27,7 @@ export class AuditSubscriber implements EntitySubscriberInterface {
   private async createAuditLog(
     event: InsertEvent<any> | UpdateEvent<any> | RemoveEvent<any>,
     transactionType: string,
-    newData: any = null
+    newData: any = null,
   ) {
     try {
       const auditLog = new AuditLog();
@@ -40,7 +40,7 @@ export class AuditSubscriber implements EntitySubscriberInterface {
       auditLog.json = newData;
       auditLog.ipAddress = this.cls.get('ip');
       auditLog.userAgent = this.cls.get('userAgent');
-      
+
       await event.manager.save(auditLog);
     } catch (error) {
       console.error('Error creating audit log:', error);
@@ -51,30 +51,19 @@ export class AuditSubscriber implements EntitySubscriberInterface {
   async afterInsert(event: InsertEvent<any>): Promise<void> {
     if (!this.shouldAudit(event.metadata.name) || !event.entity) return;
 
-    await this.createAuditLog(
-      event,
-      'CREATE',
-      event.entity
-    );
+    await this.createAuditLog(event, 'CREATE', event.entity);
   }
 
   async afterUpdate(event: UpdateEvent<any>): Promise<void> {
     if (!this.shouldAudit(event.metadata.name) || !event.entity) return;
 
-    await this.createAuditLog(
-      event,
-      'UPDATE',
-      event.entity
-    );
+    await this.createAuditLog(event, 'UPDATE', event.entity);
   }
 
   async afterRemove(event: RemoveEvent<any>): Promise<void> {
+    console.log('event', event);
     if (!this.shouldAudit(event.metadata.name) || !event.entity) return;
 
-    await this.createAuditLog(
-      event,
-      'DELETE',
-      event.entity
-    );
+    await this.createAuditLog(event, 'DELETE', event.entity);
   }
-} 
+}

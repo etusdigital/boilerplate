@@ -8,7 +8,7 @@ export function useAccounts() {
   const toast = inject('toast') as any
   const toastOptions = mainStore.toastOptions
 
-  const getAllAccounts = async () => {
+  const getAllAccounts = async (): Promise<Account[]> => {
     try {
       const accessToken = await mainStore.getAccessTokenSilently()
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/accounts`, {
@@ -23,18 +23,18 @@ export function useAccounts() {
         message: `Error fetching accounts: ${error.response.data.message}`,
         ...toastOptions,
       })
-      return []
+      return [] as Account[]
     }
   }
 
-  const saveAccount = async (editingAccount: Account, isEditing: boolean) => {
+  const saveAccount = async (editingAccount: Account, isEditing: boolean): Promise<Account> => {
     const method = isEditing ? axios.put : axios.post
     const saveUrl = isEditing
       ? `${import.meta.env.VITE_BACKEND_URL}/accounts/${editingAccount.id}`
       : `${import.meta.env.VITE_BACKEND_URL}/accounts`
     try {
       const accessToken = await mainStore.getAccessTokenSilently()
-      await method(
+      const response = await method(
         saveUrl,
         { ...editingAccount },
         {
@@ -44,23 +44,26 @@ export function useAccounts() {
           },
         },
       )
+
       toast({
         message: `Account: ${editingAccount.name} ${isEditing ? 'updated' : 'created'} successfully`,
         ...toastOptions,
         ...{ type: 'success' },
       })
+
+      return response.data
     } catch (error: any) {
-      console.log('qubrou ao salvar conta', error)
       toast({
         message: `Error ${isEditing ? 'updating' : 'creating'} account: ${error.response.data.message}`,
         ...toastOptions,
       })
+      return {} as Account
     }
   }
 
-  const deleteAccount = async (val: Account) => {
+  const deleteAccount = async (val: Account): Promise<Account> => {
     try {
-      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/accounts/${val.id}`, {
+      const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/accounts/${val.id}`, {
         headers: {
           'account-id': 1,
         },
@@ -70,11 +73,15 @@ export function useAccounts() {
         ...toastOptions,
         ...{ type: 'success' },
       })
+
+      return response.data
     } catch (error: any) {
       toast({
         message: `Error deleting account: ${val.name}. ${error.response.data.message}`,
         ...toastOptions,
       })
+
+      return {} as Account
     }
   }
 

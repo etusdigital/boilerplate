@@ -9,6 +9,7 @@ export const userRoutes: RouteRecordRaw[] = [
       // Example meta fields (optional)
       requiresAuth: true,
       title: 'Users',
+      adminOnly: true,
     },
   },
   // Add other product-related routes here if needed

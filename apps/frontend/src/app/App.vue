@@ -2,19 +2,21 @@
   <div>
     <b-confirm style="z-index: 2000" />
     <b-toast />
-    <BNavbar title="BackOffice" :profile="profile" class="sticky top-0" style="z-index: 50">
+    <BNavbar title="Etus Boilerplate" class="sticky top-0" style="z-index: 50">
       <div>
         <BSelect v-if="!mainStore.isLoading" :modelValue="selectedAccount.name" @update:modelValue="changeAccount"
           :absolute="true" :items="selectItems" :required="false" :searchable="false" :secondary="false"
           valueKey="value" />
       </div>
       <template #actions>
-        <img :src="profile.src" alt="profile" class="profile-image">
-        <div class="profile-details">
-          <div class="profile-name">{{ profile.name }}</div>
-          <div class="profile-email">{{ profile.email }}</div>
+        <div v-if="!mainStore.isLoading" class="flex items-center gap-2">
+          <img :src="profile.src" alt="profile" class="profile-image">
+          <div class="profile-details">
+            <div class="profile-name">{{ profile.name }}</div>
+            <div class="profile-email">{{ profile.email }}</div>
+          </div>
+          <b-icon name="logout" @click="mainStore.logout()" class="cursor-pointer" />
         </div>
-        <b-icon name="logout" @click="mainStore.logout()" class="cursor-pointer" />
       </template>
     </BNavbar>
     <div class="flex">
@@ -79,7 +81,11 @@ const menuItems = ref<MenuItem[]>([
     show: !!mainStore.user.isAdmin,
     bottom: true,
   },
-])
+]);
+
+//TODO: Verificar o menu no Desing System para respeitar a flag show
+menuItems.value = menuItems.value.filter((item) => item.show !== false);
+
 const selectedMenu = ref(menuItems.value.find((item) => item.path === route.path)?.value || '')
 
 const handleMenuSelect = (value: string) => {
@@ -94,7 +100,9 @@ watch(
 )
 
 const changeAccount = (value: any) => {
-  mainStore.changeAccount(value.value)
+  if (value.value !== mainStore.selectedAccount.id) {
+    mainStore.changeAccount(value.value)
+  }
 }
 
 </script>

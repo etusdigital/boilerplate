@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, inject, nextTick } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import UserForm from '@/features/users/components/UserForm.vue'
 import type { User } from '@/features/users/types/user.type'
 import { useUsers } from '@/features/users/composables/useUsers'
@@ -100,6 +100,18 @@ const { getAllUsers, saveUser, deleteUser } = useUsers()
 const { getAllAccounts } = useAccounts()
 
 const showForm = ref(false)
+const showDelete = ref(false)
+const showFormControl = ref(false)
+
+const onEdit = async (val: any, index: number) => {
+  showFormControl.value = false
+  editingUser.value = val
+  editingIndex.value = index
+  showFormControl.value = true
+  nextTick(() => {
+    showForm.value = true
+  })
+}
 
 const onDeleteUser = async (val: any) => {
   await deleteUser(val)
@@ -115,19 +127,6 @@ const createUser = () => {
   } as User
   editingIndex.value = 0
 
-  showFormControl.value = true
-  nextTick(() => {
-    showForm.value = true
-  })
-}
-
-const showDelete = ref(false)
-const showFormControl = ref(false)
-
-const onEdit = async (val: any, index: number) => {
-  showFormControl.value = false
-  editingUser.value = val
-  editingIndex.value = index
   showFormControl.value = true
   nextTick(() => {
     showForm.value = true

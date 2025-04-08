@@ -8,6 +8,7 @@ export const accountRoutes: RouteRecordRaw[] = [
     meta: {
       requiresAuth: true,
       title: 'Accounts',
+      adminOnly: true,
     },
   },
 ]

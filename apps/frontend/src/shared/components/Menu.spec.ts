@@ -8,6 +8,9 @@ import DesignSystem from '@BRIUS/design-system'
 describe('Menu', () => {
   it('renders properly', () => {
     const wrapper = mount(Menu, {
+      propsData: {
+        modelValue: 'home',
+      },
       props: {
         selectedMenu: 'home',
         menuExpanded: false,
@@ -27,6 +30,6 @@ describe('Menu', () => {
 
     expect(wrapper.text()).toContain('home')
     expect(wrapper.html()).toContain('class="b-menu"')
-    expect(wrapper.props().selectedMenu).toBe('home')
+    expect(wrapper.vm.modelValue).toBe('home')
   })
 })

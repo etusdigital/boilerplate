@@ -1,46 +1,53 @@
 <template>
-  <b-sidebar v-model="model" :noOutsideClose="true" width="40%" @update:model-value="updateModelValue">
+  <b-sidebar v-model="model" :noOutsideClose="true" width="50%" @update:model-value="updateModelValue">
     <div class="form-wrapper">
-      <h1>Adicionar Usuário</h1>
+      <div class="form-header flex flex-row items-center gap-4">
+        <BIcon name="close" @click="closeForm" class="cursor-pointer" />
+        <div class="title">{{ isEditing ? 'Edit Usuer' : 'Invite User' }}</div>
+        <div class="save-container">
+          <b-button color="success" :disabled="false" :loading="false" size="medium" type="button"
+            @click="emit('save', editingUserBind, isEditing)">
+            {{ isEditing ? 'Save' : 'Send Invite' }}
+          </b-button>
+        </div>
+      </div>
+      <div class="form-content">
+        <div class="profile-img-wrapper">
+          <img
+            :src="!!editingUser.profileImage ? editingUser.profileImage : 'https://stbbankstown.syd.catholic.edu.au/wp-content/uploads/sites/130/2019/05/Person-icon.jpg'"
+            alt="Profile Image" class="profile-img" />
+        </div>
+        <div class="flex flex-col items-start justify-between w-full gap-xl">
+          <BInput v-model="editingUser.name" errorMessage="O nome precisa ter ao menos 3 caracteres" labelValue="Name"
+            :required="true" size="base" type="text" />
 
-      <img
-        :src="!!editingUser.profileImage ? editingUser.profileImage : 'https://stbbankstown.syd.catholic.edu.au/wp-content/uploads/sites/130/2019/05/Person-icon.jpg'"
-        alt="Profile Image" class="profile-img" />
+          <BInput v-model="editingUser.email" errorMessage="O email precisa ser válido" :isError="false"
+            :isTextArea="false" labelValue="Email" :required="true" size="base" type="email" :disabled="isEditing" />
 
-      <div class="flex flex-col items-start justify-between w-full gap-xl">
-        <BInput v-model="editingUser.name" errorMessage="O nome precisa ter ao menos 3 caracteres" labelValue="Name"
-          :required="true" size="base" type="text" />
+          <BInput v-if="isSameUser" v-model="editingUser.profileImage" errorMessage="A url da imagem não é válida"
+            :isError="!isValidUrl" :isTextArea="false" labelValue="Profile Image" :required="true" size="base"
+            type="text" />
 
-        <BInput v-model="editingUser.email" errorMessage="O email precisa ser válido" :isError="false"
-          :isTextArea="false" labelValue="Email" :required="true" size="base" type="email" :disabled="isEditing" />
+          <UserRolesSelect :roles="parsedPermissions" :allAccounts="allAccountsParsed" :allowSuperAdmin="true"
+            @update:model-value="updateSelectedPermissions" />
 
-        <BInput v-model="editingUser.profileImage" errorMessage="A url da imagem não é válida" :isError="!isValidUrl"
-          :isTextArea="false" labelValue="Profile Image" :required="true" size="base" type="text" />
-
-        <BMultiSelect :absolute="true" labelValue="Accounts" v-model="allAccountsParsed" :searchable="true"
-          @update:model-value="updateSelectedAccounts" />
+        </div>
       </div>
     </div>
 
     <div class="form-actions">
-      <b-button color="danger" :disabled="false" :loading="false" size="medium" type="button" @click="closeForm">
-        Cancelar
-      </b-button>
-      <b-button color="success" :disabled="false" :loading="false" size="medium" type="button"
-        @click="emit('save', editingUserBind, isEditing)">
-        Salvar
-      </b-button>
     </div>
   </b-sidebar>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, inject, computed, onMounted } from 'vue'
+import type { Ref } from 'vue';
 import type { User } from '@/features/users/types/user.type'
 import type { Account } from '@/features/accounts/types/account.type'
+import type { Role } from './UserRolesSelect.vue'
+import { ref, watch, computed } from 'vue';
 import { useMainStore } from '@/app/stores'
-const mainStore = useMainStore()
-const toastOptions = mainStore.toastOptions
+import UserRolesSelect from './UserRolesSelect.vue'
 
 const props = defineProps<{
   modelValue: boolean
@@ -48,18 +55,23 @@ const props = defineProps<{
   allAccounts: Array<Account>
 }>()
 
+const mainStore = useMainStore()
+
+const isSameUser = computed(() => props.user.id === mainStore.user?.id);
 const model = defineModel<boolean>('modelValue')
 const editingUser = ref({ ...props.user })
 const allAccountsParsed = ref([...props.allAccounts])
 allAccountsParsed.value = allAccountsParsed.value.map((account) => ({
   ...account,
-  selected: editingUser.value.userAccounts?.some(ac => {
-    console.log('ac', ac.account.id === account.value, ac.account.id, account.value)
-    return ac.account.id === account.value;
-  }) || false
-}))
+}));
 
-console.log('allAccountsParsed', allAccountsParsed.value)
+const parsedPermissions: Ref<string[]> = ref([]);
+
+parsedPermissions.value = editingUser.value.userAccounts.map((acc) => ({
+  accountId: acc.accountId,
+  role: acc.role || 'Reader',
+  accountName: acc.account.name
+} as Role));
 
 const emit = defineEmits<{
   (e: 'save', user: User, isEditing: boolean): void
@@ -83,15 +95,12 @@ const editingUserBind = computed(() => ({
   userAccounts: allAccountsParsed.value.filter(ac => ac.selected).map(ac => { return { "accountId": ac.value } })
 }))
 
-watch(
-  () => props.modelValue,
-  (value) => {
-    model.value = value
-  },
-)
+//TODO: update selected permissions
+const updateSelectedPermissions = (value: string[]) => {
+  console.log('updated permissions', value)
+}
 
 const updateModelValue = (value: boolean) => {
-  console.log('updateModelValue', value)
   model.value = value
   emit('update:modelValue', value)
 }
@@ -104,9 +113,12 @@ const updateSelectedAccounts = (value: any) => {
   allAccountsParsed.value = value
 }
 
-onMounted(() => {
-  console.log('onMounted', 'sfdsdf')
-})
+watch(
+  () => props.modelValue,
+  (value) => {
+    model.value = value
+  },
+)
 </script>
 
 <style>
@@ -131,13 +143,31 @@ onMounted(() => {
   margin: 30px;
 }
 
+.profile-img-wrapper {
+  margin: 20px 0;
+}
+
 .profile-img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
-  margin-left: auto;
-  margin-right: 15px;
   border: 1px solid rgba(var(--primary-interaction-selected), 0.9);
+}
+
+.form-header .title {
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-neutral-800, #1B1F22);
+  font-family: var(--font-family-Font-Family, Poppins);
+  font-size: var(--font-size-2xl, 24px);
+  font-style: normal;
+  font-weight: var(--font-weight-bold, 700);
+  line-height: 120%;
+}
+
+.save-container {
+  position: absolute;
+  right: 50px;
 }
 </style>

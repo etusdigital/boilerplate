@@ -53,7 +53,12 @@ export class UsersService {
       }));
       await this.createUserAccounts(userAccounts);
     }
-    await this.auth0Provider.sendInvitation(user.email, user.name);
+    const createdTicket = await this.auth0Provider.sendInvitation(
+      user.email,
+      user.name,
+    );
+
+    console.log('createdTicket', createdTicket);
 
     return savedUser;
   }

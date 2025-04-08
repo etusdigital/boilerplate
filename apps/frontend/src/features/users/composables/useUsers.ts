@@ -8,7 +8,7 @@ export function useUsers() {
   const toastOptions = mainStore.toastOptions
   const toast = inject('toast') as any
 
-  const getAllUsers = async () => {
+  const getAllUsers = async (): Promise<User[]> => {
     try {
       const accessToken = await mainStore.getAccessTokenSilently()
 
@@ -23,13 +23,14 @@ export function useUsers() {
     } catch (error: any) {
       console.log('error', error)
       toast({
-        message: `Error fetching users: ${error.response.data.message}`,
+        message: `Error fetching users: ${error.response?.data?.message || 'Unknown error'}`,
         ...toastOptions,
       })
+      return [] as User[]
     }
   }
 
-  const saveUser = async (editingUser: User, isEditing: boolean) => {
+  const saveUser = async (editingUser: User, isEditing: boolean): Promise<User> => {
     editingUser.status = 'accepted'
     const method = isEditing ? axios.put : axios.post
     const saveUrl = isEditing
@@ -55,18 +56,21 @@ export function useUsers() {
         ...toastOptions,
         ...{ type: 'success' },
       })
+
+      return response.data
     } catch (error: any) {
       console.log('error', error)
       toast({
         message: `Error saving user: ${error.response.data.message}`,
         ...toastOptions,
       })
+      return {} as User
     }
   }
 
-  const deleteUser = async (val: User) => {
+  const deleteUser = async (val: User): Promise<User> => {
     try {
-      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/users/${val.id}`, {
+      const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/users/${val.id}`, {
         headers: {
           'account-id': 1,
           user: JSON.stringify(mainStore.user),
@@ -78,11 +82,14 @@ export function useUsers() {
         ...toastOptions,
         ...{ type: 'success' },
       })
+
+      return response.data
     } catch (error: any) {
       toast({
         message: `Error deleting user: ${val.email}. ${error.response.data.message}`,
         ...toastOptions,
       })
+      return {} as User
     }
   }
 

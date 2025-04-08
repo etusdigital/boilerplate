@@ -1,28 +1,38 @@
 <template>
-  <BMenu :expanded="true" v-model="selected" :items="filteredMenuItems" @update:model-value="updateSelectedMenu" />
+  <div class="menu-container">
+    <BMenu :expanded="menuExpanded" v-model="selected" :items="filteredMenuItems"
+      @update:model-value="updateSelectedMenu" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 
 const props = defineProps({
-  selectedMenu: String,
-  menuItems: Array,
-});
+  modelValue: {
+    type: String,
+    default: ''
+  },
+  menuExpanded: {
+    type: Boolean,
+    default: false
+  },
+  menuItems: {
+    type: Array,
+    default: () => []
+  }
+})
 
 const filteredMenuItems = computed(() => {
   return props.menuItems.filter((item: any) => {
-    return item.show ? item.show : true
+    return item.show !== false
   })
 })
 
-const emit = defineEmits<{
-  'update:selectedMenu': [value: string]
-  'update:menuExpanded': [value: boolean]
-}>()
+const emit = defineEmits(['update:selectedMenu'])
 
 const selected = computed(() => {
-  return props.selectedMenu
+  return props.modelValue
 })
 
 function updateSelectedMenu(value: string) {
@@ -31,6 +41,10 @@ function updateSelectedMenu(value: string) {
 </script>
 
 <style scoped>
+.menu-container {
+  display: flex;
+}
+
 .b-menu {
   z-index: 50;
   position: sticky;

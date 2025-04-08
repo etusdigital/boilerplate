@@ -14,12 +14,11 @@ watch(authUser, async (newValue) => {
     user.value = authUser.value
     const email = authUser.value.email || ''
     if (email) {
-      user.value = await getLogin(email)
-      user.value.isAdmin = true
-      user.value.userAccounts.push({ account: { name: 'braaa', id: 34 } })
+      Object.assign(user.value, await getLogin(email))
+      user.value.roles = user.value[import.meta.env.VITE_AUTH0_ROLES_NAME] || []
+      user.value.isAdmin = user.value.roles.includes('master-admin') || user.value.roles.includes('admin')
       getSelectedAccount()
-      isLoading.value = false
-      console.log('load', isLoading)
+      endLoading()
     }
   } else {
     user.value = {}
@@ -43,7 +42,7 @@ const getLogin = async (email: string) => {
   return response.data
 }
 
-const getSelectedAccount = () => {
+const getSelectedAccount = async (): Promise<Account> => {
   if (window.localStorage) {
     const found = window.localStorage.getItem('selected_account')
     try {
@@ -57,7 +56,13 @@ const getSelectedAccount = () => {
     } catch (error) {}
   }
 
-  Object.assign(selectedAccount, user.value?.userAccounts[0].account || {})
+  return Object.assign(selectedAccount, user.value?.userAccounts[0].account || {})
+}
+
+const endLoading = () => {
+  setTimeout(() => {
+    isLoading.value = false
+  }, 500)
 }
 
 const changeAccount = (accountId: string) => {
@@ -65,27 +70,23 @@ const changeAccount = (accountId: string) => {
   if (window.localStorage) {
     window.localStorage.setItem('selected_account', accountId)
   }
-  setInterval(() => {
-    isLoading.value = false
-  }, 500)
+  endLoading()
   return getSelectedAccount()
 }
 
-export const useMainStore = defineStore('main', {
-  state: () => {
-    return {
-      isLoading: isLoading,
-      user,
-      toastOptions: {
-        timeout: 3500,
-        type: 'danger',
-        top: true,
-        right: true,
-      },
-      selectedAccount,
-      logout,
-      getAccessTokenSilently,
-      changeAccount,
-    }
-  },
+export const useMainStore = defineStore('main', () => {
+  return {
+    isLoading: isLoading,
+    user,
+    toastOptions: {
+      timeout: 3500,
+      type: 'danger',
+      top: true,
+      right: true,
+    },
+    selectedAccount,
+    logout,
+    getAccessTokenSilently,
+    changeAccount,
+  }
 })

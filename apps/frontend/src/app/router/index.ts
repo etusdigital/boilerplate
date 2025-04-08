@@ -55,7 +55,7 @@ const store = useMainStore(pinia)
 
 // Route Guard
 router.beforeEach((to, from, next) => {
-  const isAdmin = true //store.user.isAdmin
+  const isAdmin = store.user.isAdmin
 
   if (to.meta.adminOnly && !isAdmin) {
     next({ path: '/' })

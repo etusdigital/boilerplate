@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, inject, nextTick } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import AccountForm from '@/features/accounts/components/AccountForm.vue'
 import type { Account } from '@/features/accounts/types/account.type'
 import { useAccounts } from '@/features/accounts/composables/useAccounts'
@@ -96,13 +96,13 @@ const { getAllAccounts, saveAccount, deleteAccount } = useAccounts()
 
 const showForm = ref(false)
 
-const onDeleteAccount = async (val: any) => {
+const onDeleteAccount = async (val: any): Promise<void> => {
   await deleteAccount(val)
   closeDelete()
   fetchAccounts()
 }
 
-const createAccount = () => {
+const createAccount = (): void => {
   editingAccount.value = {
     name: '',
     description: '',
@@ -118,7 +118,7 @@ const createAccount = () => {
 
 const showDelete = ref(false)
 
-const onEdit = (val: any, index: number) => {
+const onEdit = (val: any, index: number): void => {
   showFormControl.value = false
   editingAccount.value = val
   editingIndex.value = index
@@ -128,13 +128,13 @@ const onEdit = (val: any, index: number) => {
   })
 }
 
-const forceResetForm = () => {
+const forceResetForm = (): void => {
   setTimeout(() => {
     showFormControl.value = false
   }, 500)
 }
 
-const fetchAccounts = async () => {
+const fetchAccounts = async (): Promise<void> => {
   isLoading.value = true
   showForm.value = false
   forceResetForm()
@@ -143,22 +143,22 @@ const fetchAccounts = async () => {
   isLoading.value = false
 }
 
-const onSave = async (editingAccount: any, isEditing: boolean) => {
+const onSave = async (editingAccount: any, isEditing: boolean): Promise<void> => {
   await saveAccount(editingAccount, isEditing)
   fetchAccounts()
 }
 
-const closeDelete = () => {
+const closeDelete = (): void => {
   showDelete.value = false
   deletingAccount.value = {}
 }
 
-const onDelete = async (val: any) => {
+const onDelete = (val: any): void => {
   deletingAccount.value = val
   showDelete.value = true
 }
 
-const onCloseForm = (data: any) => {
+const onCloseForm = (data: any): void => {
   if (data && tdata.value[editingIndex.value]) {
     tdata.value[editingIndex.value] = data
   }
