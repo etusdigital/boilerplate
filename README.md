@@ -70,3 +70,8 @@ O projeto utiliza:
 - Configurar o client id, audience e secret no arquivo `backend/.env`
 - Configurar o client id e secret no arquivo `frontend/.env`
 
+
+## Observações
+
+- Se clonou o projeto usando o nosso npx e já tinha um pnpm configurado, você não rpecisará fazer nada e apenas rodar o pnpm run dev.
+- Se clonou o projeto usando o npx e não tinha um pnpm configurado, você precisará rodar o pnpm install para instalar as dependências. Após isso você precisa instalar as migrations e seeds com o comando `pnpm run migration`.
