@@ -34,7 +34,7 @@ export class AuditLog extends BaseEntity {
     @Column({ name: 'user_agent', type: 'varchar', length: 600, nullable: true })
     userAgent: string;
 
-    @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ default: () => 'CURRENT_TIMESTAMP' })
     timestamp: Date;
 
     @ManyToOne(() => Account, { eager: true })

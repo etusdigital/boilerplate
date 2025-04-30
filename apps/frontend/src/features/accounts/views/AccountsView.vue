@@ -76,13 +76,13 @@ const tcolumns = ref([
   {
     text: 'Join Date',
     label: 'Join Date',
-    value: 'created_at',
+    value: 'createdAt',
     sortable: true,
   },
   {
     text: 'End Date',
     label: 'End Date',
-    value: 'deleted_at',
+    value: 'deletedAt',
     sortable: true,
   },
 ])

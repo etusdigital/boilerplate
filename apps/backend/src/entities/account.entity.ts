@@ -14,12 +14,12 @@ export class Account {
   @Column({ type: 'varchar', length: 255, unique: true })
   domain: string;
 
-  @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'datetime', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 
-  @DeleteDateColumn({ type: 'datetime', nullable: true })
-  deleted_at: Date;
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt: Date;
 }

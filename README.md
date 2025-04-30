@@ -36,6 +36,19 @@ Isso iniciará:
 - Frontend em http://localhost:5173
 - Backend em http://localhost:3001
 
+
+## Migrations e Seeds
+
+Para rodar as migrations e seeds:
+
+```bash
+pnpm run migration
+```
+Usuário de teste:
+- Email: admin@etus.com
+- Senha: o9ac08ZBrSgv
+
+
 ## Build
 
 Para criar builds de produção:
@@ -50,4 +63,10 @@ O projeto utiliza:
 - SQLite para desenvolvimento
 - Configurável para outros bancos relacionais em produção
 
-Para configurar o banco de dados em produção, edite o arquivo `backend/prisma/schema.prisma` e a variável de ambiente `DATABASE_URL`. 
+## Configuração Auth0
+
+- Criar uma nova aplicação de API no Auth0 liberando os acessos de URLs. Libere também o acesso a aplicacação API Explorer Application com todas as permissões.
+- Criar nova aplicação de SPA no Auth0 liberando os acessos de URLs
+- Configurar o client id, audience e secret no arquivo `backend/.env`
+- Configurar o client id e secret no arquivo `frontend/.env`
+
