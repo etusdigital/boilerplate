@@ -31,6 +31,10 @@ $ npx typeorm-extension seed:run -d dist/database/ormconfig.js
 $ npm run start:prod
 ```
 
+Usuário de teste:
+- Email: admin@etus.com
+- Senha: o9ac08ZBrSgv
+
 ## Documentação da API
 
 A documentação completa da API está disponível através do Swagger UI no seguinte endereço:
