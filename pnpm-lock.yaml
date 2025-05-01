@@ -184,8 +184,8 @@ importers:
   apps/frontend:
     dependencies:
       '@BRIUS/design-system':
-        specifier: 2.1.18
-        version: 2.1.18(storybook@8.6.12)(vue@3.5.13)
+        specifier: 2.1.19
+        version: 2.1.19(storybook@8.6.12)(vue@3.5.13)
       '@auth0/auth0-vue':
         specifier: ^2.4.0
         version: 2.4.0(typescript@5.4.5)(vue-router@4.5.0)
@@ -207,6 +207,9 @@ importers:
       vue:
         specifier: ^3.4.21
         version: 3.5.13(typescript@5.4.5)
+      vue-i18n:
+        specifier: ^11.1.3
+        version: 11.1.3(vue@3.5.13)
       vue-router:
         specifier: ^4.3.0
         version: 4.5.0(vue@3.5.13)
@@ -309,8 +312,8 @@ importers:
 
 packages:
 
-  /@BRIUS/design-system@2.1.18(storybook@8.6.12)(vue@3.5.13):
-    resolution: {integrity: sha512-lv0OQWyqBvtGrHL96xwharLOgyd5c0SeiSbi1CkFgTuMoaxku1+wvff4AQ5CHCLdYnrWB7184PIMnTL7T9kr2A==, tarball: https://us-east1-npm.pkg.dev/etus-media-mgmt/shared/@BRIUS/design-system/-/@BRIUS/design-system-2.1.18.tgz}
+  /@BRIUS/design-system@2.1.19(storybook@8.6.12)(vue@3.5.13):
+    resolution: {integrity: sha512-uE3ggCRiTU/n78Ize+lXWspoR4OHyovBlakIW6iaall8X6WDGNfYiHbbe9br+H+5uF+wzQmo8qw4Gc3p204dIw==, tarball: https://us-east1-npm.pkg.dev/etus-media-mgmt/shared/@BRIUS/design-system/-/@BRIUS/design-system-2.1.19.tgz}
     engines: {node: '>=18.0.0 <=20.11.1'}
     peerDependencies:
       vue: ^3.5.13
@@ -1710,6 +1713,27 @@ packages:
     dependencies:
       '@types/node': 22.14.0
     dev: true
+
+  /@intlify/core-base@11.1.3:
+    resolution: {integrity: sha512-cMuHunYO7LE80azTitcvEbs1KJmtd6g7I5pxlApV3Jo547zdO3h31/0uXpqHc+Y3RKt1wo2y68RGSx77Z1klyA==}
+    engines: {node: '>= 16'}
+    dependencies:
+      '@intlify/message-compiler': 11.1.3
+      '@intlify/shared': 11.1.3
+    dev: false
+
+  /@intlify/message-compiler@11.1.3:
+    resolution: {integrity: sha512-7rbqqpo2f5+tIcwZTAG/Ooy9C8NDVwfDkvSeDPWUPQW+Dyzfw2o9H103N5lKBxO7wxX9dgCDjQ8Umz73uYw3hw==}
+    engines: {node: '>= 16'}
+    dependencies:
+      '@intlify/shared': 11.1.3
+      source-map-js: 1.2.1
+    dev: false
+
+  /@intlify/shared@11.1.3:
+    resolution: {integrity: sha512-pTFBgqa/99JRA2H1qfyqv97MKWJrYngXBA/I0elZcYxvJgcCw3mApAoPW3mJ7vx3j+Ti0FyKUFZ4hWxdjKaxvA==}
+    engines: {node: '>= 16'}
+    dev: false
 
   /@isaacs/cliui@8.0.2:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -12637,6 +12661,18 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /vue-i18n@11.1.3(vue@3.5.13):
+    resolution: {integrity: sha512-Pcylh9z9S5+CJAqgbRZ3EKxFIBIrtY5YUppU722GIT65+Nukm0TCqiQegZnNLCZkXGthxe0cpqj0AoM51H+6Gw==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      vue: ^3.0.0
+    dependencies:
+      '@intlify/core-base': 11.1.3
+      '@intlify/shared': 11.1.3
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.13(typescript@5.4.5)
+    dev: false
 
   /vue-router@4.5.0(vue@3.5.13):
     resolution: {integrity: sha512-HDuk+PuH5monfNuY+ct49mNmkCRK4xJAV9Ts4z9UFc4rzdDnxQLyCMGGc8pKhZhHTVzfanpNwB/lwqevcBwI4w==}

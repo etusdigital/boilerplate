@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="core-app-title">Settings</h1>
+    <h1 class="core-app-title">{{ $t('settings.settings') }}</h1>
     <div class="settings-wrapper">
       <b-card v-for="route in settingsRoutes" :key="route.path" class="settings-card cursor-pointer"
         @click="navigateTo(route.path)">
@@ -16,25 +16,27 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-
+import { useI18n } from 'vue-i18n'
 const router = useRouter()
 
 const navigateTo = (path) => {
   router.push(path)
 }
 
+const { t } = useI18n()
+
 const settingsRoutes = [
   {
-    label: 'Users',
+    label: t('users.users'),
     icon: 'group',
     path: '/users',
-    description: 'Manage users, their permissions and access to the system.',
+    description: t('users.description'),
   },
   {
-    label: 'Accounts',
+    label: t('accounts.accounts'),
     icon: 'corporate_fare',
     path: '/accounts',
-    description: 'Manage accounts, their names, organizations and more.',
+    description: t('accounts.description'),
   }
 ]
 

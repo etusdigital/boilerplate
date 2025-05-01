@@ -3,11 +3,11 @@
     <div class="form-wrapper">
       <div class="form-header flex flex-row items-center gap-4">
         <BIcon name="close" @click="closeForm" class="cursor-pointer" />
-        <div class="title">{{ isEditing ? 'Edit Usuer' : 'Invite User' }}</div>
+        <div class="title">{{ isEditing ? $t('users.edit_user') : $t('users.invite_user') }}</div>
         <div class="save-container">
           <b-button color="success" :disabled="false" :loading="false" size="medium" type="button"
             @click="emit('save', editingUserBind, isEditing)">
-            {{ isEditing ? 'Save' : 'Send Invite' }}
+            {{ isEditing ? $t('save') : $t('users.send_invite') }}
           </b-button>
         </div>
       </div>
@@ -18,14 +18,15 @@
             alt="Profile Image" class="profile-img" />
         </div>
         <div class="flex flex-col items-start justify-between w-full gap-xl">
-          <BInput v-model="editingUser.name" errorMessage="O nome precisa ter ao menos 3 caracteres" labelValue="Name"
-            :required="true" size="base" type="text" />
+          <BInput v-model="editingUser.name" errorMessage="O nome precisa ter ao menos 3 caracteres"
+            :labelValue="$t('name')" :required="true" size="base" type="text" />
 
           <BInput v-model="editingUser.email" errorMessage="O email precisa ser válido" :isError="false"
-            :isTextArea="false" labelValue="Email" :required="true" size="base" type="email" :disabled="isEditing" />
+            :isTextArea="false" :labelValue="$t('email')" :required="true" size="base" type="email"
+            :disabled="isEditing" />
 
           <BInput v-if="isSameUser" v-model="editingUser.profileImage" errorMessage="A url da imagem não é válida"
-            :isError="!isValidUrl" :isTextArea="false" labelValue="Profile Image" :required="true" size="base"
+            :isError="!isValidUrl" :isTextArea="false" :labelValue="$t('profile_image')" :required="true" size="base"
             type="text" />
 
           <UserRolesSelect :roles="parsedPermissions" :allAccounts="allAccountsParsed" :allowSuperAdmin="true"
@@ -97,6 +98,8 @@ const isValidUrl = computed(() => {
 })
 
 const editedUserAccounts = ref([]);
+
+editedUserAccounts.value = parsedPermissions.value;
 
 const editingUserBind = computed(() => ({
   ...editingUser.value,

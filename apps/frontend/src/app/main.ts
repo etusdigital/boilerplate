@@ -8,10 +8,11 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { auth0 } from './auth/index'
-
+import i18n from './languages/i18n'
 const app = createApp(App)
 
 app.use(createPinia())
+app.use(i18n)
 app.use(DesignSystem)
 app.use(auth0)
 

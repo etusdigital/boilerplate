@@ -1,110 +1,17 @@
 <template>
-  <div>
-    <b-confirm style="z-index: 2000" />
-    <b-toast />
-    <BNavbar title="Etus Boilerplate" class="sticky top-0" style="z-index: 50">
-      <div>
-        <BSelect v-if="!mainStore.isLoading" :modelValue="selectedAccount.name" @update:modelValue="changeAccount"
-          :absolute="true" :items="selectItems" :required="false" :searchable="false" :secondary="false"
-          valueKey="value" />
-      </div>
-      <template #actions>
-        <div v-if="!mainStore.isLoading" class="flex items-center gap-2">
-          <img :src="profile.src" alt="profile" class="profile-image">
-          <div class="profile-details">
-            <div class="profile-name">{{ profile.name }}</div>
-            <div class="profile-email">{{ profile.email }}</div>
-          </div>
-          <b-icon name="logout" @click="mainStore.logout()" class="cursor-pointer" />
-        </div>
-      </template>
-    </BNavbar>
-    <div class="flex">
-      <Menu v-model="selectedMenu" :expanded="menuExpanded" :menuItems="menuItems"
-        @update:selectedMenu="handleMenuSelect" />
-
-      <div v-if="!mainStore.isLoading" class="flex-1 pt-0 p-base">
-        <router-view />
-      </div>
+  <Canvas v-if="!mainStore.isLoading" />
+  <div v-else>
+    <div class="flex justify-center items-center h-screen">
+      <div class="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, provide, watch, computed } from 'vue'
-import Menu from '@/shared/components/Menu.vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useMainStore } from '@/app/stores';
+import Canvas from './views/Canvas.vue'
+import { useMainStore } from './stores/index'
 
-const router = useRouter()
-const route = useRoute()
-provide('router', router)
-provide('route', route)
-const mainStore = useMainStore();
-
-const profile = ref({
-  name: mainStore.user.name,
-  src: mainStore.user.profileImage,
-  email: mainStore.user.email
-});
-
-const selectItems = mainStore.user.userAccounts.map((account) => ({
-  label: account.account.name,
-  value: account.account.id
-}));
-
-const selectedAccount = mainStore.selectedAccount;
-
-type MenuItem = {
-  label: string
-  value: string
-  icon: string
-  path: string
-  bottom?: boolean
-  items?: MenuItem[]
-  show?: boolean
-}
-
-const menuExpanded = ref(false)
-const menuItems = ref<MenuItem[]>([
-  {
-    label: 'Home',
-    value: 'home',
-    icon: 'home',
-    path: '/',
-  },
-  {
-    label: 'Settings',
-    value: 'settings',
-    icon: 'settings',
-    path: '/settings',
-    show: !!mainStore.user.isAdmin,
-    bottom: true,
-  },
-]);
-
-//TODO: Verificar o menu no Desing System para respeitar a flag show
-menuItems.value = menuItems.value.filter((item) => item.show !== false);
-
-const selectedMenu = ref(menuItems.value.find((item) => item.path === route.path)?.value || '')
-
-const handleMenuSelect = (value: string) => {
-  selectedMenu.value = value
-}
-
-watch(
-  () => route.path,
-  (newPath) => {
-    selectedMenu.value = menuItems.value.find((item) => item.path === newPath)?.value || ''
-  },
-)
-
-const changeAccount = (value: any) => {
-  if (value.value !== mainStore.selectedAccount.id) {
-    mainStore.changeAccount(value.value)
-  }
-}
-
+const mainStore = useMainStore()
 </script>
 
 <style>

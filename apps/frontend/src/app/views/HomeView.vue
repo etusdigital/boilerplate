@@ -1,6 +1,9 @@
 <script setup lang="ts"></script>
 
 <template>
-  <h1>Home</h1>
-  <p>Start creating your app from here!</p>
+  <h1>{{ $t('greeting') }}</h1>
+  <p>{{ $t('start_creating') }}</p>
 </template>
+
+<script setup lang="ts">
+</script>

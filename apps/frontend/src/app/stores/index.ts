@@ -1,27 +1,39 @@
-import { ref, computed, watch, reactive } from 'vue'
+import { ref, computed, watch, reactive, nextTick } from 'vue'
 import type { Ref } from 'vue'
-import { defineStore } from 'pinia'
+import { defineStore, type StoreDefinition } from 'pinia'
 import { auth0 } from '../auth/index'
 import axios from 'axios'
+import type { User } from '@/features/users/types/user.type'
+import type { Account } from '@/features/accounts/types/account.type'
+
 const { isAuthenticated, loginWithRedirect, logout, user: authUser, getAccessTokenSilently } = auth0
 
-const user = ref({})
+const user = ref<User>({} as User)
 const isLoading: Ref<boolean> = ref(true)
 const selectedAccount = reactive({})
 
 watch(authUser, async (newValue) => {
   if (isAuthenticated.value && authUser.value) {
-    user.value = authUser.value
+    user.value = {
+      ...authUser.value,
+      name: authUser.value.name || '',
+      email: authUser.value.email || '',
+      roles: authUser.value.roles || [],
+      isAdmin: authUser.value.roles?.includes('master-admin') || authUser.value.roles?.includes('admin') || false,
+    }
     const email = authUser.value.email || ''
     if (email) {
       Object.assign(user.value, await getLogin(email))
-      user.value.roles = user.value[import.meta.env.VITE_AUTH0_ROLES_NAME] || []
-      user.value.isAdmin = user.value.roles.includes('master-admin') || user.value.roles.includes('admin')
+
+      // Ensure VITE_AUTH0_ROLES_NAME is a string
+      const rolesName = import.meta.env.VITE_AUTH0_ROLES_NAME as string
+      user.value.roles = user.value[rolesName] || []
+      user.value.isAdmin = user.value.roles?.includes('master-admin') || user.value.roles?.includes('admin') || false
       getSelectedAccount()
       endLoading()
     }
   } else {
-    user.value = {}
+    user.value = {} as User
     loginWithRedirect()
   }
 })
@@ -48,7 +60,7 @@ const getSelectedAccount = async (): Promise<Account> => {
       if (found) {
         return Object.assign(
           selectedAccount,
-          user.value.userAccounts.find((account) => account.account.id == found).account,
+          user.value.userAccounts.find((account: any) => account.account.id == found).account,
         )
       }
     } catch (error) {}
@@ -72,10 +84,35 @@ const changeAccount = (accountId: string) => {
   return getSelectedAccount()
 }
 
-export const useMainStore = defineStore('main', () => {
+const currentLanguage = ref('pt')
+
+const getSavedLanguage = () => {
+  if (window.localStorage) {
+    const savedLanguage = window.localStorage.getItem('app_lang')
+    if (savedLanguage) {
+      currentLanguage.value = savedLanguage
+    }
+  }
+}
+
+const setLanguage = (language: string) => {
+  isLoading.value = true
+
+  if (window.localStorage) {
+    window.localStorage.setItem('app_lang', language)
+    currentLanguage.value = language
+  }
+  nextTick(() => {
+    isLoading.value = false
+  })
+}
+
+getSavedLanguage()
+
+export const useMainStore: StoreDefinition = defineStore('main', () => {
   return {
     isLoading: isLoading,
-    user,
+    user: user,
     toastOptions: {
       timeout: 3500,
       type: 'danger',
@@ -86,5 +123,7 @@ export const useMainStore = defineStore('main', () => {
     logout,
     getAccessTokenSilently,
     changeAccount,
+    currentLanguage,
+    setLanguage,
   }
 })

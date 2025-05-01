@@ -1,8 +1,8 @@
 <template>
   <div class="main-container">
-    <h1 class="core-app-title">Users</h1>
+    <h1 class="core-app-title">{{ $t($route.name as string) }}</h1>
     <!-- início b-round-button usado para adicionar um novo usuário -->
-    <b-round-button text="Adicionar Usuário" @click="createUser" />
+    <b-round-button :text="`${$t('add')} ${$t('user')} `" @click="createUser" />
     <!-- fim b-round-button -->
     <!-- início b-table usada para listar os usuários -->
     <b-table :headers="tcolumns" :items="tdata" :options="{ sortBy: 'name', sortDesc: false }" :loading="isLoading"
@@ -20,9 +20,9 @@
           </div>
         </td>
       </template>
-      <template #items-per-page>Items per page</template>
+      <template #items-per-page>{{ $t('items_per_page') }}</template>
       <template #showing-page="{ min, max, total }">
-        {{ `Showing ${min} to ${max} of ${total}` }}
+        {{ `${$t('showing')} ${min} ${$t('to')} ${max} ${$t('of')} ${total}` }}
       </template>
     </b-table>
     <!-- fim b-table -->
@@ -60,32 +60,36 @@ import type { User } from '@/features/users/types/user.type'
 import { useUsers } from '@/features/users/composables/useUsers'
 import { useAccounts } from '@/features/accounts/composables/useAccounts'
 import type { Account } from '@/features/accounts/types/account.type'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
 const isLoading = ref(true)
 const itemsPerPage = ref(100)
 const page = ref(1)
 const tcolumns = ref([
   {
-    text: 'Name',
-    label: 'Name',
+    text: 'name',
+    label: t('name'),
     value: 'name',
     sortable: true,
     width: '50%',
   },
   {
     text: 'Email',
-    label: 'Email',
+    label: t('email'),
     value: 'email',
     sortable: true,
   },
   {
     text: 'Join Date',
-    label: 'Join Date',
+    label: t('join_date'),
     value: 'createdAt',
     sortable: true,
   },
   {
-    text: 'End Date',
-    label: 'End Date',
+    text: 'end_date',
+    label: t('end_date'),
     value: 'deletedAt',
     sortable: true,
   },

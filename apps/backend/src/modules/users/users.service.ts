@@ -8,7 +8,8 @@ import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
 import { LoginDto } from './dto/login.dto';
 import { Auth0Provider } from './providers/auth0.provider';
-
+import { AccountsService } from '../accounts/accounts.service';
+import { Role } from 'src/auth/enums/roles.enum';
 @Injectable()
 export class UsersService {
   constructor(
@@ -18,6 +19,7 @@ export class UsersService {
     private readonly userAccountRepository: Repository<UserAccount>,
     private readonly cls: ClsService,
     private readonly auth0Provider: Auth0Provider,
+    private readonly accountsService: AccountsService,
   ) {}
 
   async find() {
@@ -57,8 +59,6 @@ export class UsersService {
       user.email,
       user.name,
     );
-
-    console.log('createdTicket', createdTicket);
 
     return savedUser;
   }
@@ -116,12 +116,28 @@ export class UsersService {
   async login(userLogin: LoginDto, jwtUser) {
     const user = await this.userRepository.findOne({
       where: { email: userLogin.email },
+      relations: ['userAccounts'],
     });
     if (user && user.status === 'invited') {
       user.status = 'accepted';
       user.providerId = jwtUser.userId;
       await this.userRepository.save(user);
     }
+
+    /**
+     * If user is super admin, we need to get all accounts for the user manually.
+     */
+    if (user?.isSuperAdmin) {
+      const accounts = await this.accountsService.findAll(user);
+      user.userAccounts = accounts.map((account) => ({
+        accountId: account.id,
+        userId: user.id,
+        role: Role.ADMIN,
+        id: 0,
+        account: account,
+      }));
+    }
+
     return user;
   }
 
