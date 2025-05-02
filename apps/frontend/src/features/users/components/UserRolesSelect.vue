@@ -32,7 +32,6 @@
 </template>
 
 <script setup lang="ts">
-import type { Account } from '@/features/accounts/types/account.type';
 import { ref, computed, watch } from 'vue';
 
 export interface Role {
@@ -43,7 +42,7 @@ export interface Role {
 
 const props = defineProps({
   allAccounts: {
-    type: Array<Account>,
+    type: Array<any>,
     default: []
   },
   allowSuperAdmin: {
