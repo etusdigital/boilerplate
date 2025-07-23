@@ -11,6 +11,7 @@ import { ExtractJwt } from 'passport-jwt';
 import * as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 import { UsersService } from 'src/modules/users/users.service';
+import { Auth0TokenPayload } from 'src/auth/auth0.interface';
 
 dotenv.config();
 
@@ -29,12 +30,25 @@ export class AccountMiddleware implements NestMiddleware {
         HttpStatus.UNAUTHORIZED,
       );
     }
+
     const tokenExtractor = ExtractJwt.fromAuthHeaderAsBearerToken();
     const token = tokenExtractor(req);
-    const decodedToken = token ? (jwt.decode(token) as any) : '';
-    const user = await this.userService.findByProviderId(
-      decodedToken?.sub || '',
-    );
+    if (!token) {
+      throw new HttpException(
+        '[Unauthorized] - Token not exists',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const decodedToken = jwt.decode(token) as Auth0TokenPayload;
+    if (!decodedToken) {
+      throw new HttpException(
+        '[Unauthorized] - Invalid token',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const user = await this.userService.findByProviderId(decodedToken.sub);
 
     if (!user) {
       throw new HttpException(
@@ -43,9 +57,11 @@ export class AccountMiddleware implements NestMiddleware {
       );
     }
 
-    this.cls.set('accountId', account);
+    this.cls.set('accountId', parseInt(account));
     this.cls.set('user', { ...user, userAccounts: null });
     this.cls.set('transactionId', uuidv7());
+    this.cls.set('ip', req.ip);
+    this.cls.set('userAgent', req.header('user-agent'));
 
     next();
   }

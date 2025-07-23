@@ -1,6 +1,6 @@
 import { createI18n } from 'vue-i18n'
-import en from './locales/en.json'
-import pt from './locales/pt.json'
+import en from './locales/en'
+import pt from './locales/pt'
 import { useMainStore } from '../stores'
 import { watch } from 'vue'
 

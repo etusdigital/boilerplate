@@ -2,15 +2,13 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
   OneToMany,
 } from 'typeorm';
+import { SoftDeleteEntity } from './base.entity';
 import { UserAccount } from './user-accounts.entity';
 
 @Entity('users')
-export class User {
+export class User extends SoftDeleteEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -41,20 +39,4 @@ export class User {
     eager: true,
   })
   userAccounts?: UserAccount[];
-
-  @CreateDateColumn({
-    name: 'created_at',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-    nullable: true,
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  updatedAt: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
-  deletedAt?: Date;
 }

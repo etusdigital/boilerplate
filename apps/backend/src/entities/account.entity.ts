@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { SoftDeleteEntity } from './base.entity';
 
 @Entity('accounts')
-export class Account {
+export class Account extends SoftDeleteEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -13,13 +14,4 @@ export class Account {
 
   @Column({ type: 'varchar', length: 255, unique: true })
   domain: string;
-
-  @CreateDateColumn({ name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
-  updatedAt: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
-  deletedAt: Date;
 }

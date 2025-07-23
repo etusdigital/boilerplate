@@ -10,16 +10,19 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
-import { ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiBody, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../auth/enums/roles.enum';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { LoginDto } from './dto/login.dto';
+import { UsersQueryDto } from './dto/users-query.dto';
+import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
 
 @ApiTags('users')
 @Controller('/users')
@@ -29,13 +32,67 @@ export class UsersController {
 
   @Get()
   @Roles(Role.ADMIN, Role.MASTER_ADMIN)
-  @ApiResponse({ status: 200, description: 'List of users.' })
-  async find() {
-    return await this.usersService.find();
+  @ApiOperation({
+    summary: 'Get users with pagination and filters',
+    description: 'Retrieve paginated users with optional filters and sorting'
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number (starts from 1)',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page (max 100)',
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Search in user names and emails',
+  })
+  @ApiQuery({
+    name: 'role',
+    required: false,
+    description: 'Filter by user role',
+    enum: ['admin', 'master_admin', 'writer', 'reader'],
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'Filter by user status',
+    enum: ['invited', 'accepted', 'active', 'inactive'],
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    description: 'Sort by field',
+    enum: ['createdAt', 'updatedAt', 'name', 'email'],
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    description: 'Sort order',
+    enum: ['ASC', 'DESC'],
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return paginated users.',
+    type: PaginatedUsersResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Access denied.',
+  })
+  async findAll(
+    @Query(ValidationPipe) queryDto: UsersQueryDto,
+  ): Promise<PaginatedUsersResponseDto> {
+    return await this.usersService.findAllPaginated(queryDto);
   }
 
   @Post('/login')
-  @Roles(Role.ADMIN, Role.MASTER_ADMIN, Role.READER, Role.WRITER)
   @UsePipes(new ValidationPipe())
   @ApiResponse({ status: 201, description: 'User login.' })
   @ApiResponse({ status: 400, description: 'Invalid input.' })

@@ -9,7 +9,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/roles.guard';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { AuthGuard } from '@nestjs/passport';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: AuthGuard('jwt'),
+      useClass: JwtAuthGuard,
     },
     {
       provide: APP_GUARD,
