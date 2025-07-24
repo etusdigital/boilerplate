@@ -10,7 +10,7 @@
             </div>
             <template #logo>
                 <img src="/etus-logo.ico" alt="etus-logo" class="etus-logo" />
-                <span class="text-lg font-bold">Quiz Maker</span>
+                <span class="text-lg font-bold">Boilerplate</span>
             </template>
             <template #actions>
                 <BSelect v-if="!mainStore.isLoading" :modelValue="languageName" @update:modelValue="changeLanguage"

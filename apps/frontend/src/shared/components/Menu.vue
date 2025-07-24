@@ -47,7 +47,7 @@ function updateSelectedMenu(value: string) {
 
 .side-menu {
   inline-size: min-content;
-  width: 196px;
+  width: 193px;
   height: calc(100vh - 64.8px);
 }
 
