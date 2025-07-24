@@ -98,7 +98,7 @@ const menuItems = ref<MenuItem[]>([
         path: '/',
     },
     {
-        label: t('settings'),
+        label: t('settings.settings'),
         value: 'settings',
         icon: 'settings',
         path: '/settings',

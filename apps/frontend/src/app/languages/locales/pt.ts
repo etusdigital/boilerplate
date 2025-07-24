@@ -31,6 +31,13 @@ export default {
     },
     accounts: {
         accounts: "Contas",
+        addAccount: "Adicionar Conta",
         description: "Gerencie contas, seus nomes, organizações e mais."
+    },
+    btable: {
+        name: "Nome",
+        description: "Descrição",
+        createdAt: "Data de criação",
+        deletedAt: "Data de exclusão"
     }
 }

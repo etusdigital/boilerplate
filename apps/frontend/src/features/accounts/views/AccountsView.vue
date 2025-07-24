@@ -1,9 +1,7 @@
 <template>
   <Transition name="page" mode="out-in">
     <div class="main-container">
-      <h1 class="core-app-title">Accounts</h1>
-      <!-- início b-round-button usado para adicionar um novo usuário -->
-      <b-round-button text="Adicionar Conta" @click="createAccount" />
+      <TitleBar :title="t('accounts.accounts')" :actions="titleBarActions" />
       <!-- fim b-round-button -->
       <!-- início b-table usada para listar os usuários -->
       <b-table :headers="tcolumns" :items="tdata" :options="{ sortBy: 'name', sortDesc: false }" :loading="isLoading"
@@ -51,37 +49,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import AccountForm from '@/features/accounts/components/AccountForm.vue'
 import type { Account } from '@/features/accounts/types/account.type'
 import { useAccounts } from '@/features/accounts/composables/useAccounts'
+import TitleBar from '@/shared/components/TitleBar.vue'
+import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const isLoading = ref(true)
 const itemsPerPage = ref(100)
 const page = ref(1)
 const tcolumns = ref([
   {
-    text: 'Name',
-    label: 'Name',
+    text: t('btable.name'),
+    label: t('btable.name'),
     value: 'name',
     sortable: true,
     width: '50%',
   },
   {
-    text: 'Description',
-    label: 'Description',
+    text: t('btable.description'),
+    label: t('btable.description'),
     value: 'description',
     sortable: true,
   },
   {
-    text: 'Join Date',
-    label: 'Join Date',
+    text: t('btable.createdAt'),
+    label: t('btable.createdAt'),
     value: 'createdAt',
     sortable: true,
   },
   {
-    text: 'End Date',
-    label: 'End Date',
+    text: t('btable.deletedAt'),
+    label: t('btable.deletedAt'),
     value: 'deletedAt',
     sortable: true,
   },
@@ -95,6 +98,16 @@ const showFormControl = ref(false)
 const { getAllAccounts, saveAccount, deleteAccount } = useAccounts()
 
 const showForm = ref(false)
+
+const titleBarActions = computed<TitleBarAction[]>(() => [
+  {
+    key: 'add-account',
+    text: t('accounts.addAccount'),
+    icon: 'add_circle',
+    color: 'primary',
+    onClick: createAccount
+  }
+])
 
 const onDeleteAccount = async (val: any): Promise<void> => {
   await deleteAccount(val)
