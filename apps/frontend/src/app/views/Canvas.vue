@@ -8,6 +8,10 @@
                     @update:modelValue="changeAccount" :absolute="true" :items="selectItems" :required="false"
                     :searchable="false" :secondary="false" valueKey="value" />
             </div>
+            <template #logo>
+                <img src="/etus-logo.ico" alt="etus-logo" class="etus-logo" />
+                <span class="text-lg font-bold">Quiz Maker</span>
+            </template>
             <template #actions>
                 <BSelect v-if="!mainStore.isLoading" :modelValue="languageName" @update:modelValue="changeLanguage"
                     :absolute="true" :items="languages" :required="false" :searchable="false" :secondary="false" />
@@ -135,3 +139,10 @@ const changeAccount = async (value: any) => {
 }
 
 </script>
+
+<style>
+.etus-logo {
+    width: 40px;
+    height: 39px;
+}
+</style>

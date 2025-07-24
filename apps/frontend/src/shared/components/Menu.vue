@@ -1,6 +1,6 @@
 <template>
   <div class="menu-container">
-    <BMenu :expanded="menuExpanded" v-model="selected" :items="filteredMenuItems"
+    <BMenu expanded="true" v-model="selected" :items="filteredMenuItems" class="side-menu"
       @update:model-value="updateSelectedMenu" />
   </div>
 </template>
@@ -45,10 +45,16 @@ function updateSelectedMenu(value: string) {
   display: flex;
 }
 
+.side-menu {
+  inline-size: min-content;
+  width: 196px;
+  height: calc(100vh - 64.8px);
+}
+
 .b-menu {
   z-index: 50;
   position: sticky;
   top: 64.8px;
-  height: calc(100vh - 64.8px);
+  /* height: calc(100vh - 64.8px); */
 }
 </style>

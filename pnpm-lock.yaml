@@ -184,8 +184,8 @@ importers:
   apps/frontend:
     dependencies:
       '@BRIUS/design-system':
-        specifier: 2.1.19
-        version: 2.1.19(storybook@8.6.12)(vue@3.5.13)
+        specifier: 2.1.25
+        version: 2.1.25(storybook@8.6.12)(vue@3.5.13)
       '@auth0/auth0-vue':
         specifier: ^2.4.0
         version: 2.4.0(typescript@5.4.5)(vue-router@4.5.0)
@@ -312,8 +312,8 @@ importers:
 
 packages:
 
-  /@BRIUS/design-system@2.1.19(storybook@8.6.12)(vue@3.5.13):
-    resolution: {integrity: sha512-uE3ggCRiTU/n78Ize+lXWspoR4OHyovBlakIW6iaall8X6WDGNfYiHbbe9br+H+5uF+wzQmo8qw4Gc3p204dIw==, tarball: https://us-east1-npm.pkg.dev/etus-media-mgmt/shared/@BRIUS/design-system/-/@BRIUS/design-system-2.1.19.tgz}
+  /@BRIUS/design-system@2.1.25(storybook@8.6.12)(vue@3.5.13):
+    resolution: {integrity: sha512-WuCLKtG4E5C1oObp+/ecz+1/aSnR0r1mlAbyGs3AwD9q8BaqQ1WWZ8lH8LFsEMtn90O4dPZpgxG5ylrKgY+wAA==, tarball: https://us-east1-npm.pkg.dev/etus-media-mgmt/shared/@BRIUS/design-system/-/@BRIUS/design-system-2.1.25.tgz}
     engines: {node: '>=18.0.0 <=20.11.1'}
     peerDependencies:
       vue: ^3.5.13
