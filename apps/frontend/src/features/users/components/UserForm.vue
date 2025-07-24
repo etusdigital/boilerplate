@@ -3,7 +3,7 @@
     <div class="form-wrapper">
       <div class="form-header flex flex-row items-center gap-4">
         <BIcon name="close" @click="closeForm" class="cursor-pointer" />
-        <div class="title">{{ isEditing ? t('editUser') : t('inviteUser') }}</div>
+        <div class="title">{{ isEditing ? t('users.editUser') : t('users.inviteUser') }}</div>
         <div class="save-container">
           <b-button color="success" :disabled="false" :loading="false" size="medium" type="button"
             @click="emit('save', editingUserBind, isEditing)">
@@ -15,17 +15,17 @@
         <div class="profile-img-wrapper">
           <img
             :src="!!editingUser.profileImage ? editingUser.profileImage : 'https://stbbankstown.syd.catholic.edu.au/wp-content/uploads/sites/130/2019/05/Person-icon.jpg'"
-            :alt="t('profileImage')" class="profile-img" />
+            :alt="t('users.roles.profileImage')" class="profile-img" />
         </div>
         <div class="flex flex-col items-start justify-between w-full gap-xl">
-          <BInput v-model="editingUser.name" :errorMessage="t('usersPage.validation.name')" :labelValue="t('name')"
+          <BInput v-model="editingUser.name" :errorMessage="t('users.validation.name')" :labelValue="t('name')"
             :required="true" size="base" type="text" />
 
           <BInput v-model="editingUser.email" :errorMessage="t('usersPage.validation.email')" :isError="false"
             :isTextArea="false" labelValue="Email" :required="true" size="base" type="email" :disabled="isEditing" />
 
-          <BInput v-if="isSameUser" v-model="editingUser.profileImage" errorMessage="A url da imagem não é válida"
-            :isError="!isValidUrl" :isTextArea="false" :labelValue="t('profileImage')" :required="true" size="base"
+          <BInput v-if="isSameUser" v-model="editingUser.profileImage" :errorMessage="t('users.validation.invalidUrl')"
+            :isError="!isValidUrl" :isTextArea="false" :labelValue="t('users.roles.profileImage')" :required="true" size="base"
             type="text" />
 
           <UserRolesSelect :roles="parsedPermissions" :allAccounts="allAccountsParsed" :allowSuperAdmin="true"

@@ -1,13 +1,13 @@
 <template>
   <div class="user-roles-container">
-    <h3 class="user-roles-title">{{ t('userRolesAndPermissions') }}</h3>
+    <h3 class="user-roles-title">{{ t('users.roles.userRolesAndPermissions') }}</h3>
     <div v-if="allowSuperAdmin" class="super-admin-selector flex flex-row gap-2 items-center">
       <BCheckbox :allowIndeterminate="false" :disabled="false" :model-value="isSuperAdmin" :rhs="false"
         @update:model-value="updateSuperAdmin" />
       <h5>{{ t('isSuperAdmin') }}</h5>
     </div>
     <div class="flex flex-col gap-2">
-      <h5 class="roles-selector-label">{{ t('userPermissionsPerAccount') }}</h5>
+      <h5 class="roles-selector-label">{{ t('users.roles.userPermissionsPerAccount') }}</h5>
       <div v-for="(role, index) in userRoles" :key="role.accountId" class="flex flex-row gap-2">
         <div>
           <BSelect :absolute="true" v-model="role.accountName" :items="[...notUsedAccountNames, role.accountName]"
@@ -27,7 +27,7 @@
     <div v-if="notUsedAccounts.length > 0" class="user-roles-add flex flex-row gap-2 items-center cursor-pointer"
       @click="addRole">
       <b-icon name="add" />
-      {{ t('addRole') }}
+      {{ t('users.roles.addRole') }}
     </div>
   </div>
 </template>

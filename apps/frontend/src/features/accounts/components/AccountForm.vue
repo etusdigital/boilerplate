@@ -3,23 +3,23 @@
     <div class="form-wrapper">
       <div class="form-header flex flex-row items-center gap-4">
         <BIcon name="close" @click="closeForm" class="cursor-pointer" />
-        <div class="title">{{ isEditing ? 'Edit Account' : 'Add Account' }}</div>
+        <div class="title">{{ isEditing ? t('accounts.editAccount') : t('accounts.addAccount') }}</div>
         <div class="save-container">
           <b-button color="success" :disabled="false" :loading="false" size="medium" type="button"
             @click="emit('save', editingAccount, isEditing)">
-            Salvar
+            {{ t('save') }}
           </b-button>
         </div>
       </div>
       <div class="flex flex-col items-start justify-between w-full gap-xl">
-        <BInput v-model="editingAccount.name" errorMessage="Name is required" :isError="editingAccount.name.length < 3"
-          labelValue="Account Name" :required="true" size="base" type="text" :disabled="isEditing" />
+        <BInput v-model="editingAccount.name" :errorMessage="t('accounts.sideBarLabels.name')" :isError="editingAccount.name.length < 3"
+          :labelValue="t('accounts.sideBarLabels.name')" :required="true" size="base" type="text" :disabled="isEditing" />
 
-        <BInput v-model="editingAccount.domain" errorMessage="Domain is invalid" :isError="!isValidDomain"
-          labelValue="Domain" :required="true" size="base" type="text" />
+        <BInput v-model="editingAccount.domain" :errorMessage="t('accounts.sideBarLabels.domain')" :isError="!isValidDomain"
+          :labelValue="t('accounts.sideBarLabels.domain')" :required="true" size="base" type="text" />
 
-        <BInput v-model="editingAccount.description" errorMessage="Description is required"
-          :isError="editingAccount.description?.length < 3" labelValue="Description" :required="true" :isTextArea="true"
+        <BInput v-model="editingAccount.description" :errorMessage="t('accounts.sideBarLabels.description')"
+          :isError="editingAccount.description?.length < 3" :labelValue="t('accounts.sideBarLabels.description')" :required="true" :isTextArea="true"
           size="base" type="text" />
       </div>
     </div>
@@ -30,6 +30,9 @@
 import { ref, watch, inject, computed } from 'vue'
 import type { Account } from '@/features/accounts/types/account.type'
 import { useMainStore } from '@/app/stores'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   modelValue: boolean

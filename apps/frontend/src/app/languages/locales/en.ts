@@ -26,7 +26,28 @@ export default {
         user_permissions_per_account: "User Permissions per Account",
         add_role: "Add Role",
         description: "Manage users, their permissions and access to the system.",
-        addUser: "Add User"
+        addUser: "Add User",
+        validation: {
+            name: "Name is required",
+            email: "Email is required",
+            invalidUrl: "The image url is not valid"
+        },
+        roles: {
+            admin: "Admin",
+            user: "User",
+            super_admin: "Super Admin",
+            userRolesAndPermissions: "User Roles and Permissions",
+            userPermissionsPerAccount: "User Permissions per Account",
+            addRole: "Add Role",
+            profileImage: "Profile Image URL"
+        },
+        deleteMsg: {
+            title: "Delete User",
+            deleteUserConfirm: "Are you sure you want to delete the user?",
+            confirm: "Delete",
+            cancel: "Cancel",
+            actionIrreversible: "This action is irreversible"
+        }
     },
     settings: {
         settings: "Settings"
@@ -34,7 +55,22 @@ export default {
     accounts: {
         accounts: "Accounts",
         addAccount: "Add Account",
-        description: "Manage accounts, their names, organizations and more."
+        description: "Manage accounts, their names, organizations and more.",
+        deleteMsg: {
+            title: "Delete Account",
+            deleteAccountConfirm: "Are you sure you want to delete the account:",
+            confirm: "Delete",
+            cancel: "Cancel",
+            actionIrreversible: "This action is irreversible"
+        },
+        sideBarLabels: {
+            title: "Edit Account",
+            editAccount: "Edit Account",
+            addAccount: "Add Account",
+            name: "Account Name",
+            domain: "Account Domain",
+            description: "Account Description"
+        }
     },
     btable: {
         name: "Name",

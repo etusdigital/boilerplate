@@ -30,13 +30,13 @@
       <!-- início b-dialog usado para deletar o usuário e controlado por flags como: showDelete e closeDelete -->
       <b-dialog v-model="showDelete" :width="1000" class="op">
         <div class="form-wrapper">
-          <h1>Delete Account</h1>
+          <h1>{{ t('accounts.deleteMsg.title') }}</h1>
           <p class="text-danger">
-            Are you sure you want to delete the account: <b>{{ deletingAccount.name }}</b>?
+            {{ t('accounts.deleteMsg.deleteAccountConfirm') }} <b>{{ deletingAccount.name }}</b>?
           </p>
-          <p class="text-danger">This action is irreversible.</p>
+          <p class="text-danger">{{ t('accounts.deleteMsg.actionIrreversible') }}.</p>
           <div class="delete-form-actions">
-            <div class="flex items-center justify-between w-full ">
+            <div class="flex items-center justify-end w-full form-container">
               <b-button color="primary" @click="closeDelete">Cancelar</b-button>
               <b-button color="danger" @click="onDeleteAccount(deletingAccount)">Deletar</b-button>
             </div>

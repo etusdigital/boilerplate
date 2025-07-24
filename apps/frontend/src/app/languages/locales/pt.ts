@@ -26,7 +26,28 @@ export default {
         user_permissions_per_account: "Permissões do Usuário por Conta",
         add_role: "Adicionar Permissão",
         description: "Gerencie usuários, suas permissões e acesso ao sistema.",
-        addUser: "Adicionar Usuário"
+        addUser: "Adicionar Usuário",
+        validation: {
+            name: "Nome é obrigatório",
+            email: "Email é obrigatório",
+            invalidUrl: "A url da imagem não é válida"
+        },
+        roles: {
+            admin: "Admin",
+            user: "Usuário",
+            super_admin: "Super Admin",
+            userRolesAndPermissions: "Permissões do Usuário",
+            userPermissionsPerAccount: "Permissões do Usuário por Conta",
+            addRole: "Adicionar Permissão",
+            profileImage: "URL da Imagem de Perfil"
+        },
+        deleteMsg: {
+            title: "Excluir Usuário",
+            deleteUserConfirm: "Tem certeza que deseja excluir o usuário?",
+            confirm: "Excluir",
+            cancel: "Cancelar",
+            actionIrreversible: "Esta ação é irreversível"
+        }
     },
     settings: {
         settings: "Configurações"
@@ -34,7 +55,23 @@ export default {
     accounts: {
         accounts: "Contas",
         addAccount: "Adicionar Conta",
-        description: "Gerencie contas, seus nomes, organizações e mais."
+        editAccount: "Editar Conta",
+        description: "Gerencie contas, seus nomes, organizações e mais.",
+        deleteMsg: {
+            title: "Excluir Conta",
+            deleteAccountConfirm: "Tem certeza que deseja excluir a conta:",
+            confirm: "Excluir",
+            cancel: "Cancelar",
+            actionIrreversible: "Esta ação é irreversível"
+        },
+        sideBarLabels: {
+            title: "Editar Conta",
+            editAccount: "Editar Conta",
+            addAccount: "Adicionar Conta",
+            name: "Nome da Conta",
+            domain: "Domínio da Conta",
+            description: "Descrição da Conta"
+        }
     },
     btable: {
         name: "Nome",

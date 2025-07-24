@@ -67,19 +67,19 @@
     <!-- Dialog de confirmação de exclusão -->
     <b-dialog v-model="showDelete" :width="1000" class="op">
       <div class="form-wrapper">
-        <h1>{{ t('deleteUser') }}</h1>
+        <h1>{{ t('users.deleteMsg.title') }}</h1>
         <p class="text-danger">
-          {{ t('messages.deleteUserConfirm') }}: <b>{{ deletingUser.email }}</b>?
+          {{ t('users.deleteMsg.deleteUserConfirm') }}: <b>{{ deletingUser.email }}</b>?
         </p>
-        <p class="text-danger">{{ t('messages.actionIrreversible') }}.</p>
+        <p class="text-danger">{{ t('users.deleteMsg.actionIrreversible') }}.</p>
         <div class="delete-form-actions">
-          <div class="flex items-center justify-between w-full form-container">
+          <div class="flex items-center justify-end w-full form-container">
             <b-button color="primary" :disabled="false" :loading="false" size="medium" type="button"
               @click="closeDelete">
-              {{ t('cancel') }}
+              {{ t('users.deleteMsg.cancel') }}
             </b-button>
             <b-button color="danger" :disabled="false" size="medium" type="submit" @click="onDeleteUser(deletingUser)">
-              {{ t('delete') }}
+              {{ t('users.deleteMsg.confirm') }}
             </b-button>
           </div>
         </div>
