@@ -10,6 +10,7 @@ export default {
     user: "User",
     save: "Save",
     showing: "Showing",
+    search: "Search",
     to: "to",
     of: "of",
     items_per_page: "Items per page",
@@ -24,7 +25,8 @@ export default {
         is_super_admin: "Is Super Admin",
         user_permissions_per_account: "User Permissions per Account",
         add_role: "Add Role",
-        description: "Manage users, their permissions and access to the system."
+        description: "Manage users, their permissions and access to the system.",
+        addUser: "Add User"
     },
     settings: {
         settings: "Settings"
@@ -36,6 +38,9 @@ export default {
     },
     btable: {
         name: "Name",
+        email: "Email",
+        updatedAt: "Updated At",
+        status: "Status",
         description: "Description",
         createdAt: "Created At",
         deletedAt: "Deleted At"

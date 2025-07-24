@@ -43,4 +43,8 @@ export class Auth0Provider {
       throw error;
     }
   }
-} 
+
+  async getUserByEmail(email: string) {
+    return this.managementClient.usersByEmail.getByEmail({ email });
+  }
+}

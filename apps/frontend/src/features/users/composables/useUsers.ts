@@ -1,56 +1,70 @@
 import { ref, computed, onMounted, inject } from 'vue'
-import axios, { AxiosError } from 'axios'
+import api from '@/shared/api'
 import { useMainStore } from '@/app/stores'
-import type { User } from '@/features/users/types/user.type'
+import type { User, PaginatedUsersResponse, UsersQueryParams, PaginationMeta } from '@/features/users/types/user.type'
+import { useI18n } from 'vue-i18n'
 
 export function useUsers() {
   const mainStore = useMainStore()
   const toastOptions = mainStore.toastOptions
   const toast = inject('toast') as any
+  const { t } = useI18n()
 
-  const getAllUsers = async (): Promise<User[]> => {
+  // Estado de paginação
+  const users = ref<User[]>([])
+  const isLoading = ref(false)
+  const paginationMeta = ref<PaginationMeta>({
+    currentPage: 1,
+    limit: 10,
+    totalItems: 0,
+    totalPages: 1,
+    hasPreviousPage: false,
+    hasNextPage: false,
+  })
+
+  // Método paginado principal
+  const getAllUsers = async (params: UsersQueryParams = {}): Promise<PaginatedUsersResponse> => {
+    isLoading.value = true
     try {
-      const accessToken = await mainStore.getAccessTokenSilently()
-
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users`, {
-        headers: {
-          'account-id': 1,
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-
+      const response = await api.get('/users', { params })
+      users.value = response.data.data
+      paginationMeta.value = response.data.meta
       return response.data
     } catch (error: any) {
       toast({
-        message: `Error fetching users: ${error.response?.data?.message || 'Unknown error'}`,
+        message: t('usersPage.messages.fetchUsersError', [error.response?.data?.message || 'Unknown error']),
         ...toastOptions,
       })
-      return [] as User[]
+      users.value = []
+      paginationMeta.value = {
+        currentPage: 1,
+        limit: 10,
+        totalItems: 0,
+        totalPages: 1,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      }
+      return {
+        data: [],
+        meta: paginationMeta.value,
+      }
+    } finally {
+      isLoading.value = false
     }
   }
 
   const saveUser = async (editingUser: User, isEditing: boolean): Promise<User> => {
+    if (editingUser.isSuperAdmin === null || editingUser.isSuperAdmin === undefined) {
+      editingUser.isSuperAdmin = false
+    }
     editingUser.status = 'accepted'
-    const method = isEditing ? axios.put : axios.post
-    const saveUrl = isEditing
-      ? `${import.meta.env.VITE_BACKEND_URL}/users/${editingUser.id}`
-      : `${import.meta.env.VITE_BACKEND_URL}/users`
+    const method = isEditing ? api.put : api.post
+    const saveUrl = isEditing ? `/users/${editingUser.id}` : `/users`
     try {
-      const accessToken = await mainStore.getAccessTokenSilently()
-      const response = await method(
-        saveUrl,
-        { ...editingUser },
-        {
-          //TODO: Injetar no header dados provenientes da store, para pegar os dados do usuário logado
-          headers: {
-            'account-id': 1,
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      )
+      const response = await method(saveUrl, { ...editingUser })
 
       toast({
-        message: `Usuário: ${editingUser.email} salvo com sucesso`,
+        message: t('usersPage.messages.userSaveSuccess', [editingUser.email]),
         ...toastOptions,
         ...{ type: 'success' },
       })
@@ -58,7 +72,7 @@ export function useUsers() {
       return response.data
     } catch (error: any) {
       toast({
-        message: `Error saving user: ${error.response.data.message}`,
+        message: t('usersPage.messages.userSaveError', [error.response.data.message]),
         ...toastOptions,
       })
       return {} as User
@@ -67,15 +81,10 @@ export function useUsers() {
 
   const deleteUser = async (val: User): Promise<User> => {
     try {
-      const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/users/${val.id}`, {
-        headers: {
-          'account-id': 1,
-          user: JSON.stringify(mainStore.user),
-        },
-      })
+      const response = await api.delete(`/users/${val.id}`)
 
       toast({
-        message: `Usuário: ${val.email} deletado com sucesso`,
+        message: t('usersPage.messages.userDeleteSuccess', [val.email]),
         ...toastOptions,
         ...{ type: 'success' },
       })
@@ -83,7 +92,7 @@ export function useUsers() {
       return response.data
     } catch (error: any) {
       toast({
-        message: `Error deleting user: ${val.email}. ${error.response.data.message}`,
+        message: t('usersPage.messages.userDeleteError', [val.email, error.response.data.message]),
         ...toastOptions,
       })
       return {} as User
@@ -91,7 +100,12 @@ export function useUsers() {
   }
 
   return {
-    getAllUsers,
+    // State
+    users,
+    isLoading,
+    paginationMeta,
+    // Methods
+    getAllUsers, // método paginado principal
     saveUser,
     deleteUser,
   }

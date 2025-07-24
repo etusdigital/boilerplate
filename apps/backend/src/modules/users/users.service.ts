@@ -69,7 +69,7 @@ export class UsersService {
 
     // Build base query for counting (optimized)
     const countQueryBuilder = this.userRepository.createQueryBuilder('user');
-
+    
     // Apply filters to count query
     if (queryDto.search) {
       countQueryBuilder.andWhere(
@@ -97,7 +97,7 @@ export class UsersService {
     const dataQueryBuilder = this.userRepository.createQueryBuilder('user')
       .select([
         'user.id',
-        'user.name',
+        'user.name', 
         'user.email',
         'user.profileImage',
         'user.status',
@@ -150,6 +150,10 @@ export class UsersService {
     };
   }
 
+  async find() {
+    return await this.userRepository.find();
+  }
+
   async findById() {
     return await this.userRepository.find({
       where: { id: this.cls.get('user').id },
@@ -163,11 +167,12 @@ export class UsersService {
   }
 
   async create(user: UserDto) {
-    const newUser = await this.userRepository.create({
+    const newUser = this.userRepository.create({
       name: user.name,
       email: user.email,
       profileImage: user.profileImage,
       status: 'invited',
+      isSuperAdmin: user.isSuperAdmin || false,
     });
 
     const savedUser = await this.userRepository.save(newUser);
@@ -208,6 +213,20 @@ export class UsersService {
             userId: id,
           });
         }
+
+        if (
+          user.userAccounts?.some(
+            (a) => a.accountId === account.accountId && a.role !== account.role,
+          )
+        ) {
+          const matched = user.userAccounts?.find(
+            (a) => a.accountId === account.accountId,
+          );
+          uaAdd.push({
+            ...matched,
+            role: account.role,
+          } as UserAccountDto);
+        }
       });
 
       user.userAccounts.forEach((account) => {
@@ -215,13 +234,14 @@ export class UsersService {
           uaDel.push({
             accountId: account.accountId,
             userId: id,
-          });
+            role: account.role,
+          } as UserAccountDto);
         }
       });
 
       delete user.userAccounts;
 
-      await this.userRepository.update(id, { ...user, id });
+      await this.userRepository.update(id, { ...user, id } as User);
 
       await this.createUserAccounts(uaAdd);
 
@@ -237,7 +257,7 @@ export class UsersService {
     return await this.userRepository.softDelete(id);
   }
 
-  async login(userLogin: LoginDto, jwtUser: any) {
+  async login(userLogin: LoginDto, jwtUser) {
     // Set these manually since this route is excluded from the middleware that does it.
     this.cls.set('transactionId', uuidv7());
     this.cls.set('accountId', 1);
@@ -276,9 +296,7 @@ export class UsersService {
 
   async createUserAccounts(userAccounts: UserAccountDto[]) {
     for (const userAccount of userAccounts) {
-      const newUserAccount =
-        await this.userAccountRepository.create(userAccount);
-      await this.userAccountRepository.save(newUserAccount);
+      await this.userAccountRepository.save(userAccount as UserAccount);
     }
 
     return { success: true };

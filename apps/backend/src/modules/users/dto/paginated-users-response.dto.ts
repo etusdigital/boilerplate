@@ -9,9 +9,9 @@ export class PaginatedUsersResponseDto {
   })
   data: User[];
 
-  @ApiProperty({
+  @ApiProperty({ 
     description: 'Pagination metadata',
     type: PaginationMetaDto,
   })
   meta: PaginationMetaDto;
-}
+} 

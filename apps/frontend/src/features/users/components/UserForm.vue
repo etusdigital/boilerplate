@@ -1,13 +1,13 @@
 <template>
-  <b-sidebar v-model="model" :noOutsideClose="true" width="40%" @update:model-value="updateModelValue">
+  <b-sidebar v-model="model" :noOutsideClose="false" width="40%" @update:model-value="updateModelValue">
     <div class="form-wrapper">
       <div class="form-header flex flex-row items-center gap-4">
         <BIcon name="close" @click="closeForm" class="cursor-pointer" />
-        <div class="title">{{ isEditing ? $t('users.edit_user') : $t('users.invite_user') }}</div>
+        <div class="title">{{ isEditing ? t('editUser') : t('inviteUser') }}</div>
         <div class="save-container">
           <b-button color="success" :disabled="false" :loading="false" size="medium" type="button"
             @click="emit('save', editingUserBind, isEditing)">
-            {{ isEditing ? $t('save') : $t('users.send_invite') }}
+            {{ isEditing ? t('save') : t('sendInvite') }}
           </b-button>
         </div>
       </div>
@@ -15,18 +15,17 @@
         <div class="profile-img-wrapper">
           <img
             :src="!!editingUser.profileImage ? editingUser.profileImage : 'https://stbbankstown.syd.catholic.edu.au/wp-content/uploads/sites/130/2019/05/Person-icon.jpg'"
-            alt="Profile Image" class="profile-img" />
+            :alt="t('profileImage')" class="profile-img" />
         </div>
         <div class="flex flex-col items-start justify-between w-full gap-xl">
-          <BInput v-model="editingUser.name" errorMessage="O nome precisa ter ao menos 3 caracteres"
-            :labelValue="$t('name')" :required="true" size="base" type="text" />
+          <BInput v-model="editingUser.name" :errorMessage="t('usersPage.validation.name')" :labelValue="t('name')"
+            :required="true" size="base" type="text" />
 
-          <BInput v-model="editingUser.email" errorMessage="O email precisa ser válido" :isError="false"
-            :isTextArea="false" :labelValue="$t('email')" :required="true" size="base" type="email"
-            :disabled="isEditing" />
+          <BInput v-model="editingUser.email" :errorMessage="t('usersPage.validation.email')" :isError="false"
+            :isTextArea="false" labelValue="Email" :required="true" size="base" type="email" :disabled="isEditing" />
 
           <BInput v-if="isSameUser" v-model="editingUser.profileImage" errorMessage="A url da imagem não é válida"
-            :isError="!isValidUrl" :isTextArea="false" :labelValue="$t('profile_image')" :required="true" size="base"
+            :isError="!isValidUrl" :isTextArea="false" :labelValue="t('profileImage')" :required="true" size="base"
             type="text" />
 
           <UserRolesSelect :roles="parsedPermissions" :allAccounts="allAccountsParsed" :allowSuperAdmin="true"
@@ -43,92 +42,39 @@
 </template>
 
 <script setup lang="ts">
-import type { Ref } from 'vue';
-import type { User } from '@/features/users/types/user.type'
-import type { Account } from '@/features/accounts/types/account.type'
-import type { Role } from './UserRolesSelect.vue'
-import { ref, watch, computed } from 'vue';
-import { useMainStore } from '@/app/stores'
+import type { User } from '@/features/users/types/user.type';
+import type { Account } from '@/features/accounts/types/account.type';
+import { useUserForm } from '@/features/users/composables/useUserForm';
 import UserRolesSelect from './UserRolesSelect.vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = defineProps<{
-  modelValue: boolean
-  user: User
-  allAccounts: Array<Account>
-}>()
-
-const mainStore = useMainStore()
-
-const isSameUser = computed(() => props.user.id === mainStore.user?.id);
-const model = defineModel<boolean>('modelValue')
-const editingUser = ref({ ...props.user })
-const allAccountsParsed = ref([...props.allAccounts])
-allAccountsParsed.value = allAccountsParsed.value.map((account) => ({
-  ...account,
-}));
-
-const parsedPermissions: Ref<string[]> = ref([]);
-
-const getParsedRole = (role: string) => {
-  const lowerCaseRole = role.toLowerCase();
-  return (lowerCaseRole.charAt(0).toUpperCase() + lowerCaseRole.slice(1)) as 'Reader' | 'Writer' | 'Admin';
-}
-
-parsedPermissions.value = editingUser.value.userAccounts.map((acc) => ({
-  accountId: acc.accountId,
-  role: getParsedRole(acc.role) || 'Reader',
-  accountName: acc.account.name,
-} as Role));
+  modelValue: boolean;
+  user: User;
+  allAccounts: Array<Account>;
+}>();
 
 const emit = defineEmits<{
-  (e: 'save', user: User, isEditing: boolean): void
-  (e: 'close', user?: User | null): void
-  (e: 'update:modelValue', value: boolean): void
-}>()
+  (e: 'save', user: User, isEditing: boolean): void;
+  (e: 'close', user?: User | null): void;
+  (e: 'update:modelValue', value: boolean): void;
+}>();
 
-const isEditing = ref(!!props.user.id)
-
-const isValidUrl = computed(() => {
-  try {
-    new URL(editingUser.value.profileImage || '')
-    return true
-  } catch (error) {
-    return false
-  }
-})
-
-const editedUserAccounts = ref([]);
-
-editedUserAccounts.value = parsedPermissions.value;
-
-const editingUserBind = computed(() => ({
-  ...editingUser.value,
-  userAccounts: editedUserAccounts.value
-}))
-
-const updateSelectedPermissions = (value: any[]) => {
-  editedUserAccounts.value = value.map(p => ({ ...p, role: p.role.toLowerCase() as 'reader' | 'writer' | 'admin' }));
-}
-
-const changeSuperAdmin = (value: boolean) => {
-  editingUser.value.isSuperAdmin = value
-}
-
-const updateModelValue = (value: boolean) => {
-  model.value = value
-  emit('update:modelValue', value)
-}
-
-const closeForm = () => {
-  emit('close', isEditing.value ? props.user : null)
-}
-
-watch(
-  () => props.modelValue,
-  (value) => {
-    model.value = value
-  },
-);
+const {
+  model,
+  isSameUser,
+  editingUser,
+  allAccountsParsed,
+  parsedPermissions,
+  isEditing,
+  isValidUrl,
+  editingUserBind,
+  updateSelectedPermissions,
+  changeSuperAdmin,
+  updateModelValue,
+  closeForm,
+} = useUserForm(props, emit);
 
 </script>
 

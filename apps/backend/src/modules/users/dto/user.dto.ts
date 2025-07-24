@@ -11,6 +11,10 @@ import { ApiProperty } from '@nestjs/swagger';
 class UserAccountInput {
   @ApiProperty()
   accountId: number;
+
+  @ApiProperty()
+  @IsOptional()
+  role: string;
 }
 
 export class UserDto {
@@ -54,7 +58,7 @@ export class UserDto {
   @IsArray()
   userAccounts?: UserAccountInput[];
 
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: true, default: false })
   @IsBoolean()
   isSuperAdmin?: boolean;
 }

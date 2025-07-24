@@ -1,15 +1,47 @@
 <template>
   <div class="main-container">
-    <h1 class="core-app-title">{{ $t($route.name as string) }}</h1>
-    <!-- início b-round-button usado para adicionar um novo usuário -->
-    <b-round-button :text="`${$t('add')} ${$t('user')} `" @click="createUser" />
-    <!-- fim b-round-button -->
-    <!-- início b-table usada para listar os usuários -->
-    <b-table :headers="tcolumns" :items="tdata" :options="{ sortBy: 'name', sortDesc: false }" :loading="isLoading"
-      :itemsPerPage="itemsPerPage" v-model:page="page" v-model:items-per-page="itemsPerPage">
+    <!-- TitleBar com título e botão de ação -->
+    <TitleBar :title="t('users.users')" :actions="titleBarActions" />
+
+    <!-- Campo de busca -->
+    <div class="flex gap-base w-[100%] justify-between items-center mb-base">
+      <BInput 
+        type="search" 
+        size="lg" 
+        :placeholder="t('search')" 
+        v-model="searchQuery"
+        @input="handleSearchChange" 
+      />
+    </div>
+
+    <!-- Tabela de usuários -->
+    <b-table 
+      :headers="tcolumns" 
+      :items="users" 
+      :options="{ sortBy: 'name', sortDesc: false }" 
+      :loading="isLoading"
+      :renderPaginationInBackEnd="true"
+      :itemsPerPage="itemsPerPage"
+      :page="paginationMeta.currentPage"
+      :numberOfItems="paginationMeta.totalItems"
+      @update:page="handlePageChange"
+      @update:itemsPerPage="handleItemsPerPageChange"
+      @sortBy="handleSortBy"
+    >
       <template v-for="(metric, index) in tcolumns" v-slot:[metric.value]="{ item }">
         <td v-if="item && metric.value" :key="`child-${index}-${item.value}`">
-          {{ item[metric.value] }}
+          <template v-if="metric.value === 'updatedAt'">
+            <span class="w-full text-left">{{ formatDisplayDate(item.updatedAt) }}</span>
+            <br />
+            <span v-if="item?.updatedAt && item?.createdAt" class="text-xxs w-full text-center">{{
+              t('btable.createdAt') }} {{ formatDisplayDate(item.createdAt) }}</span>
+          </template>
+          <template v-else-if="metric.value === 'deletedAt'">
+            <span class="w-full text-left">{{ formatDisplayDate(item.deletedAt) }}</span>
+          </template>
+          <template v-else>
+            {{ item[metric.value] }}
+          </template>
         </td>
       </template>
       <template v-slot:actions="{ item, index }">
@@ -20,93 +52,211 @@
           </div>
         </td>
       </template>
-      <template #items-per-page>{{ $t('items_per_page') }}</template>
-      <template #showing-page="{ min, max, total }">
-        {{ `${$t('showing')} ${min} ${$t('to')} ${max} ${$t('of')} ${total}` }}
-      </template>
     </b-table>
-    <!-- fim b-table -->
+
+    <!-- Empty State -->
+    <div v-if="!isLoading && users.length === 0" class="flex flex-col items-center justify-center py-xl">
+      <p v-if="paginationMeta.totalItems === 0" class="text-neutral-foreground-low">{{ t('messages.noItemFound') }}</p>
+      <p v-else class="text-neutral-foreground-low">{{ t('messages.noResultsFound') }}</p>
+    </div>
+
+    <!-- Formulário de usuário -->
     <UserForm v-if="showFormControl" v-model="showForm" :user="editingUser" :allAccounts="allAccounts" @save="onSave"
       @close="onCloseForm" />
-    <!-- início b-dialog usado para deletar o usuário e controlado por flags como: showDelete e closeDelete -->
+
+    <!-- Dialog de confirmação de exclusão -->
     <b-dialog v-model="showDelete" :width="1000" class="op">
       <div class="form-wrapper">
-        <h1>Deletar Usuário</h1>
+        <h1>{{ t('deleteUser') }}</h1>
         <p class="text-danger">
-          Tem certeza que deseja deletar o usuário: <b>{{ deletingUser.email }}</b>?
+          {{ t('messages.deleteUserConfirm') }}: <b>{{ deletingUser.email }}</b>?
         </p>
-        <p class="text-danger">Esta ação é irreversível.</p>
+        <p class="text-danger">{{ t('messages.actionIrreversible') }}.</p>
         <div class="delete-form-actions">
           <div class="flex items-center justify-between w-full form-container">
             <b-button color="primary" :disabled="false" :loading="false" size="medium" type="button"
               @click="closeDelete">
-              Cancelar
+              {{ t('cancel') }}
             </b-button>
             <b-button color="danger" :disabled="false" size="medium" type="submit" @click="onDeleteUser(deletingUser)">
-              Deletar
+              {{ t('delete') }}
             </b-button>
           </div>
         </div>
       </div>
     </b-dialog>
-    <!-- fim b-dialog -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed, watch } from 'vue'
 import UserForm from '@/features/users/components/UserForm.vue'
-import type { User } from '@/features/users/types/user.type'
+import type { User, UsersQueryParams } from '@/features/users/types/user.type'
 import { useUsers } from '@/features/users/composables/useUsers'
 import { useAccounts } from '@/features/accounts/composables/useAccounts'
-import type { Account } from '@/features/accounts/types/account.type'
 import { useI18n } from 'vue-i18n'
-
+import TitleBar from '@/shared/components/TitleBar.vue'
+import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
 const { t } = useI18n()
 
-const isLoading = ref(true)
-const itemsPerPage = ref(100)
-const page = ref(1)
+// Composables
+const { users, isLoading, paginationMeta, getAllUsers, saveUser, deleteUser } = useUsers()
+const { getAllAccounts } = useAccounts()
+
+// Estado da busca e paginação
+const searchQuery = ref('')
+const itemsPerPage = ref(50)
+const currentSortBy = ref('name')
+const currentSortDesc = ref(false)
+
+// Debounce timer universal
+let universalDebounceTimer: NodeJS.Timeout | null = null
+
+// Função universal com debounce
+const debouncedFetchUsers = async (params: UsersQueryParams = {}, delay: number = 0) => {
+  if (universalDebounceTimer) {
+    clearTimeout(universalDebounceTimer)
+  }
+
+  universalDebounceTimer = setTimeout(async () => {
+    const queryParams: UsersQueryParams = {
+      page: paginationMeta.value.currentPage,
+      limit: itemsPerPage.value,
+      sortBy: currentSortBy.value as 'createdAt' | 'updatedAt' | 'name' | 'email',
+      sortOrder: currentSortDesc.value ? 'DESC' : 'ASC',
+      ...params,
+    }
+
+    if (searchQuery.value) {
+      queryParams.search = searchQuery.value
+    }
+
+    await getAllUsers(queryParams)
+  }, delay)
+}
+
+// Estados do formulário
+const allAccounts = ref<Array<any>>([])
+const editingUser = ref<User>({} as User)
+const deletingUser = ref({} as any)
+const editingIndex = ref(0)
+const showForm = ref(false)
+const showDelete = ref(false)
+const showFormControl = ref(false)
+
+// Configuração das colunas da tabela
 const tcolumns = ref([
   {
-    text: 'name',
-    label: t('name'),
+    text: t('btable.name'),
+    label: t('btable.name'),
     value: 'name',
     sortable: true,
     width: '50%',
   },
   {
-    text: 'Email',
-    label: t('email'),
+    text: t('btable.email'),
+    label: t('btable.email'),
     value: 'email',
     sortable: true,
   },
   {
-    text: 'Join Date',
-    label: t('join_date'),
-    value: 'createdAt',
+    text: t('btable.updatedAt'),
+    label: t('btable.updatedAt'),
+    value: 'updatedAt',
     sortable: true,
   },
   {
-    text: 'end_date',
-    label: t('end_date'),
+    text: t('btable.deletedAt'),
+    label: t('btable.deletedAt'),
     value: 'deletedAt',
     sortable: true,
   },
 ])
 
-const tdata = ref<Array<User>>([])
-const allAccounts = ref<Array<Account>>([])
-const editingUser = ref<User>({} as User)
-const deletingUser = ref({} as any)
-const editingIndex = ref(0)
-const { getAllUsers, saveUser, deleteUser } = useUsers()
-const { getAllAccounts } = useAccounts()
+// Função fetchUsers inicial otimizada
+const fetchUsers = async () => {
+  showForm.value = false
+  forceResetForm()
+  await debouncedFetchUsers({}, 0) // Carregamento inicial sem delay
+  const accounts = await getAllAccounts()
+  allAccounts.value = accounts.map((account) => ({
+    label: account.name,
+    value: account.id,
+  }))
+  editingUser.value = {} as User
+}
 
-const showForm = ref(false)
-const showDelete = ref(false)
-const showFormControl = ref(false)
+// Handlers otimizados
+const handlePageChange = async (page: number) => {
+  paginationMeta.value.currentPage = page
+  await debouncedFetchUsers({}, 50) // Pequeno delay para UX fluida
+}
 
+const handleItemsPerPageChange = async (newItemsPerPage: number) => {
+  itemsPerPage.value = newItemsPerPage
+  paginationMeta.value.limit = newItemsPerPage
+  paginationMeta.value.currentPage = 1
+  await debouncedFetchUsers({}, 100) // Delay maior para mudança significativa
+}
+
+const handleSortBy = async (key: string, isSortDesc: boolean = false) => {
+  // Atualizar os estados com os valores recebidos
+  if (key) {
+    currentSortBy.value = key
+  }
+  currentSortDesc.value = isSortDesc
+  
+  // Ordenação instantânea - sem delay
+  await debouncedFetchUsers({}, 0)
+}
+
+const handleSearchChange = async (eventOrValue: any) => {
+  // Normalizar entrada (pode ser string direta ou evento)
+  let newSearchQuery = ''
+  if (typeof eventOrValue === 'string') {
+    newSearchQuery = eventOrValue
+  } else if (eventOrValue && eventOrValue.target && typeof eventOrValue.target.value === 'string') {
+    newSearchQuery = eventOrValue.target.value
+  }
+  
+  searchQuery.value = newSearchQuery
+  paginationMeta.value.currentPage = 1 // Reset para primeira página na busca
+  
+  // Busca com delay maior para evitar requests excessivos
+  await debouncedFetchUsers({}, 300)
+}
+
+// Actions da TitleBar
+const titleBarActions = computed<TitleBarAction[]>(() => [
+  {
+    key: 'add-user',
+    text: t('users.addUser'),
+    icon: 'add_circle',
+    color: 'primary',
+    onClick: createUser
+  }
+])
+
+// Funções de formatação
+const formatDisplayDate = (dateString: string): string => {
+  if (!dateString) return '-'
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      return '-'
+    }
+    return date.toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+  } catch (e) {
+    return '-'
+  }
+}
+
+// Handlers de CRUD
 const onEdit = async (val: any, index: number) => {
   showFormControl.value = false
   editingUser.value = val
@@ -120,7 +270,7 @@ const onEdit = async (val: any, index: number) => {
 const onDeleteUser = async (val: any) => {
   await deleteUser(val)
   closeDelete()
-  fetchUsers()
+  await fetchUsers()
 }
 
 const createUser = () => {
@@ -129,6 +279,7 @@ const createUser = () => {
     email: '',
     profileImage: '',
     userAccounts: [],
+    isSuperAdmin: false,
   } as User
   editingIndex.value = 0
 
@@ -144,23 +295,9 @@ const forceResetForm = () => {
   }, 500)
 }
 
-const fetchUsers = async () => {
-  isLoading.value = true
-  showForm.value = false
-  forceResetForm()
-  tdata.value = await getAllUsers()
-  const accounts = await getAllAccounts()
-  allAccounts.value = accounts.map((account) => ({
-    label: account.name,
-    value: account.id,
-  }))
-  editingUser.value = {} as User
-  isLoading.value = false
-}
-
 const onSave = async (editingUser: any, isEditing: boolean) => {
   await saveUser(editingUser, isEditing)
-  fetchUsers()
+  await fetchUsers()
 }
 
 const closeDelete = () => {
@@ -174,20 +311,25 @@ const onDelete = async (val: any) => {
 }
 
 const onCloseForm = (data: any) => {
-  if (data && tdata.value[editingIndex.value]) {
-    tdata.value[editingIndex.value] = data
+  if (data && users.value[editingIndex.value]) {
+    users.value[editingIndex.value] = data
   }
   editingUser.value = {} as User
   showForm.value = false
   forceResetForm()
 }
 
+// Inicialização
 onMounted(() => {
   fetchUsers()
 })
 </script>
 
 <style>
+.main-container {
+  padding: 20px;
+}
+
 .form-card {
   padding: 2rem;
 }
