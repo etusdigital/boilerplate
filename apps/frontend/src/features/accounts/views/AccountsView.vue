@@ -19,9 +19,9 @@
             </div>
           </td>
         </template>
-        <template #items-per-page>Items per page</template>
+        <template #items-per-page>{{ t('items_per_page') }}</template>
         <template #showing-page="{ min, max, total }">
-          {{ `Showing ${min} to ${max} of ${total}` }}
+          {{ t('pagination_text', [min, max, total]) }}
         </template>
       </b-table>
       <!-- fim b-table -->

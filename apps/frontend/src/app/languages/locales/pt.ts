@@ -16,6 +16,13 @@ export default {
     items_per_page: "Itens por página",
     profile_image: "Imagem de Perfil",
     logout: "Sair",
+    delete: "Deletar",
+    delete_user: "Deletar usuário",
+    delete_account: "Deletar conta",
+    cancel: "Cancelar",
+    action_irreversible: "Esta ação é irreversível",
+    pagination_text: "Mostrando {0} a {1} de {2}",
+    add_account: "Adicionar conta",
     users: {
         users: "Usuários",
         edit_user: "Editar Usuário",
@@ -50,7 +57,7 @@ export default {
         }
     },
     settings: {
-        settings: "Configurações"
+        settings: "Configurações",
     },
     accounts: {
         accounts: "Contas",
