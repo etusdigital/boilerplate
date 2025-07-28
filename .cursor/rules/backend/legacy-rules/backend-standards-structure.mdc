@@ -1,0 +1,195 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+
+# Backend Development Standards - Structure
+
+## Integration Requirements
+**CRITICAL**: Always follow @etus-methodology.mdc for development workflow and approval process
+
+### INTERRUPT: Context Request Validation
+**TRIGGER**: User requests code examples or implementation models
+**ACTION**: READ @backend_standards_models.mdc for comprehensive code examples
+**ENFORCEMENT**: Use @backend_standards_models.mdc when user needs implementation details
+
+## Architecture & File Organization
+
+### INTERRUPT: Feature Structure Validation
+**TRIGGER**: Creating files outside feature-based structure
+**ACTION**: FAIL with "Follow feature-based organization pattern"
+**ENFORCEMENT**: All backend files must follow feature-based structure
+
+### Complete Directory Structure for CRUD
+```
+/backend/src/
+├── entities/
+│   └── [entity-name].entity.ts
+├── modules/
+│   └── [entity-name]/
+│       ├── [entity-name].module.ts
+│       ├── [entity-name].controller.ts
+│       ├── [entity-name].service.ts
+│       ├── [entity-name].spec.ts
+│       └── dto/
+│           ├── create-[entity-name].dto.ts
+│           └── update-[entity-name].dto.ts
+└── app.module.ts  // Register new module here
+```
+
+### File Naming Conventions
+- **Controllers**: `[entity-name].controller.ts`
+- **Services**: `[entity-name].service.ts`
+- **Entities**: `[entity-name].entity.ts`
+- **DTOs**: `create-[entity-name].dto.ts`, `update-[entity-name].dto.ts`
+- **Modules**: `[entity-name].module.ts`
+- **Tests**: `[entity-name].spec.ts`
+
+### Database Column to Code Mapping
+- **Database**: Use `snake_case` for all column names
+- **Entity Properties**: Use `camelCase` with `@Column({ name: 'snake_case' })`
+- **Example**: `account_id` (DB) → `accountId` (Entity) → `@Column({ name: 'account_id' })`
+
+## Project-Specific Standards
+
+### INTERRUPT: Account Isolation Validation
+**TRIGGER**: Queries without `accountId` filtering
+**ACTION**: FAIL with "Account isolation mandatory - use accountId filtering"
+**ENFORCEMENT**: All database operations must include account isolation
+
+### Account Isolation Pattern
+- **MANDATORY**: Use `accountId` from CLS context in all operations
+- **ALWAYS**: Filter queries by `accountId` automatically
+- **VALIDATE**: Account ownership before any CRUD operation
+- **PATTERN**: `where: { accountId: this.cls.get('accountId'), deletedAt: IsNull() }`
+
+### INTERRUPT: Audit System Validation
+**TRIGGER**: Using `update()` instead of `save()` for entity modifications
+**ACTION**: FAIL with "Use save() for audit compatibility"
+**ENFORCEMENT**: All entity modifications must use `save()` method
+
+### Audit System Integration
+- **AUTOMATIC**: Audit logging via `AuditSubscriber`
+- **REQUIRED**: Include user context in all operations
+- **TRACK**: All soft deletes, updates, and creations
+- **PATTERN**: Use `save()` instead of `update()` for audit compatibility
+
+### Media Assets Handling
+- **USE**: UUID for file names, incremental ID for references
+- **IMPLEMENT**: Signed URLs for direct GCS upload
+- **VALIDATE**: File types, sizes, and account ownership
+- **PATTERN**: Three-step process (generate → upload → confirm)
+
+### Custom Properties (JSONB)
+- **STRUCTURE**: Array of objects with `key`, `value`, `type` properties
+- **VALIDATION**: Validate structure before saving
+- **QUERIES**: Use JSONB operators for filtering and searching
+- **PATTERN**: `@> :property` for contains operations
+
+## Entity and Database Standards
+
+### INTERRUPT: Migration Safety Validation
+**TRIGGER**: Attempting to execute migrations automatically
+**ACTION**: FAIL with "Migration execution requires user approval"
+**ENFORCEMENT**: Always ask user before generating/executing migrations
+
+### Migration Safety Rules
+- **ALWAYS ask user** before generating/executing migrations
+- **NEVER execute** `typeorm migration:*` automatically
+- **MANDATORY question**: "Do you want to generate and execute migrations now?"
+- **NOTE**: User follows custom migration workflow - defer to user for migration approach
+
+### INTERRUPT: Soft Delete Validation
+**TRIGGER**: Using hard delete operations
+**ACTION**: FAIL with "Use soft delete pattern"
+**ENFORCEMENT**: All entities must implement soft delete
+
+### Soft Delete Pattern
+- **MANDATORY**: Use `@DeleteDateColumn()` in all entities
+- **QUERIES**: Always filter by `deletedAt: IsNull()`
+- **DELETE**: Use `softDelete()` or set `deletedAt` manually
+- **AUDIT**: Soft deletes trigger audit logs automatically
+
+## Implementation Standards
+
+### INTERRUPT: DTO Validation
+**TRIGGER**: Missing validation decorators or API documentation
+**ACTION**: FAIL with "DTOs must have validation and API documentation"
+**ENFORCEMENT**: All DTOs require class-validator and @ApiProperty decorators
+
+### INTERRUPT: API Documentation Validation
+**TRIGGER**: Missing API documentation decorators
+**ACTION**: FAIL with "Controllers must have complete API documentation"
+**ENFORCEMENT**: All endpoints require @ApiOperation and @ApiResponse decorators
+
+### INTERRUPT: Error Handling Validation
+**TRIGGER**: Missing try-catch blocks in service methods
+**ACTION**: FAIL with "Service methods must have proper error handling"
+**ENFORCEMENT**: All service methods require error handling
+
+### Implementation Checklist
+- **DTOs**: class-validator + @ApiProperty decorators + PartialType for updates
+- **Controllers**: @ApiTags + @ApiOperation + @ApiResponse + @UseGuards(JwtAuthGuard)
+- **Services**: try-catch blocks + account isolation + use save() not update()
+- **Entities**: @Entity + account relationship + audit fields + soft delete
+
+## Advanced Patterns
+
+### Module Integration Requirements
+- **IMPORT**: TypeOrmModule.forFeature([Entity]) in module
+- **REGISTER**: Add module to AppModule imports array
+- **DEPENDENCY**: Use constructor injection with @InjectRepository()
+- **EXPORT**: Export service if used by other modules
+
+### Authentication and Security
+- **PROTECTED ENDPOINTS**: @UseGuards(JwtAuthGuard) on all controllers
+- **ACCOUNT ISOLATION**: Validate account ownership in all operations
+- **INPUT VALIDATION**: Sanitize all user inputs with DTOs
+- **JWT CONTEXT**: Use ClsService to get accountId from token
+
+### Performance and Pagination
+- **PAGINATION**: Mandatory for list endpoints using findAndCount()
+- **ACCOUNT FILTERING**: Include accountId in all pagination queries
+- **SOFT DELETE**: Filter deletedAt: IsNull() in all queries
+- **OPTIMIZATION**: Load only required fields and relations
+
+## Quality Gates
+
+### FAIL CONDITIONS
+- Missing account isolation in queries
+- Using update() instead of save() for entity modifications
+- Missing soft delete implementation
+- Executing migrations without user approval
+- Missing API documentation
+- Missing error handling in services
+- Missing validation in DTOs
+- Hard delete operations
+
+### QUALITY GATES
+- Account isolation implemented in all operations
+- Soft delete pattern used consistently
+- Audit system integrated properly
+- Migration safety rules followed
+- Complete API documentation
+- Proper error handling implemented
+- Input validation complete
+- Security measures implemented
+
+## Common Pitfalls - AVOID
+- Mixing feature logic in shared modules
+- Missing account isolation in database queries
+- Using update() instead of save() for audit compatibility
+- Executing migrations without user approval
+- Missing API documentation decorators
+- Incomplete error handling in services
+- Missing validation decorators in DTOs
+- Hard delete operations
+- Circular dependencies between modules
+- Missing authentication guards on protected endpoints
+
+## Reference Implementation
+- **Account Isolation**: `apps/backend/src/modules/accounts/accounts.service.ts`
+- **Audit Integration**: `apps/backend/src/modules/audit/subscribers/audit.subscriber.ts`
+- **Migration Safety**: `apps/backend/src/database/migrations/`
+- **Complete Examples**: Consult @backend_standards_models.mdc

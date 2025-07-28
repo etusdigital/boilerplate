@@ -1,0 +1,765 @@
+
+# Backend Development Standards - Models & Implementation Guide
+
+## Integration Requirements
+**CRITICAL**: Always follow @backend-standards-structure.mdc for architectural rules and standards
+
+### INTERRUPT: Structure Context Request
+**TRIGGER**: User requests architectural patterns or validation rules
+**ACTION**: READ @backend-standards-structure.mdc for structural guidelines
+**ENFORCEMENT**: Use @backend-standards-structure.mdc when user needs architectural context
+
+## Complete CRUD Creation Workflow
+
+### Step-by-Step Implementation Sequence
+When user requests new CRUD feature, follow this exact sequence:
+
+#### Phase 1: Entity Definition
+1. Create entity in `/backend/src/entities/[entity-name].entity.ts`
+2. Apply account isolation pattern with `accountId`
+3. Include audit fields (`createdAt`, `updatedAt`, `deletedAt`)
+4. Add JSONB `customProperties` for extensibility
+
+#### Phase 2: Migration Generation (MANDATORY PAUSE)
+1. **STOP EXECUTION** immediately after entity creation/modification
+2. Display migration commands to user (see Migration Process Pattern below)
+3. **WAIT** for user to manually run migration commands in terminal
+4. **REQUIRE CONFIRMATION** from user that migrations completed successfully
+5. Only proceed to Phase 3 after user confirms "Migration completed"
+
+#### Phase 3: DTO Creation
+1. Create `/backend/src/modules/[entity-name]/dto/[entity-name].dto.ts`
+2. Implement validation decorators
+3. Add Swagger documentation
+4. Create separate Create/Update DTOs using PartialType
+
+#### Phase 4: Service Implementation
+1. Create service with account isolation in all queries
+2. Implement soft delete pattern
+3. Add comprehensive error handling
+4. Include audit system integration (use `save()` not `update()`)
+
+#### Phase 5: Controller Implementation
+1. Create RESTful endpoints
+2. Add complete Swagger documentation
+3. Implement proper HTTP status codes
+4. Include authentication guards
+
+#### Phase 6: Module Integration
+1. Create feature module
+2. Import TypeORM repository
+3. Export service if needed by other modules
+4. Register in main AppModule
+
+#### Phase 7: Validation
+1. Verify account isolation in all operations
+2. Confirm soft delete implementation
+3. Test error handling scenarios
+4. Validate API documentation completeness
+
+## Migration Workflow Models
+
+### INTERRUPT: Migration Safety Protocol
+**TRIGGER**: After entity creation or modification
+**ACTION**: ASK "Do you want to generate and execute migrations now?"
+**ENFORCEMENT**: NEVER execute `typeorm migration:*` automatically
+
+### Migration Process Pattern
+```bash
+# 1. PAUSE EXECUTION immediately after entity creation/modification
+# 2. Display these exact commands to user:
+
+echo "⚠️  Entity created/modified. Please run these migration commands manually:"
+echo ""
+echo "🔧 Generate Migration:"
+echo "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/data-source.ts migration:generate src/database/migrations/%migrationName%"
+echo ""
+echo "🚀 Execute Migration:"
+echo "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/data-source.ts migration:run"
+echo ""
+echo "Please run these commands and confirm completion before I proceed to next phase."
+
+# 3. WAIT for user confirmation: "Migration completed" or similar
+# 4. Only then proceed to Phase 3 (DTO Creation)
+```
+
+### Migration Safety Rules
+- **MANDATORY PAUSE**: STOP execution after entity creation/modification
+- **SHOW COMMANDS**: Display exact migration commands above
+- **USER EXECUTION**: User must run commands manually in their terminal
+- **WAIT CONFIRMATION**: Don't proceed until user confirms migration completion
+- **NEVER EXECUTE**: AI must NEVER run migration commands automatically
+- **SEQUENTIAL**: Migration must be completed before proceeding to DTOs
+
+## Entity Definition Models
+
+### Complete Entity Structure with Account Isolation
+```typescript
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn } from 'typeorm'
+import { Account } from './account.entity'
+
+@Entity('entity_name')
+export class EntityName {
+  @PrimaryGeneratedColumn()
+  id: number
+
+  // MANDATORY: Account isolation for multi-tenant architecture
+  @Column({ name: 'account_id' })
+  accountId: number
+
+  @ManyToOne(() => Account)
+  @JoinColumn({ name: 'account_id' })
+  account: Account
+
+  @Column({ type: 'varchar', length: 255 })
+  name: string
+
+  @Column({ type: 'text', nullable: true })
+  description: string
+
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean
+
+  // JSONB for flexible properties - Boilerplate pattern
+  @Column({ type: 'jsonb', nullable: true })
+  customProperties: CustomProperty[]
+
+  // Audit fields - compatible with AuditSubscriber
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
+  updatedAt: Date
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+  deletedAt: Date
+}
+
+// Custom Properties interface for JSONB
+interface CustomProperty {
+  key: string
+  value: any
+  type: 'string' | 'number' | 'boolean' | 'array' | 'object'
+}
+```
+
+### Directory Structure for Entity
+```
+/backend/src/entities/
+├── [entity-name].entity.ts
+└── index.ts  // Export all entities
+```
+
+### JSONB Column Models
+```typescript
+// Standard JSONB patterns
+@Column({ type: 'jsonb', nullable: true })
+customProperties: CustomProperty[]
+
+@Column({ type: 'jsonb', default: '{}' })
+metadata: Record<string, any>
+
+@Column({ type: 'jsonb', default: '[]' })
+tags: string[]
+```
+
+## DTO Models
+
+### Create DTO Model with Complete Validation
+```typescript
+import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsArray, ValidateNested, MinLength, MaxLength } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
+
+export class CreateEntityDto {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(255)
+  @ApiProperty({ 
+    description: 'Entity name',
+    example: 'Sample Entity',
+    minLength: 3,
+    maxLength: 255
+  })
+  name: string
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  @ApiProperty({ 
+    description: 'Entity description',
+    required: false,
+    maxLength: 1000
+  })
+  description?: string
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({ 
+    description: 'Entity active status',
+    required: false,
+    default: true
+  })
+  isActive?: boolean
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CustomPropertyDto)
+  @ApiProperty({ 
+    description: 'Custom properties for entity',
+    required: false,
+    type: [CustomPropertyDto]
+  })
+  customProperties?: CustomPropertyDto[]
+}
+
+class CustomPropertyDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  key: string
+
+  @IsNotEmpty()
+  @ApiProperty()
+  value: any
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ enum: ['string', 'number', 'boolean', 'array', 'object'] })
+  type: 'string' | 'number' | 'boolean' | 'array' | 'object'
+}
+```
+
+### Update DTO Model
+```typescript
+import { PartialType } from '@nestjs/swagger'
+
+export class UpdateEntityDto extends PartialType(CreateEntityDto) {}
+```
+
+### Directory Structure for DTOs
+```
+/backend/src/modules/[entity-name]/dto/
+├── create-[entity-name].dto.ts
+├── update-[entity-name].dto.ts
+└── index.ts  // Export all DTOs
+```
+
+### Common Validation Patterns
+```typescript
+// String validations
+@IsString()
+@IsNotEmpty()
+@MinLength(3)
+@MaxLength(255)
+name: string
+
+// Email validation
+@IsEmail()
+@IsNotEmpty()
+email: string
+
+// Optional fields
+@IsOptional()
+@IsString()
+description?: string
+
+// Array validations
+@IsArray()
+@IsOptional()
+@ValidateNested({ each: true })
+@Type(() => SubDto)
+items?: SubDto[]
+
+// JSONB validations
+@IsOptional()
+@IsArray()
+@ApiProperty({ required: false })
+customProperties?: JSON
+```
+
+## Controller Models
+
+### Complete Controller with Auth and Pagination
+```typescript
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common'
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger'
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { EntityNameService } from './entity-name.service'
+import { CreateEntityDto } from './dto/create-entity-name.dto'
+import { UpdateEntityDto } from './dto/update-entity-name.dto'
+import { PaginationDto } from '../../common/dto/pagination.dto'
+
+@ApiTags('Entity Management')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('entity-name')
+export class EntityNameController {
+  constructor(private readonly entityNameService: EntityNameService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'Get all entities with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
+  @ApiResponse({ status: 200, description: 'Entities retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async findAll(@Query() paginationDto: PaginationDto) {
+    return this.entityNameService.findAll(paginationDto)
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get entity by ID' })
+  @ApiResponse({ status: 200, description: 'Entity retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Entity not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async findOne(@Param('id') id: number) {
+    return this.entityNameService.findOne(id)
+  }
+
+  @Post()
+  @UsePipes(new ValidationPipe())
+  @ApiOperation({ summary: 'Create new entity' })
+  @ApiResponse({ status: 201, description: 'Entity created successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async create(@Body() createEntityDto: CreateEntityDto) {
+    return this.entityNameService.create(createEntityDto)
+  }
+
+  @Put(':id')
+  @UsePipes(new ValidationPipe())
+  @ApiOperation({ summary: 'Update entity' })
+  @ApiResponse({ status: 200, description: 'Entity updated successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 404, description: 'Entity not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async update(
+    @Param('id') id: number,
+    @Body() updateEntityDto: UpdateEntityDto,
+  ) {
+    return this.entityNameService.update(id, updateEntityDto)
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Soft delete entity' })
+  @ApiResponse({ status: 200, description: 'Entity deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Entity not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async remove(@Param('id') id: number) {
+    return this.entityNameService.remove(id)
+  }
+}
+```
+
+## Service Models
+
+### Complete Service with Account Isolation and CLS
+```typescript
+import { Injectable, NotFoundException, InternalServerErrorException, Inject } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository, IsNull } from 'typeorm'
+import { ClsService } from 'nestjs-cls'
+import { EntityName } from '../../entities/entity-name.entity'
+import { CreateEntityDto } from './dto/create-entity-name.dto'
+import { UpdateEntityDto } from './dto/update-entity-name.dto'
+import { PaginationDto } from '../../common/dto/pagination.dto'
+
+@Injectable()
+export class EntityNameService {
+  constructor(
+    @InjectRepository(EntityName)
+    private readonly entityRepository: Repository<EntityName>,
+    private readonly cls: ClsService,
+  ) {}
+
+  async findAll(paginationDto: PaginationDto = {}) {
+    try {
+      const { page = 1, limit = 10 } = paginationDto
+      const skip = (page - 1) * limit
+      
+      const [entities, total] = await this.entityRepository.findAndCount({
+        take: limit,
+        skip: skip,
+        where: { 
+          accountId: this.cls.get('accountId'),
+          deletedAt: IsNull() 
+        },
+        order: { createdAt: 'DESC' },
+      })
+
+      return {
+        data: entities,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit)
+        }
+      }
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve entities')
+    }
+  }
+
+  async findOne(id: number) {
+    try {
+      const entity = await this.entityRepository.findOne({
+        where: { 
+          id, 
+          accountId: this.cls.get('accountId'),
+          deletedAt: IsNull() 
+        },
+      })
+      
+      if (!entity) {
+        throw new NotFoundException(`Entity with ID ${id} not found`)
+      }
+      
+      return entity
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error
+      }
+      throw new InternalServerErrorException('Failed to retrieve entity')
+    }
+  }
+
+  async create(createEntityDto: CreateEntityDto) {
+    try {
+      const entity = this.entityRepository.create({
+        ...createEntityDto,
+        accountId: this.cls.get('accountId'), // MANDATORY: Account isolation
+      })
+      
+      // Use save() for audit system compatibility
+      return await this.entityRepository.save(entity)
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to create entity')
+    }
+  }
+
+  async update(id: number, updateEntityDto: UpdateEntityDto) {
+    try {
+      const entity = await this.findOne(id) // Validates account ownership
+      
+      Object.assign(entity, updateEntityDto)
+      
+      // Use save() for audit system compatibility - NEVER use update()
+      return await this.entityRepository.save(entity)
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error
+      }
+      throw new InternalServerErrorException('Failed to update entity')
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      const entity = await this.findOne(id) // Validates account ownership
+      
+      // Soft delete for audit trail
+      await this.entityRepository.softDelete(id)
+      
+      return { message: 'Entity deleted successfully' }
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error
+      }
+      throw new InternalServerErrorException('Failed to delete entity')
+    }
+  }
+}
+```
+
+## Repository Query Models
+
+### Standard Queries with Account Isolation
+```typescript
+// Basic query with account isolation and soft delete
+const entities = await this.repository.find({
+  where: { 
+    accountId: this.cls.get('accountId'),
+    deletedAt: IsNull() 
+  },
+  order: { createdAt: 'DESC' },
+})
+
+// Filtered queries with account isolation
+const activeEntities = await this.repository.find({
+  where: { 
+    accountId: this.cls.get('accountId'),
+    isActive: true, 
+    deletedAt: IsNull() 
+  },
+})
+
+// JSONB queries with account isolation
+const entitiesWithProperty = await this.repository
+  .createQueryBuilder('entity')
+  .where('entity.accountId = :accountId', { accountId: this.cls.get('accountId') })
+  .andWhere('entity.customProperties @> :property', { 
+    property: JSON.stringify([{ key: 'status', value: 'active' }]) 
+  })
+  .andWhere('entity.deletedAt IS NULL')
+  .getMany()
+```
+
+## Error Handling Models
+
+### Exception Hierarchy
+```typescript
+// Standard HTTP exceptions
+throw new BadRequestException('Invalid input data')
+throw new NotFoundException('Entity not found')
+throw new UnauthorizedException('Access denied')
+throw new ForbiddenException('Insufficient permissions')
+throw new ConflictException('Entity already exists')
+throw new InternalServerErrorException('Internal server error')
+```
+
+### Error Response Format
+```typescript
+// Standard error response structure
+{
+  "statusCode": 400,
+  "message": "Validation failed",
+  "error": "Bad Request",
+  "timestamp": "2025-01-07T10:00:00.000Z",
+  "path": "/api/entities"
+}
+```
+
+### Service Error Handling Pattern
+```typescript
+async serviceMethod(): Promise<Result> {
+  try {
+    // Business logic here
+    return result
+  } catch (error) {
+    // Log the error
+    this.logger.error(`Service method failed: ${error.message}`, error.stack)
+    
+    // Re-throw known exceptions
+    if (error instanceof NotFoundException) {
+      throw error
+    }
+    
+    // Convert unknown errors to internal server error
+    throw new InternalServerErrorException('Operation failed')
+  }
+}
+```
+
+## Module Models
+
+### Complete Module Structure with Integration
+```typescript
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { EntityName } from '../../entities/entity-name.entity'
+import { EntityNameController } from './entity-name.controller'
+import { EntityNameService } from './entity-name.service'
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([EntityName])
+  ],
+  controllers: [EntityNameController],
+  providers: [EntityNameService],
+  exports: [EntityNameService] // Export if used by other modules
+})
+export class EntityNameModule {}
+```
+
+### Directory Structure for Module
+```
+/backend/src/modules/[entity-name]/
+├── [entity-name].module.ts
+├── [entity-name].controller.ts
+├── [entity-name].service.ts
+├── [entity-name].spec.ts
+└── dto/
+    ├── create-[entity-name].dto.ts
+    └── update-[entity-name].dto.ts
+```
+
+### AppModule Integration Pattern
+```typescript
+// Add to /backend/src/app.module.ts
+import { EntityNameModule } from './modules/entity-name/entity-name.module'
+
+@Module({
+  imports: [
+    // ... existing imports ...
+    EntityNameModule,
+  ],
+})
+export class AppModule {}
+```
+
+## Testing Models
+
+### Unit Test Structure
+```typescript
+describe('EntityService', () => {
+  let service: EntityService
+  let repository: Repository<Entity>
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        EntityService,
+        {
+          provide: getRepositoryToken(Entity),
+          useValue: {
+            find: jest.fn(),
+            findOne: jest.fn(),
+            create: jest.fn(),
+            save: jest.fn(),
+            softDelete: jest.fn(),
+          },
+        },
+      ],
+    }).compile()
+
+    service = module.get<EntityService>(EntityService)
+    repository = module.get<Repository<Entity>>(getRepositoryToken(Entity))
+  })
+
+  describe('findAll', () => {
+    it('should return array of entities', async () => {
+      const entities = [{ id: 1, name: 'Test' }]
+      jest.spyOn(repository, 'find').mockResolvedValue(entities)
+
+      const result = await service.findAll()
+      
+      expect(result).toEqual(entities)
+      expect(repository.find).toHaveBeenCalledWith({
+        where: { deletedAt: IsNull() },
+        order: { createdAt: 'DESC' },
+      })
+    })
+  })
+})
+```
+
+### Integration Test Pattern
+```typescript
+describe('EntityController (e2e)', () => {
+  let app: INestApplication
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile()
+
+    app = moduleFixture.createNestApplication()
+    await app.init()
+  })
+
+  it('/entities (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/entities')
+      .expect(200)
+      .expect((res) => {
+        expect(Array.isArray(res.body)).toBe(true)
+      })
+  })
+})
+```
+
+## Security Models
+
+### Authentication and Authorization
+```typescript
+// Protected endpoint pattern
+@UseGuards(JwtAuthGuard)
+@Get('protected')
+async protectedEndpoint(@Request() req): Promise<any> {
+  const user = req.user
+  // Use authenticated user data
+}
+
+// Role-based access
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
+@Delete(':id')
+async adminOnlyEndpoint(): Promise<void> {
+  // Admin-only logic
+}
+```
+
+## Performance Models
+
+### Pagination Pattern
+```typescript
+// Standard pagination with account isolation
+const [entities, total] = await this.repository.findAndCount({
+  take: limit,
+  skip: offset,
+  where: { 
+    accountId: this.cls.get('accountId'),
+    deletedAt: IsNull() 
+  },
+  order: { createdAt: 'DESC' }
+})
+
+return {
+  data: entities,
+  meta: {
+    total,
+    page: Math.floor(offset / limit) + 1,
+    limit,
+    totalPages: Math.ceil(total / limit)
+  }
+}
+```
+
+## Quality Checklist Models
+
+### Service Completion Checklist
+```typescript
+// Before Service Completion
+- [ ] Implements account isolation (`accountId` filtering)
+- [ ] Uses soft delete pattern (`deletedAt` handling)
+- [ ] Includes proper error handling
+- [ ] Has audit logging compatibility (uses `save()`)
+- [ ] Validates all inputs with DTOs
+- [ ] Handles JSONB operations correctly
+- [ ] Implements pagination where needed
+```
+
+### Controller Completion Checklist
+```typescript
+// Before Controller Completion
+- [ ] Has complete API documentation (`@ApiOperation`, `@ApiResponse`)
+- [ ] Implements proper HTTP status codes
+- [ ] Uses appropriate DTOs for validation
+- [ ] Includes error responses documentation
+- [ ] Follows RESTful conventions
+- [ ] Has proper authentication/authorization guards
+```
+
+### Feature Completion Checklist
+```typescript
+// Before Feature Completion
+- [ ] Entity relationships defined correctly
+- [ ] Account isolation implemented in all operations
+- [ ] Audit system integrated properly
+- [ ] Migration files generated (but not executed)
+- [ ] Unit tests implemented
+- [ ] Integration tests working
+- [ ] Error scenarios covered
+- [ ] Performance optimized
+- [ ] Security measures implemented
+```
+
+## Reference Implementation Files
+- **Complete Service**: `apps/backend/src/modules/accounts/accounts.service.ts`
+- **Complete Controller**: `apps/backend/src/modules/accounts/accounts.controller.ts`
+- **Complete Entity**: `apps/backend/src/entities/account.entity.ts`
+- **Complete DTO**: `apps/backend/src/modules/accounts/dto/account.dto.ts`
+- **Complete Module**: `apps/backend/src/modules/accounts/accounts.module.ts`

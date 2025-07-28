@@ -1,0 +1,217 @@
+---
+description: Specialized rules for NestJS controller files
+globs: **/*.controller.ts
+alwaysApply: false
+---
+
+# Controller Rules
+
+## Mandatory Controller Structure
+
+### Required Dependencies and Decorators
+All controllers must include these mandatory elements:
+
+```typescript
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common'
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger'
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { EntityNameService } from './entity-name.service'
+import { CreateEntityDto } from './dto/create-entity-name.dto'
+import { UpdateEntityDto } from './dto/update-entity-name.dto'
+import { PaginationDto } from '../../common/dto/pagination.dto'
+
+@ApiTags('Entity Management')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('entity-name')
+export class EntityNameController {
+  constructor(private readonly entityNameService: EntityNameService) {}
+}
+```
+
+## Standard CRUD Endpoints
+
+### GET All with Pagination
+```typescript
+@Get()
+@ApiOperation({ summary: 'Get all entities with pagination' })
+@ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+@ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
+@ApiResponse({ status: 200, description: 'Entities retrieved successfully' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+async findAll(@Query() paginationDto: PaginationDto) {
+  return this.entityNameService.findAll(paginationDto)
+}
+```
+
+### GET One by ID
+```typescript
+@Get(':id')
+@ApiOperation({ summary: 'Get entity by ID' })
+@ApiResponse({ status: 200, description: 'Entity retrieved successfully' })
+@ApiResponse({ status: 404, description: 'Entity not found' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+async findOne(@Param('id') id: number) {
+  return this.entityNameService.findOne(id)
+}
+```
+
+### POST Create
+```typescript
+@Post()
+@UsePipes(new ValidationPipe())
+@ApiOperation({ summary: 'Create new entity' })
+@ApiResponse({ status: 201, description: 'Entity created successfully' })
+@ApiResponse({ status: 400, description: 'Invalid input data' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+async create(@Body() createEntityDto: CreateEntityDto) {
+  return this.entityNameService.create(createEntityDto)
+}
+```
+
+### PUT Update
+```typescript
+@Put(':id')
+@UsePipes(new ValidationPipe())
+@ApiOperation({ summary: 'Update entity' })
+@ApiResponse({ status: 200, description: 'Entity updated successfully' })
+@ApiResponse({ status: 400, description: 'Invalid input data' })
+@ApiResponse({ status: 404, description: 'Entity not found' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+async update(
+  @Param('id') id: number,
+  @Body() updateEntityDto: UpdateEntityDto,
+) {
+  return this.entityNameService.update(id, updateEntityDto)
+}
+```
+
+### DELETE Soft Delete
+```typescript
+@Delete(':id')
+@ApiOperation({ summary: 'Soft delete entity' })
+@ApiResponse({ status: 200, description: 'Entity deleted successfully' })
+@ApiResponse({ status: 404, description: 'Entity not found' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+async remove(@Param('id') id: number) {
+  return this.entityNameService.remove(id)
+}
+```
+
+## Authentication and Authorization
+
+### Required Guards
+```typescript
+// Class-level authentication (MANDATORY)
+@UseGuards(JwtAuthGuard)
+@Controller('entity-name')
+
+// For public endpoints (EXCEPTION)
+@Public()
+@Get('public-endpoint')
+```
+
+### Role-Based Access (Optional)
+```typescript
+import { Roles } from '../../auth/decorators/roles.decorator'
+import { RolesGuard } from '../../auth/guards/roles.guard'
+
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
+@Delete(':id')
+async adminOnlyEndpoint() {
+  // Admin-only logic
+}
+```
+
+## API Documentation
+
+### Required Swagger Decorators
+```typescript
+// Class-level documentation (MANDATORY)
+@ApiTags('Entity Management')
+@ApiBearerAuth()
+
+// Method-level documentation (MANDATORY)
+@ApiOperation({ summary: 'Clear description of endpoint purpose' })
+@ApiResponse({ status: 200, description: 'Success response description' })
+@ApiResponse({ status: 400, description: 'Bad request description' })
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+@ApiResponse({ status: 404, description: 'Not found description' })
+```
+
+### Query Parameters Documentation
+```typescript
+@ApiQuery({ 
+  name: 'page', 
+  required: false, 
+  type: Number, 
+  description: 'Page number for pagination' 
+})
+@ApiQuery({ 
+  name: 'limit', 
+  required: false, 
+  type: Number, 
+  description: 'Number of items per page' 
+})
+```
+
+## Validation and Pipes
+
+### Request Validation
+```typescript
+// For POST and PUT endpoints (MANDATORY)
+@UsePipes(new ValidationPipe())
+@Post()
+async create(@Body() createEntityDto: CreateEntityDto) {
+  return this.entityNameService.create(createEntityDto)
+}
+```
+
+### Parameter Transformation
+```typescript
+@Get(':id')
+async findOne(@Param('id', ParseIntPipe) id: number) {
+  return this.entityNameService.findOne(id)
+}
+```
+
+## Error Response Handling
+
+### Standard HTTP Status Codes
+- 200: Successful GET, PUT
+- 201: Successful POST
+- 400: Invalid input data
+- 401: Unauthorized (missing or invalid token)
+- 403: Forbidden (insufficient permissions)
+- 404: Resource not found
+- 500: Internal server error
+
+## Validation Rules
+
+### Controller File Structure
+- File location: `/backend/src/modules/[entity-name]/[entity-name].controller.ts`
+- Class name: PascalCase with 'Controller' suffix
+- Route prefix: kebab-case matching entity name
+- Service injection via constructor
+
+### Required Class Decorators
+```typescript
+@ApiTags('Entity Management')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('entity-name')
+```
+
+### Required Constructor
+```typescript
+constructor(private readonly entityNameService: EntityNameService) {}
+```
+
+### Fail Conditions
+- Missing @UseGuards(JwtAuthGuard) for protected endpoints
+- Missing API documentation decorators (@ApiOperation, @ApiResponse)
+- Missing validation pipes for POST/PUT endpoints
+- Using synchronous methods instead of async
+- Missing proper HTTP status codes in responses
+- Missing error response documentation

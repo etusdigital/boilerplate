@@ -1,0 +1,229 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+
+# Frontend Development Standards
+
+## Integration Requirements
+**CRITICAL**: Always follow @etus-methodology.mdc for development workflow and approval process
+
+### INTERRUPT: Context Request Validation
+**TRIGGER**: User requests complete context or detailed information
+**ACTION**: READ @frontend-standards-for-developers.mdc for comprehensive details
+**ENFORCEMENT**: Use @frontend-standards-for-developers.mdc when user needs full context
+
+## CRUD Standards Control
+
+### INTERRUPT: CRUD Screen Creation Validation
+**TRIGGER**: Creating `[Entity]View.vue` or `[Entity]Form.vue` files
+**ACTION**: ENFORCE @crud-rules.mdc patterns and TitleBar usage
+**ENFORCEMENT**: All CRUD screens must follow @crud-rules.mdc standards
+
+### INTERRUPT: TitleBar Missing Validation
+**TRIGGER**: Creating list screens without TitleBar component
+**ACTION**: FAIL with "TitleBar component mandatory for all [Entity]View.vue screens"
+**ENFORCEMENT**: Reference @crud-rules.mdc for TitleBar implementation
+
+### INTERRUPT: CRUD Action Naming Validation
+**TRIGGER**: Creating CRUD operations with non-standard naming
+**ACTION**: ENFORCE @crud-rules.mdc action naming conventions
+**ENFORCEMENT**: Use createEntity(), onEdit(), onDelete(), fetchEntities() patterns
+
+## Design System Control
+
+### INTERRUPT: Design System Validation
+**TRIGGER**: Detecting component imports outside `@BRIUS/design-system`
+**ACTION**: FAIL with "Component outside Design System"
+**ENFORCEMENT**: ALL UI components must use @BRIUS/design-system
+
+### INTERRUPT: Translation Validation
+**TRIGGER**: Hardcoded strings in templates
+**ACTION**: FAIL with "Use t() function for all user-facing text"
+**ENFORCEMENT**: Mandatory bilingual support (PT/EN)
+
+### INTERRUPT: Component Location Validation
+**TRIGGER**: Creating components directly in pages
+**ACTION**: FAIL with "Components must be in features/[feature]/components/ or shared/components/"
+**ENFORCEMENT**: Feature-based structure required
+
+## File Structure Standards
+
+### Feature-Based Organization
+- Pages: `src/features/[feature-name]/views/[FeatureName]View.vue`
+- Components: `src/features/[feature-name]/components/[FeatureName].vue`
+- Shared: `src/shared/components/`
+- Composables: `src/features/[feature-name]/composables/use[FeatureName].ts`
+- Types: `[name].type.ts`
+
+### Naming Conventions
+- List Screens: `[Entity]View.vue`
+- Form Screens: `[Entity]Form.vue`
+- Components: `PascalCase.vue`
+
+## CRUD Standards (From @crud-rules.mdc)
+
+### Required Imports
+```typescript
+import { BButton, BInput, BSelect } from '@BRIUS/design-system'
+import { TitleBar } from '@/shared/components/TitleBar.vue'
+import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
+```
+
+### TitleBar Implementation
+```vue
+<template>
+  <div class="main-container">
+    <TitleBar :title="t('entities')" :actions="titleBarActions" />
+    <BTable :headers="headers" :items="items" :loading="isLoading" />
+  </div>
+</template>
+
+<script setup lang="ts">
+const titleBarActions = computed<TitleBarAction[]>(() => [
+  { label: t('addEntity'), action: () => createEntity(), variant: 'primary' }
+])
+</script>
+```
+
+### CRUD State Pattern
+```typescript
+const isLoading = ref(false)
+const showForm = ref(false)
+const items = ref<Entity[]>([])
+const editingEntity = ref<Entity>({} as Entity)
+const itemsPerPage = ref(10)
+```
+
+### CRUD Actions Pattern
+```typescript
+const createEntity = () => {}
+const onEdit = (entity: Entity) => {}
+const onDelete = (entity: Entity) => {}
+const fetchEntities = () => {}
+
+onMounted(() => fetchEntities())
+```
+
+## Loading States
+
+### Visual States Pattern
+```vue
+<div v-if="isLoading" class="loading-container">
+  <BSpinner />
+  <p>{{ t('loadingMessage') }}</p>
+</div>
+<div v-else-if="hasContent">
+  <!-- Content -->
+</div>
+<div v-else class="empty-state">
+  <p>{{ t('noItemsFound') }}</p>
+</div>
+```
+
+## Navigation Menu System (Canvas.vue)
+
+### MenuItem Type
+```typescript
+type MenuItem = {
+  label: string
+  value: string
+  icon: string
+  path: string
+  bottom?: boolean
+  show?: boolean
+}
+```
+
+### Menu Integration Rules
+- All new features MUST be added to Canvas.vue menu
+- Use `t()` function for labels
+- Use Material Design icons
+- Settings items use `bottom: true`
+
+## Translation Standards
+
+### Key Patterns
+```typescript
+// Entity keys
+entities: 'Entities | Entidades'
+addEntity: 'Add Entity | Adicionar Entidade'
+
+// Action keys
+save: 'Save | Salvar'
+edit: 'Edit | Editar'
+delete: 'Delete | Excluir'
+
+// Message keys
+'messages.deleteConfirm': 'Are you sure? | Tem certeza?'
+```
+
+## Project-Specific Patterns
+
+### Account Context
+- All API calls automatically include account context
+- No manual account ID passing required
+
+### Error Handling
+```typescript
+try {
+  const response = await api.get('/endpoint')
+  return response.data
+} catch (error: any) {
+  toast({
+    message: t('errorMessage', [error.response?.data?.message]),
+    type: 'danger'
+  })
+  return []
+}
+```
+
+### Composables Pattern
+```typescript
+export function useEntityManagement() {
+  const entities = ref<Entity[]>([])
+  const isLoading = ref(false)
+  
+  const fetchEntities = async () => {
+    isLoading.value = true
+    try {
+      // API logic
+    } finally {
+      isLoading.value = false
+    }
+  }
+  
+  return { entities, isLoading, fetchEntities }
+}
+```
+
+## CSS Standards
+```css
+.main-container { padding: 20px; }
+.form-wrapper { display: flex; flex-direction: column; gap: 1rem; padding: 50px; }
+.loading-container { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 2rem 0; }
+.empty-state { padding: 2rem 0; text-align: center; }
+```
+
+## Enforcement Rules
+
+### FAIL CONDITIONS
+- Components outside @BRIUS/design-system
+- Hardcoded strings in templates
+- Missing TitleBar in [Entity]View.vue
+- Components in pages directory
+- CRUD screens not following @crud-rules.mdc
+- Non-standard CRUD action naming
+
+### QUALITY GATES
+- Design system compliance verified
+- Internationalization complete (PT/EN)
+- TitleBar integration complete
+- CRUD patterns follow @crud-rules.mdc
+- Loading/empty states implemented
+
+## Reference Implementation
+- **CRUD**: `apps/frontend/src/features/accounts/views/AccountsView.vue`
+- **Navigation**: `apps/frontend/src/app/views/Canvas.vue`
+- **Patterns**: Always consult @crud-rules.mdc for CRUD implementation

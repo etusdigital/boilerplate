@@ -1,0 +1,92 @@
+---
+description: Boilerplate project-specific context and constraints
+globs:
+alwaysApply: true
+---
+
+# Boilerplate Project Context
+
+## Cross-References
+- **Core Development**: @core-development.mdc for fundamental development principles
+- **Methodology**: @etus-methodology.mdc for mandatory development workflow
+- **TypeScript**: @typescript.mdc for language standards
+- **Frontend Rules**: @frontend/ for frontend-specific patterns
+- **Backend Rules**: @backend/ for backend-specific patterns
+
+## Technology Stack
+- **Frontend**: Vue 3 + TypeScript + Pinia + Vue Router
+- **Backend**: NestJS + TypeORM + PostgreSQL/SQLite
+- **Authentication**: Auth0 integration
+- **Design System**: @BRIUS/design-system (mandatory)
+- **Architecture**: Feature-driven development with monorepo structure
+
+## Project-Specific Patterns
+
+### Design System Enforcement
+- **MANDATORY**: Use ONLY components from `@BRIUS/design-system`
+- **FORBIDDEN**: Creating custom UI components without explicit need
+- **VALIDATION**: All imports must reference design system components
+- **EXCEPTIONS**: Only when specifically required and justified
+
+### Account Isolation Architecture
+- **CRITICAL**: All operations must include account context (`accountId`)
+- **DATABASE**: Filter all queries by `accountId` automatically
+- **SECURITY**: Validate account ownership before any CRUD operation
+- **PATTERN**: Use CLS (Continuation Local Storage) for account context
+
+## Documentation Requirements
+
+### Change Registration
+- **MANDATORY**: Register all chat-based changes in `./docs/changes/dd_MM_yyyy-changes.md`
+- **TIMING**: When explicitly requested, but suggest when necessary
+- **FORMAT**: Execute `date "+%d_%m_%Y"` to get current date, convert to `dd_MM_yyyy` format
+- **LOCATION**: `./docs/changes/` directory
+
+### Reference Usage
+- **MARKDOWN FILES**: Use as reference for structure, don't modify unless explicitly requested
+- **PURPOSE**: Examples and patterns for code organization
+- **USAGE**: Reference only, not for modification
+
+## Environment and Security
+
+### Environment Variables
+- **CRITICAL**: Never overwrite `.env` files without explicit user confirmation
+- **SECURITY**: Sensitive data must be handled securely
+- **VALIDATION**: Always ask before env modifications
+
+### File Organization
+- **FEATURES**: Feature-driven structure in `/features/` directories
+- **SHARED**: Common utilities in `/shared/` directories  
+- **SEPARATION**: Clear separation between frontend and backend concerns
+
+## Integration Points
+
+### External Services
+- **AUTH0**: Centralized authentication and user management
+- **GCP STORAGE**: Direct upload with signed URLs for media assets
+- **MULTIPLE APIS**: Various marketing and analytics integrations
+
+### Cross-Feature Communication
+- **EVENTS**: Use events for cross-feature communication
+- **STORES**: Shared Pinia stores for global state
+- **MINIMAL COUPLING**: Features should be independent where possible
+
+## Development Constraints
+
+### Language Requirements
+- **USER COMMUNICATION**: Always respond in Portuguese (PT-BR)
+- **CODE/COMMENTS**: English for code and technical documentation
+- **CURSOR RULES**: English for AI processing efficiency
+
+### Methodology Integration
+- **REQUIRED**: Follow @etus-methodology.mdc for all development
+- **PLANNING**: Mandatory planning phase with approval gates
+- **EXECUTION**: Sequential phase execution with validations
+- **DOCUMENTATION**: Required implementation plans and lessons learned
+
+## Quality Standards
+- **BILINGUAL SUPPORT**: Portuguese/English i18n implementation
+- **LOADING STATES**: Required for all async operations
+- **EMPTY STATES**: Required for all data lists
+- **ERROR HANDLING**: Comprehensive error scenarios
+- **RESPONSIVE**: Mobile-first responsive design

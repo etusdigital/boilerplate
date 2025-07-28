@@ -1,0 +1,284 @@
+---
+description: Specialized rules for DTO validation files
+globs: **/*.dto.ts
+alwaysApply: false
+---
+
+# DTO Rules
+
+## Mandatory DTO Structure
+
+### Required Dependencies
+All DTOs must include these mandatory imports:
+
+```typescript
+import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsArray, ValidateNested, MinLength, MaxLength, IsEmail, IsNumber } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+import { Type, Transform } from 'class-transformer'
+import { PartialType } from '@nestjs/swagger'
+```
+
+## Create DTO Pattern
+
+### Standard Create DTO Structure
+```typescript
+export class CreateEntityDto {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(255)
+  @ApiProperty({ 
+    description: 'Entity name',
+    example: 'Sample Entity',
+    minLength: 3,
+    maxLength: 255
+  })
+  name: string
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  @ApiProperty({ 
+    description: 'Entity description',
+    required: false,
+    maxLength: 1000
+  })
+  description?: string
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({ 
+    description: 'Entity active status',
+    required: false,
+    default: true
+  })
+  isActive?: boolean
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CustomPropertyDto)
+  @ApiProperty({ 
+    description: 'Custom properties for entity',
+    required: false,
+    type: [CustomPropertyDto]
+  })
+  customProperties?: CustomPropertyDto[]
+}
+```
+
+## Update DTO Pattern
+
+### Standard Update DTO Structure
+```typescript
+export class UpdateEntityDto extends PartialType(CreateEntityDto) {}
+```
+
+## Custom Property DTO
+
+### Standard CustomPropertyDto Structure
+```typescript
+export class CustomPropertyDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Property key',
+    example: 'status'
+  })
+  key: string
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Property value',
+    example: 'active'
+  })
+  value: any
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ 
+    description: 'Property type',
+    enum: ['string', 'number', 'boolean', 'array', 'object'],
+    example: 'string'
+  })
+  type: 'string' | 'number' | 'boolean' | 'array' | 'object'
+}
+```
+
+## Common Validation Patterns
+
+### String Validations
+```typescript
+// Required string with length constraints
+@IsString()
+@IsNotEmpty()
+@MinLength(3)
+@MaxLength(255)
+@ApiProperty({ description: 'Field description', minLength: 3, maxLength: 255 })
+fieldName: string
+
+// Optional string
+@IsOptional()
+@IsString()
+@MaxLength(1000)
+@ApiProperty({ description: 'Optional field', required: false })
+optionalField?: string
+
+// Email validation
+@IsEmail()
+@IsNotEmpty()
+@ApiProperty({ description: 'Email address', example: 'user@example.com' })
+email: string
+```
+
+### Number Validations
+```typescript
+// Required number
+@IsNumber()
+@IsNotEmpty()
+@ApiProperty({ description: 'Numeric field', example: 100 })
+count: number
+
+// Optional number with constraints
+@IsOptional()
+@IsNumber()
+@Min(0)
+@Max(1000)
+@ApiProperty({ description: 'Optional number', minimum: 0, maximum: 1000, required: false })
+optionalNumber?: number
+```
+
+### Boolean Validations
+```typescript
+// Boolean field
+@IsBoolean()
+@ApiProperty({ description: 'Boolean flag', example: true })
+isActive: boolean
+
+// Optional boolean with default
+@IsOptional()
+@IsBoolean()
+@ApiProperty({ description: 'Optional flag', default: false, required: false })
+optionalFlag?: boolean
+```
+
+### Array Validations
+```typescript
+// Array of strings
+@IsArray()
+@IsString({ each: true })
+@ApiProperty({ description: 'Array of strings', type: [String] })
+tags: string[]
+
+// Array of objects with validation
+@IsOptional()
+@IsArray()
+@ValidateNested({ each: true })
+@Type(() => NestedDto)
+@ApiProperty({ description: 'Array of objects', type: [NestedDto], required: false })
+nestedObjects?: NestedDto[]
+```
+
+### Date Validations
+```typescript
+// Date field
+@IsDateString()
+@ApiProperty({ description: 'Date field', example: '2025-01-01T00:00:00Z' })
+dateField: string
+
+// Optional date
+@IsOptional()
+@IsDateString()
+@ApiProperty({ description: 'Optional date', required: false })
+optionalDate?: string
+```
+
+## Transformation Patterns
+
+### String Transformations
+```typescript
+// Trim whitespace
+@Transform(({ value }) => value?.trim())
+@IsString()
+@ApiProperty()
+trimmedField: string
+
+// Lowercase transformation
+@Transform(({ value }) => value?.toLowerCase())
+@IsString()
+@ApiProperty()
+lowercaseField: string
+```
+
+### Number Transformations
+```typescript
+// Parse to number
+@Transform(({ value }) => parseInt(value))
+@IsNumber()
+@ApiProperty()
+numericField: number
+```
+
+## Nested DTO Validation
+
+### Nested Object Validation
+```typescript
+export class AddressDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  street: string
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  city: string
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  zipCode: string
+}
+
+export class CreateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  name: string
+
+  @ValidateNested()
+  @Type(() => AddressDto)
+  @ApiProperty({ type: AddressDto })
+  address: AddressDto
+}
+```
+
+## Validation Rules
+
+### DTO File Structure
+- File location: `/backend/src/modules/[entity-name]/dto/create-[entity-name].dto.ts`
+- File location: `/backend/src/modules/[entity-name]/dto/update-[entity-name].dto.ts`
+- Class name: PascalCase with 'Dto' suffix
+- Export classes at top level
+
+### Required Imports
+```typescript
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+import { PartialType } from '@nestjs/swagger'
+```
+
+### Swagger Documentation Requirements
+- All fields must have @ApiProperty decorator
+- Include description for every field
+- Provide examples for complex fields
+- Mark optional fields with required: false
+- Include validation constraints in documentation
+
+### Fail Conditions
+- Missing validation decorators on fields
+- Missing @ApiProperty decorators
+- Update DTO not extending PartialType(CreateDto)
+- Missing field descriptions in API documentation
+- No validation for required fields
+- Inconsistent validation patterns

@@ -1,0 +1,272 @@
+---
+description: Specialized rules for NestJS module files
+globs: **/*.module.ts
+alwaysApply: false
+---
+
+# Module Rules
+
+## Mandatory Module Structure
+
+### Required Dependencies and Structure
+All modules must follow this standard structure:
+
+```typescript
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { EntityName } from '../../entities/entity-name.entity'
+import { EntityNameController } from './entity-name.controller'
+import { EntityNameService } from './entity-name.service'
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([EntityName])
+  ],
+  controllers: [EntityNameController],
+  providers: [EntityNameService],
+  exports: [EntityNameService] // Export if used by other modules
+})
+export class EntityNameModule {}
+```
+
+## Module Configuration Patterns
+
+### Standard Feature Module
+```typescript
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([EntityName]),
+    // Other feature modules if needed
+  ],
+  controllers: [EntityNameController],
+  providers: [EntityNameService],
+  exports: [EntityNameService]
+})
+export class EntityNameModule {}
+```
+
+### Module with Multiple Entities
+```typescript
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([
+      EntityName,
+      RelatedEntity,
+      AnotherEntity
+    ])
+  ],
+  controllers: [
+    EntityNameController,
+    RelatedEntityController
+  ],
+  providers: [
+    EntityNameService,
+    RelatedEntityService
+  ],
+  exports: [
+    EntityNameService,
+    RelatedEntityService
+  ]
+})
+export class EntityNameModule {}
+```
+
+### Module with External Dependencies
+```typescript
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([EntityName]),
+    HttpModule,
+    ConfigModule,
+    // Other external modules
+  ],
+  controllers: [EntityNameController],
+  providers: [
+    EntityNameService,
+    EntityNameRepository, // Custom repository if needed
+  ],
+  exports: [EntityNameService]
+})
+export class EntityNameModule {}
+```
+
+## App Module Integration
+
+### Registration in App Module
+After creating a feature module, it must be registered in the main app module:
+
+```typescript
+// In /backend/src/app.module.ts
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { ConfigModule } from '@nestjs/config'
+import { ClsModule } from 'nestjs-cls'
+
+// Feature modules
+import { EntityNameModule } from './modules/entity-name/entity-name.module'
+import { AccountsModule } from './modules/accounts/accounts.module'
+import { UsersModule } from './modules/users/users.module'
+
+@Module({
+  imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot(/* database config */),
+    ClsModule.forRoot(),
+    
+    // Feature modules
+    AccountsModule,
+    UsersModule,
+    EntityNameModule, // Register new module here
+  ],
+  controllers: [],
+  providers: [],
+})
+export class AppModule {}
+```
+
+## Import Patterns
+
+### Required Imports
+```typescript
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+
+// Entity imports
+import { EntityName } from '../../entities/entity-name.entity'
+
+// Local component imports
+import { EntityNameController } from './entity-name.controller'
+import { EntityNameService } from './entity-name.service'
+
+// External module imports (if needed)
+import { HttpModule } from '@nestjs/axios'
+import { ConfigModule } from '@nestjs/config'
+```
+
+### Import Order Convention
+1. Core NestJS modules (@nestjs/common, @nestjs/typeorm)
+2. External modules (@nestjs/axios, nestjs-cls, etc.)
+3. Entity imports (../../entities/)
+4. Local component imports (./controllers, ./services)
+
+## Export Patterns
+
+### Service Export Rules
+```typescript
+// Export service if it will be used by other modules
+exports: [EntityNameService]
+
+// Don't export if service is only used internally
+exports: []
+
+// Export multiple services if needed
+exports: [
+  EntityNameService,
+  EntityNameRepository,
+  EntityNameHelper
+]
+```
+
+## Module Dependencies
+
+### Dependency Injection
+```typescript
+// For modules that depend on other feature modules
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([EntityName]),
+    UserModule, // Import to use UserService
+    AccountModule, // Import to use AccountService
+  ],
+  controllers: [EntityNameController],
+  providers: [
+    EntityNameService,
+    {
+      provide: 'EXTERNAL_SERVICE',
+      useFactory: (configService: ConfigService) => {
+        return new ExternalService(configService.get('API_KEY'))
+      },
+      inject: [ConfigService],
+    }
+  ],
+  exports: [EntityNameService]
+})
+```
+
+### Circular Dependency Prevention
+```typescript
+// Use forwardRef() to resolve circular dependencies
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([EntityName]),
+    forwardRef(() => RelatedModule),
+  ],
+  controllers: [EntityNameController],
+  providers: [EntityNameService],
+  exports: [EntityNameService]
+})
+export class EntityNameModule {}
+```
+
+## Testing Module Configuration
+
+### Test Module Setup
+```typescript
+// In entity-name.spec.ts
+import { Test, TestingModule } from '@nestjs/testing'
+import { getRepositoryToken } from '@nestjs/typeorm'
+import { EntityNameModule } from './entity-name.module'
+import { EntityName } from '../../entities/entity-name.entity'
+
+describe('EntityNameModule', () => {
+  let module: TestingModule
+
+  beforeEach(async () => {
+    module = await Test.createTestingModule({
+      imports: [EntityNameModule],
+      providers: [
+        {
+          provide: getRepositoryToken(EntityName),
+          useValue: mockRepository,
+        },
+      ],
+    }).compile()
+  })
+
+  it('should be defined', () => {
+    expect(module).toBeDefined()
+  })
+})
+```
+
+## Validation Rules
+
+### Module File Structure
+- File location: `/backend/src/modules/[entity-name]/[entity-name].module.ts`
+- Class name: PascalCase with 'Module' suffix
+- Single responsibility: One module per feature/entity
+- Must be registered in AppModule
+
+### Required Module Configuration
+```typescript
+@Module({
+  imports: [TypeOrmModule.forFeature([Entity])], // MANDATORY
+  controllers: [EntityController],               // MANDATORY
+  providers: [EntityService],                   // MANDATORY
+  exports: [EntityService]                      // CONDITIONAL
+})
+```
+
+### Required Imports
+```typescript
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+```
+
+### Fail Conditions
+- Missing TypeOrmModule.forFeature([Entity]) import
+- Not registering module in AppModule imports
+- Missing controller or service in module configuration
+- Circular dependencies without forwardRef()
+- Inconsistent naming conventions
+- Missing entity import for TypeOrmModule.forFeature()

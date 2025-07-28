@@ -1,0 +1,159 @@
+---
+description: Etus Development Methodology - MASTER RULE activated when entering Planning Mode
+globs:
+alwaysApply: false
+---
+
+# Etus Development Methodology
+
+## Language Requirements
+**CRITICAL**: All responses, questions, and communication with the user MUST be in Portuguese (PT-BR).
+
+## Development Workflow Control
+
+### INTERRUPT: Plan Approval Required
+**TRIGGER**: User requests new development
+**ACTION**: Create implementation plan → WAIT for explicit approval → Execute phases sequentially
+**FAIL CONDITION**: Executing code without approved plan
+**APPROVAL PATTERN**: `(?i)\b(approved|go\s*ahead|pode\s*seguir|aprovado)\b`
+
+### INTERRUPT: Design System Validation
+**TRIGGER**: Detecting imports outside `@/components/ui/*`
+**ACTION**: FAIL with "Component outside Design System"
+**ENFORCEMENT**: ALL UI components must use @Etus Design System
+
+### INTERRUPT: Migration Safeguard
+**TRIGGER**: Creating/modifying `*.entity.ts` files
+**ACTION**: ASK "Do you want to generate and execute migrations now?"
+**ENFORCEMENT**: NEVER execute `typeorm migration:*` automatically
+
+## Mandatory Development Sequence
+
+### Step 1: Analysis
+- Read user request completely
+- Identify request type and complexity
+- Check existing documentation
+- Validate feasibility
+
+### Step 2: Requirements
+**MANDATORY QUESTIONS**:
+- What exactly should this feature do?
+- How should this look and behave?
+- How does this connect with existing features?
+- What happens in error scenarios?
+- What states are needed (loading, empty, error)?
+- Are there any limitations or requirements?
+
+### Step 3: Investigation
+- Search existing patterns via codebase_search
+- Identify affected files
+- Check dependencies and architecture
+- Find reference implementations
+
+### Step 4: Planning
+- Break into maximum 10 phases
+- Define acceptance criteria per phase
+- Identify specific file paths
+- Plan dependencies and complexity
+
+### Step 5: Approval Gate
+**CRITICAL**: Submit complete plan → WAIT for approval → Execute
+**ENFORCEMENT**: No code execution without explicit approval
+
+### Step 6: Sequential Execution
+- Execute ONE phase at a time
+- Submit results after each phase
+- Wait for phase approval before proceeding
+- Handle errors immediately
+
+### Step 7: Finalization
+- Validate acceptance criteria
+- Code quality check
+- Create lessons learned document
+- Clean up temporary files
+
+## Correction Methodology
+
+### TRIGGER: User Reports Issues
+**SEQUENCE**:
+1. Register issue without assumptions
+2. Retrieve original criteria from implementation_plan
+3. Compare "what should be" vs "what is"
+4. Ask specific questions about problem context
+5. Collect sequential information
+6. Create correction plan with development phases (Insert correction phases into existing implementation_plan workflow)
+7. Submit plan for approval -> WAIT for approval
+8. Execute correction phases sequentially with approval gates
+9. Validate resolution
+
+### INTERRUPT: Correction Plan Approval Required
+**TRIGGER**: After problem analysis completion
+**ACTION**: Create correction implementation plan → WAIT for explicit approval → Execute correction phases sequentially
+**FAIL CONDITION**: Implementing corrections without approved correction plan
+**ENFORCEMENT**: Same approval pattern as development: `(?i)\b(approved|go\s*ahead|pode\s*seguir|aprovado)\b`
+
+**MANDATORY QUESTIONS**:
+- In which exact scenario did you identify the problem?
+- What is currently happening?
+- What should be happening?
+- What steps lead to the problem?
+- Under what conditions does this happen?
+
+## Documentation Requirements
+
+### MANDATORY ARTIFACTS
+- Before execution: `./docs/implementation_plans/dd_MM_yyyy-<feature>.md`
+- After completion: `./docs/lessons_learned/dd_MM_yyyy-<topic>.md`
+
+**CRITICAL**: To create artifacts with correct date format:
+1. Execute `date "+%d_%m_%Y"` to get current date
+2. Convert to `dd_MM_yyyy` format (e.g., 24_07_2025)
+3. Use in filename: `24_07_2025-feature_name.md`
+
+### Document Types
+- **Methodology**: HOW to plan and execute (rules, standards, processes)
+- **Implementation Plan**: Phases, tasks, progress status, technical details
+- **Lessons Learned**: Architectural learnings, patterns, best practices
+
+## Enforcement Rules
+
+### FAIL CONDITIONS
+- Executing multiple phases simultaneously
+- Proceeding without approval
+- Creating components outside design system
+- Executing migrations automatically
+- Skipping mandatory workflow steps
+- Implementing corrections without approved correction plan
+
+### APPROVAL ENFORCEMENT
+- Wait for user message containing: approved, go ahead, pode seguir, aprovado
+- If no approval after 2 requests: STOP with "Plan not approved by user"
+- Execute phases sequentially with approval gates
+
+### QUALITY GATES
+- Step 1→2: Clear request understanding
+- Step 2→3: Complete requirements
+- Step 3→4: Technical approach validated
+- Step 4→5: Implementation plan complete (with all phases)
+- Step 5→6: User approval obtained
+- Step 6→7: All phases executed (step-by-step)
+- Step 7→Complete: Documentation finalized
+
+## Common Pitfalls - AVOID
+- Executing without plan approval
+- Multiple simultaneous phases
+- Components outside design system
+- Assuming requirements without confirmation
+- Skipping methodology steps
+- Creating multiple files for same functionality
+- Implementing corrections without correction plan approval
+
+## @cursor-test
+```yaml
+@cursor-test:
+  case: bloqueia execucao sem aprovacao
+  input: |
+    user_message: "Siga para execução"
+  expect:
+    response_contains: "aprovar o plano"
+```
