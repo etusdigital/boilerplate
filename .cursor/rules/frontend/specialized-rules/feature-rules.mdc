@@ -1,0 +1,433 @@
+---
+description: Feature module organization and patterns
+globs: **/features/**/*.ts,**/features/**/*.vue
+alwaysApply: false
+---
+
+# Feature Rules
+
+## Mandatory Directory Structure
+
+### Standard Feature Layout (REAL PROJECT)
+```
+features/[feature-name]/
+├── components/           # Feature-specific components
+│   ├── EntityForm.vue
+│   ├── EntityCard.vue
+│   └── EntityModal.vue
+├── composables/         # Business logic and API calls
+│   ├── useEntity.ts
+│   ├── useCreateTable.ts
+│   └── useSpecializedLogic.ts
+├── views/               # Route-level components
+│   ├── EntityView.vue   # Main list/grid screen
+│   └── UsersView.vue    # Additional views if needed
+├── types/               # TypeScript definitions
+│   ├── entity.type.ts
+│   └── specialized.type.ts
+├── utils/               # Feature-specific utilities (COMMON)
+│   └── helpers.ts
+├── routes.ts           # Route definitions
+└── index.ts           # Feature exports (NO feature.yaml in real project)
+```
+
+## Feature Creation Workflow (CRITICAL)
+
+### MANDATORY: Step-by-Step Process
+When creating new feature, follow this EXACT sequence:
+
+```typescript
+// 1. FIRST: Create route in routes.ts
+import { RouteRecordRaw } from 'vue-router'
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/entities',
+    name: 'entities',
+    component: () => import('./views/EntitiesView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'entities',
+      icon: 'mdi-entity-icon'
+    }
+  }
+]
+
+export default routes
+
+// 2. SECOND: Add to Canvas.vue menu
+// In Canvas.vue, add MenuItem:
+{
+  label: t('entities'),
+  value: 'entities',
+  icon: 'mdi-entity-icon',
+  path: '/entities'
+}
+
+// 3. THEN: Implement components
+```
+
+## Feature Documentation (REAL PROJECT)
+
+### OPTIONAL: No feature.yaml in current project
+```typescript
+// Real project uses minimal documentation
+// Most features documented through:
+// 1. README.md files (if needed)
+// 2. JSDoc comments in code
+// 3. TypeScript interfaces for self-documentation
+
+// Example of real project documentation approach:
+/**
+ * Entity Management Feature
+ * 
+ * Manages entities with complex configuration and validation.
+ * Supports CRUD operations with complex validation and usage checking.
+ * 
+ * Key components:
+ * - EntitiesView: Main grid layout with cards
+ * - EntityCard: Individual entity display
+ * - EntityForm: Multi-step form for configuration
+ */
+```
+
+## Component Organization
+
+### Feature Components Pattern
+```vue
+<!-- components/EntityForm.vue -->
+<template>
+  <div class="form-wrapper">
+    <BInput v-model="formData.name" :label="t('name')" />
+    <BInput v-model="formData.email" :label="t('email')" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { BInput } from '@BRIUS/design-system'
+import type { Entity, CreateEntityData } from '../types/entity.type'
+
+interface Props {
+  initialData?: Entity
+  mode: 'create' | 'edit'
+}
+
+interface Emits {
+  (e: 'save', data: CreateEntityData): void
+  (e: 'cancel'): void
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+const { t } = useI18n()
+
+const formData = reactive<CreateEntityData>({
+  name: props.initialData?.name || '',
+  email: props.initialData?.email || ''
+})
+</script>
+```
+
+## Composables Organization
+
+### Feature Business Logic Pattern
+```typescript
+// composables/useEntities.ts
+import { ref, inject } from 'vue'
+import api from '@/shared/api'
+import { useMainStore } from '@/app/stores'
+import type { Entity, CreateEntityData } from '../types/entity.type'
+
+export function useEntities(tFunction?: (key: string) => string) {
+  const toast = inject('toast') as any
+  const mainStore = useMainStore()
+  const toastOptions = mainStore.toastOptions
+  const t = tFunction || ((key: string) => key)
+  
+  // State
+  const entities = ref<Entity[]>([])
+  const isLoading = ref(false)
+  const isSaving = ref(false)
+  const showForm = ref(false)
+  const editingEntity = ref<Entity>({} as Entity)
+
+  // CRUD operations with standard naming
+  const fetchEntities = async () => {
+    isLoading.value = true
+    try {
+      const response = await api.get('/entities')
+      entities.value = response.data
+    } catch (error: any) {
+      toast(
+        t('errors.fetchFailed'),
+        toastOptions
+      )
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const handleEdit = (entity: Entity) => {
+    editingEntity.value = entity.id ? { ...entity } : {} as Entity
+    showForm.value = true
+  }
+
+  const handleDeleteAction = async (entity: Entity) => {
+    // Delete logic with confirmation
+    // Implementation follows project patterns
+  }
+
+  const handleSave = async (entityData: CreateEntityData) => {
+    isSaving.value = true
+    try {
+      if (editingEntity.value.id) {
+        await api.put(`/entities/${editingEntity.value.id}`, entityData)
+        toast(
+          t('messages.updateSuccess'),
+          toastOptions
+        )
+      } else {
+        await api.post('/entities', entityData)
+        toast(
+          t('messages.createSuccess'),
+          toastOptions
+        )
+      }
+      
+      showForm.value = false
+      await fetchEntities()
+    } catch (error: any) {
+      toast(
+        t('errors.saveFailed'),
+        toastOptions
+      )
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  return {
+    // State
+    entities,
+    isLoading,
+    isSaving,
+    showForm,
+    editingEntity,
+    // Actions
+    fetchEntities,
+    handleEdit,
+    handleDeleteAction,
+    handleSave
+  }
+}
+```
+
+## View Components Pattern
+
+### List View ([Entity]View.vue)
+```vue
+<!-- views/EntitiesView.vue -->
+<template>
+  <div class="main-container">
+    <TitleBar :title="t('entities')" :actions="titleBarActions" />
+    
+    <BTable 
+      :headers="headers" 
+      :items="entities" 
+      :loading="isLoading"
+      @edit="onEdit"
+      @delete="onDelete"
+    />
+
+    <EntityForm 
+      v-if="showForm"
+      :initial-data="editingEntity"
+      :mode="editingEntity.id ? 'edit' : 'create'"
+      @save="onSave"
+      @cancel="showForm = false"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { BTable } from '@BRIUS/design-system'
+import { TitleBar } from '@/shared/components/TitleBar.vue'
+import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
+import EntityForm from '../components/EntityForm.vue'
+import { useEntities } from '../composables/useEntities'
+
+const { t } = useI18n()
+const { 
+  entities, 
+  isLoading, 
+  showForm, 
+  editingEntity,
+  fetchEntities, 
+  createEntity, 
+  onEdit, 
+  onDelete, 
+  onSave 
+} = useEntities()
+
+const titleBarActions = computed<TitleBarAction[]>(() => [
+  { label: t('addEntity'), action: createEntity, variant: 'primary' }
+])
+
+const headers = computed(() => [
+  { key: 'name', label: t('name') },
+  { key: 'email', label: t('email') },
+  { key: 'actions', label: t('actions') }
+])
+
+onMounted(() => fetchEntities())
+</script>
+```
+
+## Types Organization
+
+### Feature Types Pattern
+```typescript
+// types/entity.type.ts
+export interface Entity {
+  id: number
+  name: string
+  email: string
+  createdAt: string
+  updatedAt: string
+  deletedAt?: string
+  accountId: number
+  customProperties?: CustomProperty[]
+}
+
+export interface CreateEntityData {
+  name: string
+  email: string
+  customProperties?: CustomProperty[]
+}
+
+export interface UpdateEntityData {
+  name?: string
+  email?: string
+  customProperties?: CustomProperty[]
+}
+
+export type EntityResponse = ApiResponse<Entity>
+export type EntitiesResponse = ApiResponse<Entity[]>
+```
+
+## Feature Index Pattern
+
+### Barrel Export (index.ts) - REAL PROJECT
+```typescript
+// index.ts - Real project pattern
+export { entitiesRoutes } from './routes'
+export { tableEntityRoutes } from './routes.js'  // Some use .js extension
+
+// Minimal exports - most features only export routes
+// Components and composables typically not exported (feature isolation)
+```
+
+## Cross-Feature Communication
+
+### Event-Based Communication
+```typescript
+// composables/useEntityEvents.ts
+import { useEventBus } from '@/shared/composables/useEventBus'
+
+export function useEntityEvents() {
+  const { emit, on } = useEventBus()
+
+  const notifyEntityCreated = (entity: Entity) => {
+    emit('entity:created', entity)
+  }
+
+  const notifyEntityUpdated = (entity: Entity) => {
+    emit('entity:updated', entity)
+  }
+
+  const listenEntityChanges = (callback: (entity: Entity) => void) => {
+    on('entity:created', callback)
+    on('entity:updated', callback)
+  }
+
+  return {
+    notifyEntityCreated,
+    notifyEntityUpdated,
+    listenEntityChanges
+  }
+}
+```
+
+### Shared Store Integration
+```typescript
+// For cross-feature state sharing
+import { useMainStore } from '@/app/stores'
+
+export function useFeatureWithGlobalState() {
+  const mainStore = useMainStore()
+  
+  const syncWithGlobalState = () => {
+    // Sync feature state with global state
+    if (mainStore.selectedAccount.id) {
+      // Feature logic
+    }
+  }
+
+  return { syncWithGlobalState }
+}
+```
+
+## Feature Dependencies
+
+### Import Rules
+```typescript
+// ALLOWED imports
+import { BButton } from '@BRIUS/design-system'  // ✅ Design system
+import { useI18n } from 'vue-i18n'              // ✅ Vue ecosystem
+import { useMainStore } from '@/app/stores'     // ✅ Global stores
+import { toast } from '@/shared/composables'    // ✅ Shared utilities
+
+// FORBIDDEN imports
+// import { useOtherFeature } from '@/features/other'  ❌ Direct feature import
+```
+
+### Communication Patterns
+```typescript
+// CORRECT - Event-based communication
+emit('feature:action', data)
+
+// CORRECT - Shared store
+const globalStore = useMainStore()
+
+// CORRECT - Router navigation
+router.push({ name: 'other-feature' })
+
+// FORBIDDEN - Direct feature import
+// import { useOtherFeature } from '../other-feature'  ❌
+```
+
+## Validation Rules
+
+### FAIL CONDITIONS
+- Missing Canvas.vue menu registration for user-accessible features
+- Not following standard directory structure
+- Direct imports between features
+- Missing TitleBar in list views
+- Not using standard CRUD naming (handleEdit, handleDeleteAction, handleSave)
+
+### QUALITY REQUIREMENTS
+- Standard directory structure with all required folders
+- Canvas.vue menu integration for user features
+- Event-based cross-feature communication
+- Proper separation of concerns (components, composables, views)
+- Standard CRUD patterns and naming conventions
+- Feature documentation via JSDoc/README when needed
+
+- Missing i18n for user-facing text
+- Not using proper account context in API calls
+- Missing error handling in composables
+- Not using proper route meta properties

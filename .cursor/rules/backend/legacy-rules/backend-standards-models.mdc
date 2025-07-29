@@ -120,7 +120,7 @@ export class EntityName {
   @Column({ type: 'boolean', default: true })
   isActive: boolean
 
-  // JSONB for flexible properties - Boilerplate pattern
+  // JSONB for flexible properties - Admin Boilerplate pattern
   @Column({ type: 'jsonb', nullable: true })
   customProperties: CustomProperty[]
 

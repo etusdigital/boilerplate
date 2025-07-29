@@ -1,0 +1,410 @@
+---
+description: Vue 3 composables patterns and standards
+globs: **/composables/*.ts,**/use*.ts
+alwaysApply: false
+---
+
+# Composable Rules
+
+## Mandatory Structure
+
+### Naming Convention
+```typescript
+// CORRECT - Feature-specific composables
+export function useUsers() { }      // User management
+export function useAccounts() { }   // Account management
+
+// FORBIDDEN
+// export function userComposable() { }   ❌
+// export function getUsers() { }         ❌
+```
+
+## CRUD Operations Pattern (CRITICAL)
+
+### CRUD Naming Patterns (REAL PROJECT VARIATIONS)
+
+#### Complex Pattern (Card-Based Features)
+```typescript
+export function useEntityManager(tFunction?: (key: string) => string) {
+  // Complex handlers with validation
+  const handleDeleteAction = async (entity: Entity) => {
+    deletingEntity.value = { ...entity }
+    isCheckingUsage.value = true
+    usageCheckResult.value = null
+    showDelete.value = true
+    
+    try {
+      usageCheckResult.value = await checkEntityUsage(entity.id!)
+    } catch (error) {
+      usageCheckResult.value = { isUsedInRelations: false, affectedItems: [] }
+    } finally {
+      isCheckingUsage.value = false
+    }
+  }
+
+  const handleActivate = async (entity: Entity) => {
+    setEntityLoading(entity.id, true)
+    try {
+      await activateEntity(entity.id)
+      await fetchEntitiesWithParams()
+    } finally {
+      setEntityLoading(entity.id, false)
+    }
+  }
+
+  const handleSave = async (entity: Entity, isEditing: boolean) => {
+    if (isEditing) {
+      return await updateEntity(entity)
+    } else {
+      return await createEntity(entity)
+    }
+  }
+}
+```
+
+#### Simple Pattern (Table-Based Features)
+```typescript
+export function useEntityTable() {
+  // Simpler handlers for table-based features
+  const onEdit = async (val: any, index: number) => {
+    editingEntity.value = val
+    editingIndex.value = index
+    showFormControl.value = true
+    nextTick(() => {
+      showForm.value = true
+    })
+  }
+
+  const onDelete = async (val: Entity) => {
+    deletingEntity.value = val
+    showDelete.value = true
+  }
+
+  const onSave = async (editingEntity: Entity, isEditing: boolean) => {
+    const result = await saveEntity(editingEntity, isEditing)
+    if (result) {
+      fetchEntities()
+    }
+  }
+}
+```
+
+### Error Handling Patterns (DUAL PATTERNS)
+
+#### Pattern 1: inject('toast') (MAIN PATTERN)
+```typescript
+// MOST COMMON - Real project pattern
+import { ref, inject } from 'vue'
+import api from '@/shared/api'
+import { useMainStore } from '@/app/stores'
+
+export function useEntityManager(tFunction?: (key: string) => string) {
+  const toast = inject('toast') as any
+  const mainStore = useMainStore()
+  const toastOptions = mainStore.toastOptions
+  const t = tFunction || ((key: string) => key)
+
+  const deleteEntity = async (id: string) => {
+    try {
+      const response = await api.delete(`/entities/${id}`)
+      toast({
+        message: t('entityPage.messages.deleteSuccess'),
+        ...toastOptions,
+        ...{ type: 'success' },
+      })
+      return response.data
+    } catch (error: any) {
+      toast(
+        t('errors.deleteFailed'),
+        toastOptions
+      )
+      throw error
+    }
+  }
+}
+```
+
+#### Pattern 2: toast?.add (ALTERNATIVE PATTERN)
+```typescript
+// ALTERNATIVE - Complex scenarios
+export function useEntityManager(tFunction?: (key: string) => string) {
+  const toast = inject('toast') as any
+  const mainStore = useMainStore()
+
+  const createEntity = async (entity: Entity) => {
+    try {
+      const response = await api.post('/entities', entity)
+      return response.data
+    } catch (error: any) {
+      toast?.add({
+        severity: 'error',
+        summary: 'entityPage.messages.createError',
+        detail: 'entityPage.messages.createErrorDetail',
+        ...mainStore.toastOptions,
+      })
+      throw error
+    }
+  }
+}
+```
+
+## State Management Patterns
+
+### State Structure Patterns (REAL PROJECT)
+
+#### Multiple Composables Pattern (Complex Features)
+```typescript
+// EntityView.vue - Division of responsibility
+const { entities, isLoading, paginationMeta, fetchEntitiesPaginated } = useCreateTable()
+const { 
+  createEntity, 
+  updateEntity, 
+  checkEntityUsage, 
+  deleteEntity,
+  activateEntity,
+  deactivateEntity 
+} = useEntityManager(t)
+
+// Additional state in component
+const searchQuery = ref('')
+const showForm = ref(false)
+const showDelete = ref(false)
+const showDeactivate = ref(false)
+const currentEntity = ref<Entity>({})
+const deletingEntity = ref<Entity | null>(null)
+const usageCheckResult = ref<any>(null)
+
+// Granular loading states
+const loadingEntities = ref<Set<number>>(new Set())
+const isCheckingUsage = ref(false)
+const isDeletingEntity = ref(false)
+const isDeactivatingEntity = ref(false)
+```
+
+#### Single Composable Pattern (Simple Features)
+```typescript
+export function useEntityTable() {
+  // Data state
+  const tdata = ref<Array<Entity>>([])
+  const editingEntity = ref<Entity>({} as Entity)
+  const deletingEntity = ref({} as Entity)
+  
+  // UI state
+  const isLoading = ref(true)
+  const showForm = ref(false)
+  const showDelete = ref(false)
+  const showFormControl = ref(false)
+  
+  // Edit state
+  const editingIndex = ref(0)
+  const deletingUsageCount = ref(0)
+  
+  // Pagination (project defaults)
+  const itemsPerPage = ref(10)  // Table-based: 10
+  const page = ref(1)
+  
+  return {
+    tdata,
+    editingEntity,
+    deletingEntity,
+    isLoading,
+    showForm,
+    showDelete,
+    showFormControl,
+    editingIndex,
+    itemsPerPage,
+    page
+  }
+}
+```
+
+## API Integration (CRITICAL)
+
+### Account Context Pattern
+```typescript
+import { useMainStore } from '@/app/stores'
+
+export function useApiWithAccount() {
+  const mainStore = useMainStore()
+
+  // MANDATORY - All API calls include account context
+  const apiCall = async (endpoint: string, data?: any) => {
+    const headers = {
+      'Authorization': `Bearer ${accessToken}`,
+      'account-id': mainStore.selectedAccount.id, // REQUIRED
+      'Content-Type': 'application/json'
+    }
+
+    return await api.post(endpoint, data, { headers })
+  }
+
+  return { apiCall }
+}
+```
+
+### Form Handling Pattern
+```typescript
+export function useEntityForm<T>(initialData?: T) {
+  const { t } = useI18n()
+  const formData = reactive<T>(initialData || {} as T)
+  const errors = ref<Record<string, string>>({})
+  const isSubmitting = ref(false)
+
+  const resetForm = () => {
+    Object.assign(formData, initialData || {} as T)
+    errors.value = {}
+  }
+
+  const validateForm = (): boolean => {
+    errors.value = {}
+    // Validation logic
+    return Object.keys(errors.value).length === 0
+  }
+
+  const submitForm = async (submitFn: (data: T) => Promise<any>) => {
+    if (!validateForm()) return false
+
+    isSubmitting.value = true
+    try {
+      await submitFn(formData)
+      resetForm()
+      return true
+    } catch (error: any) {
+      toast({
+        message: t('errors.submitFailed', [error.response?.data?.message]),
+        type: 'danger'
+      })
+      return false
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+  return {
+    formData,
+    errors,
+    isSubmitting,
+    resetForm,
+    validateForm,
+    submitForm
+  }
+}
+```
+
+## Composable Communication
+
+### Event-Based Communication
+```typescript
+// Cross-feature communication
+import { useEventBus } from '@/shared/composables/useEventBus'
+
+export function useUserEvents() {
+  const { emit, on } = useEventBus()
+
+  const notifyUserCreated = (user: User) => {
+    emit('user:created', user)
+  }
+
+  const listenUserUpdates = (callback: (user: User) => void) => {
+    on('user:updated', callback)
+  }
+
+  return {
+    notifyUserCreated,
+    listenUserUpdates
+  }
+}
+```
+
+### Store Integration
+```typescript
+// Integration with Pinia stores
+import { useUserStore } from '@/features/users/stores/userStore'
+
+export function useUserManagement() {
+  const userStore = useUserStore()
+
+  const syncWithStore = () => {
+    // Sync local state with store
+    userStore.setUsers(users.value)
+  }
+
+  return {
+    users: computed(() => userStore.users),
+    syncWithStore
+  }
+}
+```
+
+## Lifecycle Management
+
+### Cleanup Pattern
+```typescript
+export function useResourceManagement() {
+  const resources = ref([])
+  
+  const cleanup = () => {
+    // Clear timeouts, intervals, listeners
+    resources.value.forEach(resource => resource.cleanup())
+    resources.value = []
+  }
+
+  // Auto-cleanup on unmount
+  onUnmounted(cleanup)
+
+  return { cleanup }
+}
+```
+
+## Validation Rules
+
+### Return Pattern
+```typescript
+// MANDATORY - Always return object with clear API
+export function useFeature() {
+  return {
+    // State
+    data,
+    isLoading,
+    error,
+    
+    // Actions  
+    fetchData,
+    saveData,
+    deleteData,
+    
+    // Utilities
+    resetState,
+    validateData
+  }
+}
+```
+
+### FAIL CONDITIONS (REAL PROJECT)
+- Not using project-specific CRUD naming (handleConfigure, handleDeleteAction, onEdit)
+- Missing dual toast patterns (inject + toast.add)
+- API calls without account-id context
+- Missing granular loading states for complex operations
+- Missing usage validation before destructive operations
+- Not following multiple vs single composable patterns appropriately
+- Using entity-specific names instead of generic patterns
+
+### QUALITY REQUIREMENTS (REAL PROJECT)
+- Dual error handling patterns: inject('toast') + toast?.add
+- Complex validation flows (checkIntegrationUsage before delete)
+- Granular loading states: global + per-item + per-operation
+- Multiple composables for complex features (data + operations)
+- Single composables for simple features
+- Account context in all API calls automatically
+- tFunction fallback pattern for i18n
+- Set-based loading tracking for individual items
+
+### CRITICAL PROJECT PATTERNS
+- Multiple composables: useCreateTable() + useEntityManager() for complex features
+- Single composables: useEntityTable() for simple table-based features
+- Granular loading: Set<number> for tracking individual item states
+- Usage validation: Always check before destructive operations
+- State patterns: showDelete + showDeactivate for different actions
+- Error patterns: Different toast methods for different scenarios
+- Cleanup patterns: Complex modal state clearing (isCheckingUsage, etc.)
+- Pagination defaults: itemsPerPage = 10 (table-based) vs 100 (others)

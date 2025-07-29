@@ -1,0 +1,98 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: Frontend Architecture Rules - Always consult ontology.yaml for architectural guidance
+globs:
+  - admin-boilerplate/apps/frontend/**/*.vue
+  - admin-boilerplate/apps/frontend/**/*.ts
+  - admin-boilerplate/apps/frontend/**/*.js
+  - admin-boilerplate/apps/frontend/src/**/*
+---
+
+# Frontend Architecture Rules
+
+## Ontology Reference
+**ALWAYS** consult the `admin-boilerplate/apps/frontend/docs/ontology.yaml` file when:
+- Creating new components, composables, or features
+- Refactoring existing code
+- Making architectural decisions
+- Organizing file structure
+- Implementing new patterns
+
+## Key Architectural Principles from Ontology
+
+### Feature-Based Organization
+- Each feature should be self-contained in `src/features/[feature-name]/`
+- Follow the standard feature structure: components/, composables/, views/, types/, stores/
+- Features should not directly import from other features
+- Use shared/ for cross-feature components and utilities
+
+### Component Architecture
+- Use PascalCase for Vue components (e.g., `UserForm.vue`)
+- Place feature-specific components in `features/[name]/components/`
+- Use shared/components/ for reusable UI components
+- One component per file
+
+### Composables Pattern
+- Use `use[Domain].ts` naming convention (e.g., `useUsers.ts`)
+- Place in feature's composables/ directory
+- Handle API calls, business logic, and state management
+- Return reactive state and methods
+
+### Type Safety
+- Define types in feature's types/ directory
+- Use `.type.ts` suffix for type-only files
+- Export interfaces and types for reuse
+- Follow TypeScript best practices from cursor rules
+
+### State Management
+- Use Pinia stores with Composition API style
+- Place feature stores in features/[name]/stores/
+- Global stores go in app/stores/
+- Handle feature-specific state only
+
+### Routing
+- Define routes in features/[name]/routes.ts
+- Export RouteRecordRaw array
+- Use lazy loading for components
+- Register routes in main router
+
+### Communication Patterns
+- Feature to Feature: Use events, shared stores, or router navigation
+- Feature to App: Use global stores or router
+- Shared code cannot depend on features or app layer
+
+## File Naming Conventions
+- Vue Components: `PascalCase.vue`
+- Composables: `use[Domain].ts`
+- Types: `[name].type.ts`
+- Stores: `[domain]Store.ts`
+- Views: `[Domain]View.vue`
+- Features: `kebab-case` directories
+
+## Before Making Changes
+1. **Check ontology.yaml** for existing patterns and conventions
+2. **Verify feature boundaries** - ensure proper separation of concerns
+3. **Follow established patterns** for similar functionality
+4. **Update feature.yaml** if adding new capabilities
+5. **Maintain type safety** throughout the codebase
+
+## Scalability Guidelines
+- When adding new features: Create new folder in src/features/
+- When splitting large features: Extract shared logic to composables
+- When creating shared code: Move to shared/ with clear documentation
+- When refactoring: Maintain existing architectural patterns
+
+## Quality Checklist
+- [ ] Follows feature-based organization
+- [ ] Uses proper naming conventions
+- [ ] Maintains type safety
+- [ ] Separates concerns appropriately
+- [ ] Documents new patterns in feature.yaml
+- [ ] Follows Vue 3 Composition API patterns
+- [ ] Implements proper error handling
+
+**Remember: The ontology.yaml is the source of truth for architectural decisions in this frontend codebase.**

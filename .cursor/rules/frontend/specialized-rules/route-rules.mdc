@@ -1,0 +1,330 @@
+---
+description: Vue Router configuration and route definitions
+globs: **/routes.ts,**/router/*.ts
+alwaysApply: false
+---
+
+# Route Rules
+
+## Mandatory Route Structure
+
+### Feature Routes Pattern (REAL PROJECT)
+```typescript
+// features/[feature]/routes.ts
+import type { RouteRecordRaw } from 'vue-router'
+
+export const entitiesRoutes: RouteRecordRaw[] = [
+  {
+    path: '/entities',
+    name: 'Entities',
+    component: () => import('./views/EntitiesView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Entities'
+    }
+  },
+  {
+    path: '/admin/entities',
+    name: 'AdminEntities',
+    component: () => import('./views/AdminEntitiesView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Entity Management',
+      adminOnly: true
+    }
+  }
+]
+```
+
+## Canvas.vue Menu Integration (CRITICAL)
+
+### MANDATORY: Menu Registration Workflow
+Every new feature route MUST be added to Canvas.vue menu:
+
+```typescript
+// Canvas.vue - MenuItem Type (REQUIRED)
+type MenuItem = {
+  label: string
+  value: string
+  icon: string
+  path: string
+  bottom?: boolean  // Settings items
+  show?: boolean    // Conditional visibility
+}
+
+// Example menu integration
+const menuItems = computed<MenuItem[]>(() => [
+  {
+    label: t('entities'),
+value: 'entities',
+icon: 'mdi-entity-group',
+path: '/entities'
+  },
+  {
+    label: t('accounts'),
+    value: 'accounts', 
+    icon: 'mdi-domain',
+    path: '/accounts'
+  },
+  {
+    label: t('settings'),
+    value: 'settings',
+    icon: 'mdi-cog',
+    path: '/settings',
+    bottom: true  // Settings section
+  }
+])
+```
+
+### Feature Creation Workflow
+When creating new feature:
+1. **FIRST**: Create route in feature/routes.ts
+2. **SECOND**: Add menu item to Canvas.vue
+3. **THEN**: Implement components
+
+## Route Configuration Patterns
+
+### Meta Properties (MANDATORY)
+```typescript
+{
+  path: '/feature',
+  name: 'feature',
+  component: () => import('./views/FeatureView.vue'),
+  meta: {
+    requiresAuth: true,      // REQUIRED for protected routes
+    title: 'featureTitle',   // i18n key for title
+    icon: 'mdi-icon-name',   // Material Design icon
+    roles?: ['admin'],       // Optional role restriction
+    accountRequired?: true   // Account context required
+  }
+}
+```
+
+### Lazy Loading (MANDATORY)
+```typescript
+// CORRECT - Dynamic imports for code splitting
+component: () => import('./views/FeatureView.vue')
+
+// FORBIDDEN - Direct imports
+// import FeatureView from './views/FeatureView.vue'  ❌
+```
+
+## Authentication Guards
+
+### Global Auth Guard Pattern
+```typescript
+// router/index.ts
+router.beforeEach(async (to, from, next) => {
+  const { isAuthenticated, isLoading } = useAuth0()
+  
+  // Wait for auth to initialize
+  if (isLoading.value) {
+    await new Promise(resolve => {
+      const unwatch = watch(isLoading, (loading) => {
+        if (!loading) {
+          unwatch()
+          resolve(true)
+        }
+      })
+    })
+  }
+  
+  // Check authentication requirement
+  if (to.meta.requiresAuth && !isAuthenticated.value) {
+    return next('/login')
+  }
+  
+  // Check account context requirement
+  if (to.meta.accountRequired) {
+    const mainStore = useMainStore()
+    if (!mainStore.selectedAccount.id) {
+      return next('/account-selection')
+    }
+  }
+  
+  next()
+})
+```
+
+### Route-Level Guards
+```typescript
+// Feature-specific guards
+{
+  path: '/admin',
+  component: AdminView,
+  beforeEnter: (to, from, next) => {
+    const { user } = useAuth0()
+    if (!user.value?.roles?.includes('admin')) {
+      return next('/unauthorized')
+    }
+    next()
+  }
+}
+```
+
+## Router Configuration
+
+### Main Router Setup
+```typescript
+// router/index.ts
+import { createRouter, createWebHistory } from 'vue-router'
+
+// Import feature routes
+import userRoutes from '@/features/users/routes'
+import accountRoutes from '@/features/accounts/routes'
+import entityRoutes from '@/features/entity/routes'
+
+const routes = [
+  {
+    path: '/',
+    name: 'home',
+    redirect: '/dashboard'
+  },
+  
+  // Feature routes
+  ...userRoutes,
+  ...accountRoutes,
+  ...entityRoutes,
+  
+  // App-level routes
+  {
+    path: '/callback',
+    name: 'callback',
+    component: () => import('@/app/views/Callback.vue')
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: () => import('@/app/views/NotFound.vue')
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.VITE_LOCAL_PATH),
+  routes
+})
+
+export default router
+```
+
+## Navigation Patterns
+
+### Programmatic Navigation
+```typescript
+// In composables or components
+import { useRouter, useRoute } from 'vue-router'
+
+export function useNavigation() {
+  const router = useRouter()
+  const route = useRoute()
+  
+  const navigateToEntity = (entityId: number) => {
+    router.push({ 
+      name: 'entity-details', 
+      params: { id: entityId.toString() } 
+    })
+  }
+  
+  const navigateToList = () => {
+    router.push({ name: 'entity-list' })
+  }
+  
+  const goBack = () => {
+    router.back()
+  }
+  
+  return {
+    currentRoute: route,
+    navigateToEntity,
+    navigateToList,
+    goBack
+  }
+}
+```
+
+### Route Parameters Handling
+```typescript
+// In components
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+// Reactive route params
+const entityId = computed(() => {
+  const id = route.params.id
+  return Array.isArray(id) ? parseInt(id[0]) : parseInt(id)
+})
+
+// Watch route changes
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    fetchEntity(parseInt(newId))
+  }
+}, { immediate: true })
+</script>
+```
+
+## Nested Routes Pattern
+
+### Parent-Child Routes
+```typescript
+{
+  path: '/entity',
+  component: () => import('./views/EntityLayout.vue'),
+  children: [
+    {
+      path: '',
+      name: 'entity-list',
+      component: () => import('./views/EntityView.vue')
+    },
+    {
+      path: ':id',
+      name: 'entity-details',
+      component: () => import('./views/EntityDetailsView.vue')
+    },
+    {
+      path: ':id/edit',
+      name: 'entity-edit',
+      component: () => import('./views/EntityEditView.vue')
+    }
+  ]
+}
+```
+
+## i18n Integration
+
+### Route Titles
+```typescript
+// Route meta with i18n
+meta: {
+  title: 'entities',  // Key for t('entities')
+breadcrumb: 'entityManagement'  // For breadcrumb navigation
+}
+
+// In components
+const { t } = useI18n()
+const pageTitle = computed(() => t(route.meta.title))
+```
+
+## Validation Rules
+
+### FAIL CONDITIONS
+- Routes without lazy loading (direct component imports)
+- Missing Canvas.vue menu registration for new features
+- Protected routes without requiresAuth meta
+- Missing i18n keys for route titles
+- Routes without proper TypeScript typing
+
+### QUALITY REQUIREMENTS
+- All routes use dynamic imports for components
+- Feature routes exported as RouteRecordRaw arrays
+- Menu integration for all accessible routes
+- Proper authentication and authorization guards
+- i18n integration for all interface text
+
+- Routes not grouped by feature
+- Using hard-coded paths instead of route names for navigation
+- Missing navigation guards for protected routes
+- Not handling route parameters properly in components

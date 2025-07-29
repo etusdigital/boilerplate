@@ -1,0 +1,410 @@
+---
+description: TypeScript definitions and interfaces for frontend features
+globs: **/types/*.ts,**/*.type.ts
+alwaysApply: false
+---
+
+# Types Rules
+
+## Core Type Patterns
+
+### Base Entity Pattern
+```typescript
+// features/[feature]/types/[entity].type.ts
+
+// Base entity interface (all entities extend this pattern)
+export interface BaseEntity {
+  id?: number
+  accountId?: number
+  name: string
+  createdAt?: string
+  updatedAt?: string
+  deletedAt?: string
+}
+```
+
+## Enum Patterns (EXTENSIVE USAGE)
+
+### Status Enums (Multi-Level Pattern)
+```typescript
+// Primary status enum
+export enum EntityStatus {
+  PENDING = 'pending',
+  ACTIVE = 'active',
+  ERROR = 'error',
+  DISABLED = 'disabled'
+}
+
+// Secondary status enum (for different concerns)
+export enum EntityActiveStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive'
+}
+
+// Type/Category enums (extensive lists)
+export enum EntityType {
+  TYPE_A = 'type_a',
+  TYPE_B = 'type_b',
+  TYPE_C = 'type_c',
+  TYPE_D = 'type_d',
+  TYPE_E = 'type_e',
+  TYPE_F = 'type_f',
+  TYPE_G = 'type_g',
+  TYPE_H = 'type_h'
+}
+
+// Form step enums (multi-step processes)
+export enum EntityFormStep {
+  SELECTION = 'selection',
+  FIELDS = 'fields',
+  CONFIGURATION = 'configuration',
+  REVIEW = 'review'
+}
+```
+
+## Entity Interface Patterns
+
+### Complex Entity Pattern (Card-Based Features)
+```typescript
+// For features with complex configuration and card-based UI
+export interface ComplexEntity extends BaseEntity {
+  type: EntityType
+  value: any  // Complex nested configuration object
+  description?: string
+  status?: EntityStatus
+  activeStatus?: EntityActiveStatus
+  isDefault?: boolean
+}
+
+export interface CreateComplexEntityData {
+  name: string
+  type: EntityType
+  value: any
+  description?: string
+  isDefault?: boolean
+}
+
+export interface UpdateComplexEntityData {
+  name?: string
+  type?: EntityType
+  value?: any
+  description?: string
+  isDefault?: boolean
+}
+```
+
+### Simple Entity Pattern (Table-Based Features)
+```typescript
+// For features with simple data and table-based UI
+export interface SimpleEntity extends BaseEntity {
+  values: SimpleEntityValue[]
+  category?: string
+  isActive?: boolean
+}
+
+export interface SimpleEntityValue {
+  id?: number
+  value: string
+  status: 'active' | 'inactive'
+  order?: number
+  entityId?: number
+}
+
+export interface CreateSimpleEntityData {
+  name: string
+  values: Omit<SimpleEntityValue, 'id' | 'entityId'>[]
+  category?: string
+}
+
+export interface UpdateSimpleEntityData {
+  name?: string
+  values?: SimpleEntityValue[]
+  category?: string
+  isActive?: boolean
+}
+```
+
+## Usage Validation Types
+
+### Generic Usage Validation Pattern
+```typescript
+// For checking entity usage before destructive operations
+export interface EntityUsageResult {
+  isUsedInRelations: boolean
+  canDelete: boolean
+  affectedItems: Array<{
+    id: number
+    name: string
+    type: string
+  }>
+  warnings?: string[]
+}
+
+// Usage check parameters
+export interface UsageCheckParams {
+  entityId: number
+  checkRelations?: string[]
+  includeInactive?: boolean
+}
+```
+
+## API Response Types
+
+### Standard Response Patterns
+```typescript
+// Generic API response wrapper
+export interface ApiResponse<T> {
+  data: T
+  message?: string
+  success: boolean
+  timestamp?: string
+}
+
+// Error response structure
+export interface ApiError {
+  message: string
+  statusCode: number
+  error?: string
+  details?: Record<string, any>
+  timestamp?: string
+}
+
+// Success response interfaces (prefer interfaces over types)
+export interface EntityResponse extends ApiResponse<ComplexEntity> {}
+export interface EntitiesResponse extends ApiResponse<ComplexEntity[]> {}
+export interface SimpleEntityResponse extends ApiResponse<SimpleEntity> {}
+export interface SimpleEntitiesResponse extends ApiResponse<SimpleEntity[]> {}
+```
+
+## Pagination Types
+
+### Pagination Meta Structure
+```typescript
+export interface PaginationMeta {
+  currentPage: number
+  totalPages: number
+  totalItems: number
+  itemsPerPage: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
+// Query parameters for paginated requests
+export interface PaginationQueryParams {
+  page?: number
+  limit?: number
+  search?: string
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  filters?: Record<string, any>
+}
+
+// Paginated response pattern
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: PaginationMeta
+}
+
+// Specific paginated response interfaces (prefer interfaces over types)
+export interface PaginatedEntitiesResponse extends PaginatedResponse<ComplexEntity> {}
+export interface PaginatedSimpleEntitiesResponse extends PaginatedResponse<SimpleEntity> {}
+```
+
+## Component Props Types
+
+### TitleBar Actions (Project Standard)
+```typescript
+export interface TitleBarAction {
+  key: string           // Unique identifier
+  text: string          // Display text (i18n key)
+  icon: string          // Material Design icon name
+  color: 'primary' | 'secondary' | 'danger'
+  onClick: () => void   // Action handler
+  disabled?: boolean
+  loading?: boolean
+}
+```
+
+### Form Component Props
+```typescript
+export interface EntityFormProps<T = any> {
+  modelValue?: T
+  mode: 'create' | 'edit' | 'view'
+  loading?: boolean
+  disabled?: boolean
+  validationErrors?: Record<string, string>
+}
+
+export interface EntityFormEmits<T = any> {
+  (e: 'update:modelValue', value: T): void
+  (e: 'submit', value: T): void
+  (e: 'cancel'): void
+  (e: 'delete', id: number): void
+}
+```
+
+### List Component Props
+```typescript
+export interface EntityListProps<T = any> {
+  items: T[]
+  loading?: boolean
+  selectedItems?: T[]
+  showActions?: boolean
+  actionPermissions?: {
+    canEdit?: boolean
+    canDelete?: boolean
+    canConfigure?: boolean
+  }
+}
+
+export interface EntityListEmits<T = any> {
+  (e: 'edit', item: T): void
+  (e: 'delete', item: T): void
+  (e: 'configure', item: T): void
+  (e: 'activate', item: T): void
+  (e: 'deactivate', item: T): void
+  (e: 'selection-change', items: T[]): void
+}
+```
+
+## Store State Types
+
+### Entity Store State Pattern
+```typescript
+export interface EntityStoreState<T> {
+  // Data state
+  entities: T[]
+  entity: T | null
+  
+  // Loading states
+  isLoading: boolean
+  isSaving: boolean
+  isDeleting: boolean
+  
+  // UI state
+  showForm: boolean
+  showDelete: boolean
+  editingEntity: T | null
+  deletingEntity: T | null
+  
+  // Error state
+  error: string | null
+  validationErrors: Record<string, string>
+}
+
+// Complex loading state (for granular operations)
+export interface ComplexLoadingState {
+  globalLoading: boolean
+  itemLoading: Set<number>
+  operationLoading: {
+    checking: boolean
+    deleting: boolean
+    activating: boolean
+    deactivating: boolean
+  }
+}
+```
+
+## Utility Types
+
+### Common Utility Patterns
+```typescript
+// Make all properties optional except id and required fields
+export type PartialEntity<T extends BaseEntity> = 
+  Partial<Omit<T, 'id' | 'accountId'>> & 
+  Pick<T, 'id' | 'accountId'>
+
+// Create type (omit server-generated fields)
+export type CreateData<T extends BaseEntity> = 
+  Omit<T, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
+
+// Update type (partial except id)
+export type UpdateData<T extends BaseEntity> = 
+  Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>> & 
+  Pick<T, 'id'>
+
+// Entity with relations loaded (use type for intersections per TypeScript best practices)
+export type EntityWithRelations<T, R = {}> = T & R
+```
+
+### Form State Types
+```typescript
+export interface FormState<T> {
+  data: T
+  originalData: T
+  isValid: boolean
+  isDirty: boolean
+  isSubmitting: boolean
+  errors: Record<string, string>
+  step?: number  // For multi-step forms
+  totalSteps?: number
+}
+
+// Multi-step form management
+export interface MultiStepFormState<T> extends FormState<T> {
+  currentStep: number
+  completedSteps: Set<number>
+  stepValidation: Record<number, boolean>
+  canGoToStep: (step: number) => boolean
+  canGoNext: () => boolean
+  canGoPrevious: () => boolean
+}
+```
+
+## Validation Rules
+
+### Type Organization Standards (Aligned with @typescript.mdc)
+```typescript
+// File organization patterns:
+// - Shared types: `/shared/types.ts`
+// - Feature types: `/features/[feature]/types/[entity].type.ts`
+// - Component types: Co-located with components when specific
+
+// Naming conventions (following TypeScript best practices):
+// - Interfaces: PascalCase for all interfaces (Entity, ComplexEntity, SimpleEntity)
+// - Props interfaces: Suffix with 'Props' (EntityFormProps, EntityListProps)  
+// - Component emits: Suffix with 'Emits' (EntityFormEmits, EntityListEmits)
+// - Prefer interfaces over types for object definitions
+// - Use type for unions, intersections, and mapped utility types only
+// - Use descriptive names with auxiliary verbs (isLoading, hasError, canDelete)
+```
+
+### FAIL CONDITIONS (ALIGNED WITH @typescript.mdc)
+- Using `any` type instead of proper interfaces (prefer `unknown` for unknown types)
+- Using `type` for object definitions (prefer interfaces)
+- Missing extensive enum definitions (EntityType, EntityStatus, etc.)
+- Not using PascalCase for interface names
+- Missing 'Props' suffix for component props interfaces
+- Not using TitleBar action pattern (key, text, icon, color, onClick)
+- Missing usage validation types (EntityUsageResult)
+- Missing query parameter interfaces (PaginationQueryParams)
+- Not following dual complexity patterns (ComplexEntity vs SimpleEntity)
+- Missing account context in entity types
+- Using feature-specific names instead of generic patterns
+- Not extending BaseEntity pattern
+- Missing proper API response typing
+- Not using strict TypeScript configuration
+
+### QUALITY REQUIREMENTS (GENERIC PATTERNS)
+- Extensive enum usage for all categorical data
+- Complex validation types (usage checking before destructive operations)
+- Query parameter interfaces for all paginated endpoints
+- TitleBar actions follow exact project structure
+- Dual complexity patterns: ComplexEntity vs SimpleEntity
+- Form step enums for multi-step forms
+- Status enums for different state types (Status vs ActiveStatus)
+- Generic naming for reusable patterns
+- All entities extend BaseEntity
+- Proper utility types for Create/Update operations
+
+### CRITICAL PROJECT PATTERNS
+- Multi-level enums: EntityType + EntityStatus + EntityActiveStatus
+- Usage validation: Always define EntityUsageResult interfaces
+- Query parameters: Always define PaginationQueryParams for search/pagination
+- TitleBar: Use key + text + icon + color + onClick (not label + action + variant)
+- Form steps: Define EntityFormStep enums for complex forms
+- Value objects: Use `any` for complex nested configurations (ComplexEntity.value)
+- Status patterns: Active/Inactive + separate Status enums for different concerns
+- Generic patterns: ComplexEntity for card-based, SimpleEntity for table-based features
+- Loading states: Global + granular + operation-specific patterns
+- Account isolation: All entities include accountId for multi-tenant support
