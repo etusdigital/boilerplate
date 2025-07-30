@@ -1,26 +1,22 @@
 import { ref, computed, onMounted, inject } from 'vue'
-import axios from 'axios'
+import api from '@/shared/api'
 import { useMainStore } from '@/app/stores'
 import type { Account } from '@/features/accounts/types/account.type'
+import { useI18n } from 'vue-i18n'
 
 export function useAccounts() {
   const mainStore = useMainStore()
   const toast = inject('toast') as any
   const toastOptions = mainStore.toastOptions
+  const { t } = useI18n()
 
   const getAllAccounts = async (): Promise<Account[]> => {
     try {
-      const accessToken = await mainStore.getAccessTokenSilently()
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/accounts`, {
-        headers: {
-          'account-id': 1,
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
+      const response = await api.get(`/accounts`)
       return response.data
     } catch (error: any) {
       toast({
-        message: `Error fetching accounts: ${error.response.data.message}`,
+        message: t('accountsPage.messages.fetchAccountsError', [error.response.data.message]),
         ...toastOptions,
       })
       return [] as Account[]
@@ -28,25 +24,18 @@ export function useAccounts() {
   }
 
   const saveAccount = async (editingAccount: Account, isEditing: boolean): Promise<Account> => {
-    const method = isEditing ? axios.put : axios.post
-    const saveUrl = isEditing
-      ? `${import.meta.env.VITE_BACKEND_URL}/accounts/${editingAccount.id}`
-      : `${import.meta.env.VITE_BACKEND_URL}/accounts`
+    const method = isEditing ? api.put : api.post
+    const saveUrl = isEditing ? `/accounts/${editingAccount.id}` : `/accounts`
+    
+    // Extrai apenas os campos permitidos pelo DTO
+    const { name, description, domain } = editingAccount
+    const accountData = { name, description, domain }
+    
     try {
-      const accessToken = await mainStore.getAccessTokenSilently()
-      const response = await method(
-        saveUrl,
-        { ...editingAccount },
-        {
-          headers: {
-            'account-id': 1,
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      )
+      const response = await method(saveUrl, accountData)
 
       toast({
-        message: `Account: ${editingAccount.name} ${isEditing ? 'updated' : 'created'} successfully`,
+        message: t('accounts.messages.success', [editingAccount.name], isEditing ? 2 : 1),
         ...toastOptions,
         ...{ type: 'success' },
       })
@@ -54,34 +43,31 @@ export function useAccounts() {
       return response.data
     } catch (error: any) {
       toast({
-        message: `Error ${isEditing ? 'updating' : 'creating'} account: ${error.response.data.message}`,
+        message: t('accounts.messages.error', [error.response.data.message], isEditing ? 2 : 1),
         ...toastOptions,
       })
       return {} as Account
     }
   }
 
-  const deleteAccount = async (val: Account): Promise<Account> => {
+  const deleteAccount = async (val: Account): Promise<boolean> => {
     try {
-      const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/accounts/${val.id}`, {
-        headers: {
-          'account-id': 1,
-        },
-      })
+      await api.delete(`/accounts/${val.id}`)
+
       toast({
-        message: `Account: ${val.name} deleted successfully`,
+        message: t('accounts.messages.deleteSuccess', [val.name]),
         ...toastOptions,
         ...{ type: 'success' },
       })
 
-      return response.data
+      return true
     } catch (error: any) {
       toast({
-        message: `Error deleting account: ${val.name}. ${error.response.data.message}`,
+        message: t('accounts.messages.deleteError', [val.name, error.response.data.message]),
         ...toastOptions,
       })
 
-      return {} as Account
+      return false
     }
   }
 

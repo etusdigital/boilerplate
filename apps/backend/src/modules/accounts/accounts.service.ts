@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Account } from '../../entities/account.entity';
@@ -54,7 +54,21 @@ export class AccountsService {
     id: number,
     updateAccountDto: UpdateAccountDto,
   ): Promise<Account> {
-    await this.accountRepository.update(id, { ...updateAccountDto, id });
-    return await this.findOne(id);
+    try {
+      const account = await this.findOne(id);
+      Object.assign(account, updateAccountDto);
+      
+      // MANDATORY: Use save() for audit system compatibility
+      return await this.accountRepository.save(account);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to update account');
+    }
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.accountRepository.delete(id);
   }
 }

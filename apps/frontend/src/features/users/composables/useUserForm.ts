@@ -24,6 +24,28 @@ export function useUserForm(props: any, emit: any) {
   const isSameUser = computed(() => props.user?.id === mainStore.user?.id)
   const model = ref(props.modelValue)
   const editingUser = ref({ ...props.user })
+  
+  // Função para atualizar dados do usuário
+  const updateUserData = (newUser: any) => {
+    editingUser.value = { ...newUser }
+    
+    // Reseta permissões quando é um usuário vazio
+    if (!newUser.id) {
+      parsedPermissions.value = []
+      editedUserAccounts.value = []
+    } else {
+      // Recalcula permissões para usuário existente
+      parsedPermissions.value = (newUser.userAccounts || []).map(
+        (acc: UserAccount) =>
+          ({
+            accountId: acc.accountId,
+            role: getParsedRole(acc.role) || 'Reader',
+            accountName: acc.account.name,
+          }) as Role,
+      )
+      editedUserAccounts.value = parsedPermissions.value
+    }
+  }
   const allAccountsParsed = ref([...props.allAccounts])
   allAccountsParsed.value = allAccountsParsed.value.map((account) => ({
     ...account,
@@ -45,7 +67,7 @@ export function useUserForm(props: any, emit: any) {
       }) as Role,
   )
 
-  const isEditing = ref(!!props.user.id)
+  const isEditing = computed(() => !!editingUser.value.id)
 
   const isValidUrl = computed(() => {
     try {
@@ -88,6 +110,18 @@ export function useUserForm(props: any, emit: any) {
     },
   )
 
+  // Watch para resetar dados quando recebe um usuário vazio (criar novo)
+  watch(
+    () => props.user,
+    (newUser) => {
+      // Só atualiza se realmente mudou o usuário (evita loops)
+      if (JSON.stringify(newUser) !== JSON.stringify(editingUser.value)) {
+        updateUserData(newUser)
+      }
+    },
+    { deep: true, immediate: true }
+  )
+
   return {
     model,
     isSameUser,
@@ -102,5 +136,6 @@ export function useUserForm(props: any, emit: any) {
     changeSuperAdmin,
     updateModelValue,
     closeForm,
+    updateUserData,
   }
 }

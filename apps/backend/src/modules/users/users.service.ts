@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClsService } from 'nestjs-cls';
 import { UserAccount } from '../../entities/user-accounts.entity';
@@ -166,6 +166,19 @@ export class UsersService {
     });
   }
 
+  async findOneWithRelations(id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['userAccounts', 'userAccounts.account'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    return user;
+  }
+
   async create(user: UserDto) {
     const newUser = this.userRepository.create({
       name: user.name,
@@ -195,6 +208,7 @@ export class UsersService {
   async update(id: number, user: UserDto) {
     const userToUpdate = await this.userRepository.findOne({
       where: { id },
+      relations: ['userAccounts'],
     });
 
     if (userToUpdate) {
@@ -205,27 +219,26 @@ export class UsersService {
       const uaDel: UserAccountDto[] = [];
 
       receivedAccounts.forEach((account) => {
-        if (
-          !user.userAccounts?.some((a) => a.accountId === account.accountId)
-        ) {
+        const existingAccount = user.userAccounts?.find((a) => a.accountId === account.accountId);
+        
+        if (!existingAccount) {
+          // Account não existe, precisa criar
           uaAdd.push({
             ...account,
             userId: id,
           });
-        }
-
-        if (
-          user.userAccounts?.some(
-            (a) => a.accountId === account.accountId && a.role !== account.role,
-          )
-        ) {
-          const matched = user.userAccounts?.find(
-            (a) => a.accountId === account.accountId,
-          );
-          uaAdd.push({
-            ...matched,
-            role: account.role,
+        } else if (existingAccount.role !== account.role) {
+          // Account existe mas role mudou, precisa deletar o antigo e criar novo
+          uaDel.push({
+            accountId: existingAccount.accountId,
+            userId: id,
+            role: existingAccount.role,
           } as UserAccountDto);
+          
+          uaAdd.push({
+            ...account,
+            userId: id,
+          });
         }
       });
 
@@ -241,14 +254,28 @@ export class UsersService {
 
       delete user.userAccounts;
 
-      await this.userRepository.update(id, { ...user, id } as User);
-
+      // Atualiza os campos do usuário existente
+      Object.assign(userToUpdate, user);
+      
+      // Executa as operações de userAccounts
       await this.createUserAccounts(uaAdd);
-
       await this.deleteUserAccounts(uaDel);
+
+      // Sempre salva o usuário para:
+      // 1. Atualizar campos modificados do usuário (nome, email, etc.)
+      // 2. Forçar atualização do updatedAt quando há mudanças nas roles
+      const hasRoleChanges = uaAdd.length > 0 || uaDel.length > 0;
+      
+      if (hasRoleChanges) {
+        // Força atualização do updatedAt quando há mudanças nas roles
+        userToUpdate.updatedAt = new Date();
+      }
+      
+      await this.userRepository.save(userToUpdate);
 
       return await this.userRepository.findOne({
         where: { id },
+        relations: ['userAccounts', 'userAccounts.account'],
       });
     }
   }

@@ -1,14 +1,25 @@
 <template>
   <Transition name="page" mode="out-in">
     <div class="main-container">
+      <!-- TitleBar com título e botão de ação -->
       <TitleBar :title="t('accounts.accounts')" :actions="titleBarActions" />
-      <!-- fim b-round-button -->
       <!-- início b-table usada para listar os usuários -->
       <b-table :headers="tcolumns" :items="tdata" :options="{ sortBy: 'name', sortDesc: false }" :loading="isLoading"
-        :itemsPerPage="itemsPerPage" v-model:page="page" v-model:items-per-page="itemsPerPage">
+        v-model:page="page" v-model:items-per-page="itemsPerPage">
         <template v-for="(metric, index) in tcolumns" v-slot:[metric.value]="{ item }">
           <td v-if="item && metric.value" :key="`child-${index}-${item.value}`">
-            {{ item[metric.value] }}
+            <template v-if="metric.value === 'updatedAt'">
+              <span class="w-full text-left">{{ formatDisplayDate(item.updatedAt) }}</span>
+              <br />
+              <span v-if="item?.updatedAt && item?.createdAt" class="text-xxs w-full text-center">{{
+                t('btable.createdAt') }} {{ formatDisplayDate(item.createdAt) }}</span>
+            </template>
+            <template v-else-if="metric.value === 'deletedAt'">
+              <span class="w-full text-left">{{ formatDisplayDate(item.deletedAt) }}</span>
+            </template>
+            <template v-else>
+              {{ item[metric.value] }}
+            </template>
           </td>
         </template>
         <template v-slot:actions="{ item, index }">
@@ -19,9 +30,9 @@
             </div>
           </td>
         </template>
-        <template #items-per-page>{{ t('items_per_page') }}</template>
+        <template #items-per-page>{{ t('btable.itemsPerPage') }}</template>
         <template #showing-page="{ min, max, total }">
-          {{ t('pagination_text', [min, max, total]) }}
+          {{ t('btable.showingNofN', [min, max, total]) }}
         </template>
       </b-table>
       <!-- fim b-table -->
@@ -30,15 +41,15 @@
       <!-- início b-dialog usado para deletar o usuário e controlado por flags como: showDelete e closeDelete -->
       <b-dialog v-model="showDelete" :width="1000" class="op">
         <div class="form-wrapper">
-          <h1>{{ t('accounts.deleteMsg.title') }}</h1>
+          <h1>{{ t('deleteAccount') }}</h1>
           <p class="text-danger">
-            {{ t('accounts.deleteMsg.deleteAccountConfirm') }} <b>{{ deletingAccount.name }}</b>?
+            {{ t('accountsPage.messages.deleteConfirm') }}: <b>{{ deletingAccount.name }}</b>?
           </p>
-          <p class="text-danger">{{ t('accounts.deleteMsg.actionIrreversible') }}.</p>
+          <p class="text-danger">{{ t('messages.actionIrreversible') }}.</p>
           <div class="delete-form-actions">
-            <div class="flex items-center justify-end w-full form-container">
-              <b-button color="primary" @click="closeDelete">Cancelar</b-button>
-              <b-button color="danger" @click="onDeleteAccount(deletingAccount)">Deletar</b-button>
+            <div class="flex items-center justify-between w-full ">
+              <b-button color="primary" @click="closeDelete">{{ t('cancel') }}</b-button>
+              <b-button color="danger" @click="onDeleteAccount(deletingAccount)">{{ t('delete') }}</b-button>
             </div>
           </div>
         </div>
@@ -53,14 +64,13 @@ import { ref, onMounted, nextTick, computed } from 'vue'
 import AccountForm from '@/features/accounts/components/AccountForm.vue'
 import type { Account } from '@/features/accounts/types/account.type'
 import { useAccounts } from '@/features/accounts/composables/useAccounts'
+import { useI18n } from 'vue-i18n'
 import TitleBar from '@/shared/components/TitleBar.vue'
 import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
-import { useI18n } from 'vue-i18n'
-
 const { t } = useI18n()
 
 const isLoading = ref(true)
-const itemsPerPage = ref(100)
+const itemsPerPage = ref(10)
 const page = ref(1)
 const tcolumns = ref([
   {
@@ -77,9 +87,9 @@ const tcolumns = ref([
     sortable: true,
   },
   {
-    text: t('btable.createdAt'),
-    label: t('btable.createdAt'),
-    value: 'createdAt',
+    text: t('btable.updatedAt'),
+    label: t('btable.updatedAt'),
+    value: 'updatedAt',
     sortable: true,
   },
   {
@@ -108,6 +118,21 @@ const titleBarActions = computed<TitleBarAction[]>(() => [
     onClick: createAccount
   }
 ])
+
+const formatDisplayDate = (dateString: string): string => {
+  if (!dateString) return '-'
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+  } catch (e) {
+    return '-' // Retorna '-' em caso de erro na conversão
+  }
+}
 
 const onDeleteAccount = async (val: any): Promise<void> => {
   await deleteAccount(val)

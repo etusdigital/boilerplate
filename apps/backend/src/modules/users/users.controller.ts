@@ -132,6 +132,14 @@ export class UsersController {
     return await this.usersService.deleteUserAccounts(userAccounts);
   }
 
+  @Get('/:id')
+  @Roles(Role.ADMIN, Role.MASTER_ADMIN)
+  @ApiResponse({ status: 200, description: 'User found with relations.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async findOne(@Param('id') id: number) {
+    return await this.usersService.findOneWithRelations(id);
+  }
+
   @Post()
   @Roles(Role.ADMIN, Role.MASTER_ADMIN)
   @UsePipes(new ValidationPipe())

@@ -32,6 +32,7 @@ export default {
         is_super_admin: "É Super Admin",
         user_permissions_per_account: "Permissões do Usuário por Conta",
         add_role: "Adicionar Permissão",
+        loadingUserData: "Carregando dados do usuário...",
         description: "Gerencie usuários, suas permissões e acesso ao sistema.",
         addUser: "Adicionar Usuário",
         validation: {
@@ -43,10 +44,11 @@ export default {
             admin: "Admin",
             user: "Usuário",
             super_admin: "Super Admin",
-            userRolesAndPermissions: "Permissões do Usuário",
+            userRolesAndPermissions: "Cargos de Usuários e Permissões",
             userPermissionsPerAccount: "Permissões do Usuário por Conta",
-            addRole: "Adicionar Permissão",
-            profileImage: "URL da Imagem de Perfil"
+            addRole: "Adicionar Cargo",
+            profileImage: "URL da Imagem de Perfil",
+            isSuperAdmin: "É Super Admin"
         },
         deleteMsg: {
             title: "Excluir Usuário",
@@ -78,6 +80,17 @@ export default {
             name: "Nome da Conta",
             domain: "Domínio da Conta",
             description: "Descrição da Conta"
+        },
+        messages: {
+            nameRequired: 'Nome é obrigatório',
+            domainInvalid: 'Domínio é inválido',
+            descriptionRequired: 'Descrição é obrigatória',
+            fetchAccountsError: 'Erro ao carregar contas: {0}',
+            success: 'Conta {0} criada com sucesso | Conta {0} atualizada com sucesso',
+            error: 'Erro ao criar conta {0}: {1} | Erro ao atualizar conta {0}: {1}',
+            deleteSuccess: 'Conta {0} excluída com sucesso',
+            deleteError: 'Erro ao excluir conta {0}: {1}',
+            deleteConfirm: 'Tem certeza que deseja excluir a conta',
         }
     },
     btable: {
@@ -87,6 +100,8 @@ export default {
         status: "Status",
         description: "Descrição",
         createdAt: "Data de criação",
-        deletedAt: "Data de exclusão"
+        deletedAt: "Data de exclusão",
+        itemsPerPage: "Itens por página",
+        showingNofN: "Mostrando {0} a {1} de {2}"
     }
 }

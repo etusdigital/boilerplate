@@ -1,37 +1,37 @@
 <template>
-  <b-sidebar v-model="model" :noOutsideClose="true" width="40%" @update:model-value="updateModelValue">
+  <b-sidebar v-model="model" :noOutsideClose="false" width="40%" @update:model-value="updateModelValue">
     <div class="form-wrapper">
       <div class="form-header flex flex-row items-center gap-4">
         <BIcon name="close" @click="closeForm" class="cursor-pointer" />
         <div class="title">{{ isEditing ? t('accounts.editAccount') : t('accounts.addAccount') }}</div>
         <div class="save-container">
-          <b-button color="success" :disabled="false" :loading="false" size="medium" type="button"
+          <b-button color="primary" :disabled="!saveConditions" :loading="false" size="medium" type="button"
             @click="emit('save', editingAccount, isEditing)">
             {{ t('save') }}
           </b-button>
         </div>
       </div>
       <div class="flex flex-col items-start justify-between w-full gap-xl">
-        <BInput v-model="editingAccount.name" :errorMessage="t('accounts.sideBarLabels.name')" :isError="editingAccount.name.length < 3"
-          :labelValue="t('accounts.sideBarLabels.name')" :required="true" size="base" type="text" :disabled="isEditing" />
+        <BInput v-model="editingAccount.name" :errorMessage="t('accounts.sideBarLabels.name')"
+          :isError="(editingAccount.name != '' && editingAccount.name.length < 3)" :labelValue="t('accounts.sideBarLabels.name')"
+          :required="true" size="base" type="text" :disabled="isEditing" />
 
-        <BInput v-model="editingAccount.domain" :errorMessage="t('accounts.sideBarLabels.domain')" :isError="!isValidDomain"
-          :labelValue="t('accounts.sideBarLabels.domain')" :required="true" size="base" type="text" />
+        <BInput v-model="editingAccount.domain" :errorMessage="t('accounts.sideBarLabels.domain')"
+          :isError="(!isValidDomain && editingAccount.domain != '')" :labelValue="t('accounts.sideBarLabels.domain')" :required="true"
+          size="base" type="text" />
 
         <BInput v-model="editingAccount.description" :errorMessage="t('accounts.sideBarLabels.description')"
-          :isError="editingAccount.description?.length < 3" :labelValue="t('accounts.sideBarLabels.description')" :required="true" :isTextArea="true"
-          size="base" type="text" />
+          :isError="(editingAccount.description != '' && editingAccount.description?.length < 3)"
+          :labelValue="t('accounts.sideBarLabels.description')" :required="true" :isTextArea="true" size="base" type="text" />
       </div>
     </div>
   </b-sidebar>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, inject, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { Account } from '@/features/accounts/types/account.type'
-import { useMainStore } from '@/app/stores'
 import { useI18n } from 'vue-i18n'
-
 const { t } = useI18n()
 
 const props = defineProps<{
@@ -47,9 +47,12 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
 }>()
 
-
 const editingAccount = ref({ ...props.account })
 const isEditing = ref(!!props.account.id)
+
+const saveConditions = computed(() => {
+  return editingAccount.value.name?.length >= 3 && isValidDomain.value && editingAccount.value.description?.length >= 3
+})
 
 const isValidDomain = computed(() => {
   const domain = editingAccount.value.domain.trim();

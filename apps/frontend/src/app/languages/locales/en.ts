@@ -34,6 +34,7 @@ export default {
         add_role: "Add Role",
         description: "Manage users, their permissions and access to the system.",
         addUser: "Add User",
+        loadingUserData: "Loading user data...",
         validation: {
             name: "Name is required",
             email: "Email is required",
@@ -46,7 +47,8 @@ export default {
             userRolesAndPermissions: "User Roles and Permissions",
             userPermissionsPerAccount: "User Permissions per Account",
             addRole: "Add Role",
-            profileImage: "Profile Image URL"
+            profileImage: "Profile Image URL",
+            isSuperAdmin: "Is Super Admin"
         },
         deleteMsg: {
             title: "Delete User",
@@ -77,7 +79,18 @@ export default {
             name: "Account Name",
             domain: "Account Domain",
             description: "Account Description"
-        }
+        },
+        messages: {
+            nameRequired: 'Name is required',
+            domainInvalid: 'Domain is invalid',
+            descriptionRequired: 'Description is required',
+            fetchAccountsError: 'Error fetching accounts: {0}',
+            success: 'Account {0} created successfully | Account {0} updated successfully',
+            error: 'Error creating account {0}: {1} | Error updating account {0}: {1}',
+            deleteSuccess: 'Account {0} deleted successfully',
+            deleteError: 'Error deleting account {0}: {1}',
+            deleteConfirm: 'Are you sure you want to delete the account',
+        }   
     },
     btable: {
         name: "Name",
@@ -86,6 +99,8 @@ export default {
         status: "Status",
         description: "Description",
         createdAt: "Created At",
-        deletedAt: "Deleted At"
+        deletedAt: "Deleted At",
+        itemsPerPage: "Items per page",
+        showingNofN: "Showing {0} to {1} of {2}"
     }
 }

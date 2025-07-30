@@ -4,7 +4,7 @@
     <div v-if="allowSuperAdmin" class="super-admin-selector flex flex-row gap-2 items-center">
       <BCheckbox :allowIndeterminate="false" :disabled="false" :model-value="isSuperAdmin" :rhs="false"
         @update:model-value="updateSuperAdmin" />
-      <h5>{{ t('isSuperAdmin') }}</h5>
+      <h5>{{ t('users.roles.isSuperAdmin') }}</h5>
     </div>
     <div class="flex flex-col gap-2">
       <h5 class="roles-selector-label">{{ t('users.roles.userPermissionsPerAccount') }}</h5>

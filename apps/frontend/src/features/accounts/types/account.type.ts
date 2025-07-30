@@ -5,4 +5,5 @@ export interface Account {
   domain: string
   created_at: string
   deleted_at?: string
+  role?: string
 }

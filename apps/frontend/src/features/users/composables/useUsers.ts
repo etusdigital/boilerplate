@@ -99,6 +99,19 @@ export function useUsers() {
     }
   }
 
+  const getUserWithRelations = async (id: number): Promise<User> => {
+    try {
+      const response = await api.get(`/users/${id}`)
+      return response.data
+    } catch (error: any) {
+      toast({
+        message: t('usersPage.messages.fetchUserError', [error.response?.data?.message || 'Unknown error']),
+        ...toastOptions,
+      })
+      return {} as User
+    }
+  }
+
   return {
     // State
     users,
@@ -108,5 +121,6 @@ export function useUsers() {
     getAllUsers, // método paginado principal
     saveUser,
     deleteUser,
+    getUserWithRelations, // método para buscar usuário com relações
   }
 }

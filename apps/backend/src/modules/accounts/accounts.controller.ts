@@ -1,5 +1,20 @@
-import { Controller, Get, Post, Put, Body, Param, UseGuards, ValidationPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Body,
+  Param,
+  UseGuards,
+  ValidationPipe,
+  Delete,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto, UpdateAccountDto } from './dto/account.dto';
 import { Role } from 'src/auth/enums/roles.enum';
@@ -17,7 +32,10 @@ export class AccountsController {
   @Post()
   @Roles(Role.ADMIN, Role.MASTER_ADMIN)
   @ApiOperation({ summary: 'Create a new account' })
-  @ApiResponse({ status: 201, description: 'The account has been successfully created.' })
+  @ApiResponse({
+    status: 201,
+    description: 'The account has been successfully created.',
+  })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async create(@Body(ValidationPipe) createAccountDto: CreateAccountDto) {
@@ -44,7 +62,10 @@ export class AccountsController {
   @Put(':id')
   @Roles(Role.ADMIN, Role.MASTER_ADMIN)
   @ApiOperation({ summary: 'Update an account' })
-  @ApiResponse({ status: 200, description: 'The account has been successfully updated.' })
+  @ApiResponse({
+    status: 200,
+    description: 'The account has been successfully updated.',
+  })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @ApiResponse({ status: 404, description: 'Account not found.' })
@@ -53,5 +74,15 @@ export class AccountsController {
     @Body(ValidationPipe) updateAccountDto: UpdateAccountDto,
   ) {
     return await this.accountsService.update(id, updateAccountDto);
+  }
+
+  @Delete(':id')
+  @Roles(Role.ADMIN, Role.MASTER_ADMIN)
+  @ApiOperation({ summary: 'Delete an account' })
+  @ApiResponse({ status: 200, description: 'The account has been successfully deleted.' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 404, description: 'Account not found.' })
+  async delete(@Param('id') id: number) {
+    return await this.accountsService.delete(id);
   }
 }

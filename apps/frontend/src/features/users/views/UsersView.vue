@@ -1,7 +1,7 @@
 <template>
   <div class="main-container">
     <!-- TitleBar com título e botão de ação -->
-    <TitleBar :title="t('users.users')" :actions="titleBarActions" />
+    <TitleBar :title="t('users')" :actions="titleBarActions" />
 
     <!-- Campo de busca -->
     <div class="flex gap-base w-[100%] justify-between items-center mb-base">
@@ -34,7 +34,7 @@
             <span class="w-full text-left">{{ formatDisplayDate(item.updatedAt) }}</span>
             <br />
             <span v-if="item?.updatedAt && item?.createdAt" class="text-xxs w-full text-center">{{
-              t('btable.createdAt') }} {{ formatDisplayDate(item.createdAt) }}</span>
+              t('createdAt') }} {{ formatDisplayDate(item.createdAt) }}</span>
           </template>
           <template v-else-if="metric.value === 'deletedAt'">
             <span class="w-full text-left">{{ formatDisplayDate(item.deletedAt) }}</span>
@@ -61,25 +61,25 @@
     </div>
 
     <!-- Formulário de usuário -->
-    <UserForm v-if="showFormControl" v-model="showForm" :user="editingUser" :allAccounts="allAccounts" @save="onSave"
-      @close="onCloseForm" />
+    <UserForm v-if="showFormControl" v-model="showForm" :user="editingUser" :allAccounts="allAccounts" 
+      :loading-user-data="isLoadingUserData" @save="onSave" @close="onCloseForm" />
 
     <!-- Dialog de confirmação de exclusão -->
     <b-dialog v-model="showDelete" :width="1000" class="op">
       <div class="form-wrapper">
-        <h1>{{ t('users.deleteMsg.title') }}</h1>
+        <h1>{{ t('deleteUser') }}</h1>
         <p class="text-danger">
-          {{ t('users.deleteMsg.deleteUserConfirm') }}: <b>{{ deletingUser.email }}</b>?
+          {{ t('messages.deleteUserConfirm') }}: <b>{{ deletingUser.email }}</b>?
         </p>
-        <p class="text-danger">{{ t('users.deleteMsg.actionIrreversible') }}.</p>
+        <p class="text-danger">{{ t('messages.actionIrreversible') }}.</p>
         <div class="delete-form-actions">
-          <div class="flex items-center justify-end w-full form-container">
+          <div class="flex items-center justify-between w-full form-container">
             <b-button color="primary" :disabled="false" :loading="false" size="medium" type="button"
               @click="closeDelete">
-              {{ t('users.deleteMsg.cancel') }}
+              {{ t('cancel') }}
             </b-button>
             <b-button color="danger" :disabled="false" size="medium" type="submit" @click="onDeleteUser(deletingUser)">
-              {{ t('users.deleteMsg.confirm') }}
+              {{ t('delete') }}
             </b-button>
           </div>
         </div>
@@ -100,12 +100,12 @@ import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
 const { t } = useI18n()
 
 // Composables
-const { users, isLoading, paginationMeta, getAllUsers, saveUser, deleteUser } = useUsers()
+const { users, isLoading, paginationMeta, getAllUsers, saveUser, deleteUser, getUserWithRelations } = useUsers()
 const { getAllAccounts } = useAccounts()
 
 // Estado da busca e paginação
 const searchQuery = ref('')
-const itemsPerPage = ref(50)
+const itemsPerPage = ref(10)
 const currentSortBy = ref('name')
 const currentSortDesc = ref(false)
 
@@ -143,6 +143,7 @@ const editingIndex = ref(0)
 const showForm = ref(false)
 const showDelete = ref(false)
 const showFormControl = ref(false)
+const isLoadingUserData = ref(false)
 
 // Configuração das colunas da tabela
 const tcolumns = ref([
@@ -259,12 +260,28 @@ const formatDisplayDate = (dateString: string): string => {
 // Handlers de CRUD
 const onEdit = async (val: any, index: number) => {
   showFormControl.value = false
-  editingUser.value = val
   editingIndex.value = index
+  isLoadingUserData.value = true
+  
+  // Define usuário temporário com ID para indicar edição
+  editingUser.value = {
+    ...val,
+    userAccounts: [] // Será populado pela API
+  }
+  
+  // Mostra sidebar imediatamente
   showFormControl.value = true
   nextTick(() => {
     showForm.value = true
   })
+  
+  try {
+    // Busca o usuário com as relações userAccounts para edição
+    const fullUser = await getUserWithRelations(val.id)
+    editingUser.value = fullUser
+  } finally {
+    isLoadingUserData.value = false
+  }
 }
 
 const onDeleteUser = async (val: any) => {
@@ -274,6 +291,7 @@ const onDeleteUser = async (val: any) => {
 }
 
 const createUser = () => {
+  // Limpa completamente os dados do usuário
   editingUser.value = {
     name: '',
     email: '',
@@ -282,6 +300,7 @@ const createUser = () => {
     isSuperAdmin: false,
   } as User
   editingIndex.value = 0
+  isLoadingUserData.value = false
 
   showFormControl.value = true
   nextTick(() => {
@@ -290,14 +309,27 @@ const createUser = () => {
 }
 
 const forceResetForm = () => {
+  // Limpa completamente os dados para evitar persistência
+  editingUser.value = {} as User
+  isLoadingUserData.value = false
+  
   setTimeout(() => {
     showFormControl.value = false
   }, 500)
 }
 
 const onSave = async (editingUser: any, isEditing: boolean) => {
-  await saveUser(editingUser, isEditing)
-  await fetchUsers()
+  try {
+    await saveUser(editingUser, isEditing)
+    await fetchUsers()
+    
+    // Fechar o form após salvar com sucesso
+    showForm.value = false
+    forceResetForm()
+  } finally {
+    // Reset dos estados de loading
+    isLoadingUserData.value = false
+  }
 }
 
 const closeDelete = () => {
@@ -314,7 +346,10 @@ const onCloseForm = (data: any) => {
   if (data && users.value[editingIndex.value]) {
     users.value[editingIndex.value] = data
   }
+  
+  // Reset completo do estado
   editingUser.value = {} as User
+  isLoadingUserData.value = false
   showForm.value = false
   forceResetForm()
 }
