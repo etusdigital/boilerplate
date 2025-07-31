@@ -73,5 +73,6 @@ O projeto utiliza:
 
 ## Observações
 
-- Se clonou o projeto usando o nosso npx e já tinha um pnpm configurado, você não rpecisará fazer nada e apenas rodar o pnpm run dev.
+- Se clonou o projeto usando o nosso npx e já tinha um pnpm configurado, você não precisará fazer nada e apenas rodar o pnpm run dev.
 - Se clonou o projeto usando o npx e não tinha um pnpm configurado, você precisará rodar o pnpm install para instalar as dependências. Após isso você precisa instalar as migrations e seeds com o comando `pnpm run migration`.
+- Consulte os documentos `docs/development_methodology_for_developers.md` e `docs/project_guidelines_for_developers.md` para entender melhor a estrutura das cursor-rules do projeto

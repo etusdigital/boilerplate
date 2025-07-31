@@ -1,21 +1,21 @@
 # 📚 Guidelines de Desenvolvimento - Boilerplate
 
 **Data**: 29/07/2025  
-**Contexto**: Guidelines consolidadas para desenvolvedores do projeto  
+**Contexto**: Guidelines consolidadas para desenvolvedores do projeto, explicando a estrutura  do boilerplate e padrões das cursor-rules
 **Versão**: 1.0
 
 ---
 
-## 🎯 **Contexto Global do Projeto**
+## 🎯 **Contexto global do projeto**
 
-### **Perfil do Desenvolvedor**
+### **Perfil do Cursor-rule**
 Você deve atuar como um **engenheiro de software sênior** especializado na construção de sistemas altamente escaláveis com:
 - **Frontend**: Vue 3 + TypeScript + Pinia
-- **Backend**: NestJS + TypeORM + PostgreSQL
+- **Backend**: NestJS + TypeORM + SQLite
 
 ### **Stack Tecnológica**
 - **Frontend**: Vue 3, TypeScript, Pinia, Vue Router
-- **Backend**: NestJS, TypeORM, PostgreSQL/SQLite  
+- **Backend**: NestJS, TypeORM, SQLite  
 - **Autenticação**: Auth0
 - **Design System**: @BRIUS/design-system (obrigatório)
 - **Arquitetura**: Feature-driven development

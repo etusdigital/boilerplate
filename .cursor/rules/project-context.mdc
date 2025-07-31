@@ -15,7 +15,7 @@ alwaysApply: true
 
 ## Technology Stack
 - **Frontend**: Vue 3 + TypeScript + Pinia + Vue Router
-- **Backend**: NestJS + TypeORM + PostgreSQL/SQLite
+- **Backend**: NestJS + TypeORM + SQLite
 - **Authentication**: Auth0 integration
 - **Design System**: @BRIUS/design-system (mandatory)
 - **Architecture**: Feature-driven development with monorepo structure

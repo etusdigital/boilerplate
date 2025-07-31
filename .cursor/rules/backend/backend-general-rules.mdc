@@ -68,10 +68,10 @@ When entity is created or modified, display these exact commands to user:
 ⚠️  Entity created/modified. Please run these migration commands manually:
 
 🔧 Generate Migration:
-npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/data-source.ts migration:generate src/database/migrations/%migrationName%
+npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/ormconfig.ts migration:generate src/database/migrations/%migrationName%
 
 🚀 Execute Migration:
-npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/data-source.ts migration:run
+npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/ormconfig.ts migration:run
 
 Please run these commands and confirm completion before I proceed to next phase.
 ```

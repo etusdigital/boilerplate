@@ -1,13 +1,13 @@
 # 📚 Lições Aprendidas - Metodologia de Desenvolvimento (Para desenvolvedores)
 
 **Data**: 29/07/2025  
-**Contexto**: Definição de metodologia padrão para desenvolvimento  
+**Contexto**: Descrição PTBr da cursor-rule `@etus-methodology.mdc`
 **Projeto**: Processo de Desenvolvimento de Features
 
 ---
 
-## 🎯 **Objetivo das Lições**
-Documentar a metodologia estabelecida para desenvolvimento de features, componentes e telas, garantindo consistência e aderência aos padrões da empresa.
+## 🎯 **Objetivos**
+Documentar a metodologia estabelecida para desenvolvimento de features, componentes e telas, garantindo consistência e aderência aos padrões da empresa. Essa é a metodologia da cursor-rule `@etus-methodology.mdc`
 
 ---
 

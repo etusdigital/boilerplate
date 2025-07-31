@@ -78,30 +78,38 @@ Para criar um novo CRUD, você tem duas opções:
 4. Configure as rotas no controller
 5. Implemente a lógica de negócio no service
 
-### Opção 2: Usar o Cursor com as regras predefinidas (Recomendado)
+### Opção 2: Usar o Cursor pedindo para ele entrar no "Modo Planejador"
 
-1. Consulte o arquivo `@cursor-rules.md` na raiz do projeto para ver a arquitetura completa
-2. No Cursor, digite o comando para criar um novo CRUD seguindo o formato:
-   ```
-   "Crie um novo CRUD seguindo as regras do arquivo @cursor-rules.md para a entidade X com a seguinte tabela:
-   - Tabela 1 com campos [...]"
-   ```
-3. O Cursor irá gerar automaticamente todos os arquivos necessários seguindo os padrões arquiteturais definidos, incluindo:
-   - Migrations
-   - Entities
-   - Module
-   - Controller
-   - Service
-   - DTOs
-   - Testes
+### **Modo Planejador**
+Quando solicitado "Modo Planejador":
+1. A cursor-rule `@etus-methodology.mdc` será ativa
+2. Ela iniciará todos os passos do fluxo de desenvolvimento
+3. Detalhe o problema no chat do cursor
+4. O Cursor irá gerar automaticamente todos os arquivos necessários seguindo os padrões arquiteturais definidos, incluindo:
+   Backend:
+      - Migrations
+      - Entities
+      - Module
+      - Controller
+      - Service
+      - DTOs
+   Frontend:
+      - components .vue
+      - composables .ts
+      - types
+      - route
+      - store
+5. Se precisar de mais contexto, peça ao cursor para considerar as cursor-rules `@backend-general-rules.mdc` e `@frontend-general-rules.mdc`
 
-O arquivo `@cursor-rules.md` contém todas as regras e padrões arquiteturais do projeto, incluindo:
+As specialized-cursor-rules contém todas as regras e padrões arquiteturais do projeto, incluindo:
 - Estrutura de migrations
 - Padrões de nomenclatura
 - Decorators necessários
 - Configurações do TypeORM
 - Estrutura de testes
 - Melhores práticas
+
+As legacy-rules contém mais conjunto de regras úteis ao desenvolvimento
 
 ## Migrations e Seeds
 

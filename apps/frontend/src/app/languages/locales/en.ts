@@ -35,11 +35,6 @@ export default {
         description: "Manage users, their permissions and access to the system.",
         addUser: "Add User",
         loadingUserData: "Loading user data...",
-        validation: {
-            name: "Name is required",
-            email: "Email is required",
-            invalidUrl: "The image url is not valid"
-        },
         roles: {
             admin: "Admin",
             user: "User",
@@ -56,7 +51,21 @@ export default {
             confirm: "Delete",
             cancel: "Cancel",
             actionIrreversible: "This action is irreversible"
-        }
+        },
+        messages: {
+            fetchUsersError: 'Error fetching users: {0}',
+            userSaveSuccess: 'User {0} saved successfully',
+            userSaveError: 'Error saving user: {0}',
+            userDeleteSuccess: 'User {0} deleted successfully',
+            userDeleteError: 'Error deleting user {0}: {1}',
+          },
+        validation: {
+            name: 'The name needs to have at least 3 characters',
+            email: 'The email needs to be valid',
+            invalidUrl: 'The image URL is not valid',
+            nameMinLength: 'Name must have at least 3 characters',
+            slugRequired: 'Slug is required',
+        },
     },
     settings: {
         settings: "Settings",

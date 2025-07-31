@@ -72,10 +72,10 @@ When user requests new CRUD feature, follow this exact sequence:
 echo "⚠️  Entity created/modified. Please run these migration commands manually:"
 echo ""
 echo "🔧 Generate Migration:"
-echo "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/data-source.ts migration:generate src/database/migrations/%migrationName%"
+echo "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/ormconfig.ts migration:generate src/database/migrations/%migrationName%"
 echo ""
 echo "🚀 Execute Migration:"
-echo "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/data-source.ts migration:run"
+echo "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/ormconfig.ts migration:run"
 echo ""
 echo "Please run these commands and confirm completion before I proceed to next phase."
 

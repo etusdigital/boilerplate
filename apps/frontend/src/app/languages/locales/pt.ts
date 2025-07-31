@@ -35,11 +35,6 @@ export default {
         loadingUserData: "Carregando dados do usuário...",
         description: "Gerencie usuários, suas permissões e acesso ao sistema.",
         addUser: "Adicionar Usuário",
-        validation: {
-            name: "Nome é obrigatório",
-            email: "Email é obrigatório",
-            invalidUrl: "A url da imagem não é válida"
-        },
         roles: {
             admin: "Admin",
             user: "Usuário",
@@ -56,7 +51,21 @@ export default {
             confirm: "Excluir",
             cancel: "Cancelar",
             actionIrreversible: "Esta ação é irreversível"
-        }
+        },
+        messages: {
+            fetchUsersError: 'Erro ao carregar usuários: {0}',
+            userSaveSuccess: 'Usuário {0} salvo com sucesso',
+            userSaveError: 'Erro ao salvar usuário: {0}',
+            userDeleteSuccess: 'Usuário {0} excluído com sucesso',
+            userDeleteError: 'Erro ao excluir usuário {0}: {1}',
+        },
+        validation: {
+            name: 'O nome precisa ter ao menos 3 characteres',
+            email: 'O email precisa ser válido',
+            invalidUrl: 'A URL da imagem não é válida',
+            nameMinLength: 'O nome deve ter pelo menos 3 caracteres',
+            slugRequired: 'O slug é obrigatório',
+        },
     },
     settings: {
         settings: "Configurações",

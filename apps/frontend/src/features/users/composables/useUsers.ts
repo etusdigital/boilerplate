@@ -32,7 +32,7 @@ export function useUsers() {
       return response.data
     } catch (error: any) {
       toast({
-        message: t('usersPage.messages.fetchUsersError', [error.response?.data?.message || 'Unknown error']),
+        message: t('users.messages.fetchUsersError', [error.response?.data?.message || 'Unknown error']),
         ...toastOptions,
       })
       users.value = []
@@ -64,7 +64,7 @@ export function useUsers() {
       const response = await method(saveUrl, { ...editingUser })
 
       toast({
-        message: t('usersPage.messages.userSaveSuccess', [editingUser.email]),
+        message: t('users.messages.userSaveSuccess', [editingUser.email]),
         ...toastOptions,
         ...{ type: 'success' },
       })
@@ -72,7 +72,7 @@ export function useUsers() {
       return response.data
     } catch (error: any) {
       toast({
-        message: t('usersPage.messages.userSaveError', [error.response.data.message]),
+        message: t('users.messages.userSaveError', [error.response.data.message]),
         ...toastOptions,
       })
       return {} as User
@@ -84,7 +84,7 @@ export function useUsers() {
       const response = await api.delete(`/users/${val.id}`)
 
       toast({
-        message: t('usersPage.messages.userDeleteSuccess', [val.email]),
+        message: t('users.messages.userDeleteSuccess', [val.email]),
         ...toastOptions,
         ...{ type: 'success' },
       })
@@ -92,7 +92,7 @@ export function useUsers() {
       return response.data
     } catch (error: any) {
       toast({
-        message: t('usersPage.messages.userDeleteError', [val.email, error.response.data.message]),
+        message: t('users.messages.userDeleteError', [val.email, error.response.data.message]),
         ...toastOptions,
       })
       return {} as User
@@ -105,7 +105,7 @@ export function useUsers() {
       return response.data
     } catch (error: any) {
       toast({
-        message: t('usersPage.messages.fetchUserError', [error.response?.data?.message || 'Unknown error']),
+        message: t('users.messages.fetchUserError', [error.response?.data?.message || 'Unknown error']),
         ...toastOptions,
       })
       return {} as User
