@@ -18,6 +18,7 @@ alwaysApply: true
 - **Backend**: NestJS + TypeORM + SQLite
 - **Authentication**: Auth0 integration
 - **Design System**: @BRIUS/design-system (mandatory)
+- **Frontend Icons**: https://fonts.google.com/icons
 - **Architecture**: Feature-driven development with monorepo structure
 
 ## Project-Specific Patterns
@@ -34,13 +35,29 @@ alwaysApply: true
 - **SECURITY**: Validate account ownership before any CRUD operation
 - **PATTERN**: Use CLS (Continuation Local Storage) for account context
 
+### Always translate all labels with i18n project pattern
+- **MANDATORY**: Create the labels translate in files `apps/frontend/src/app/languages/locales/en.ts` and `apps/frontend/src/app/languages/locales/en.ts`
+- **VALIDATION**: All labels, messages, alerts, strings in views, etc, will be configure in languages file.
+
 ## Documentation Requirements
 
 ### Change Registration
-- **MANDATORY**: Register all chat-based changes in `./docs/changes/dd_MM_yyyy-changes.md`
+- **MANDATORY**: Register all chat-based changes in `./docs/changes/yyyy_MM_dd-changes.md`
 - **TIMING**: When explicitly requested, but suggest when necessary
-- **FORMAT**: Execute `date "+%d_%m_%Y"` to get current date, convert to `dd_MM_yyyy` format
+- **FORMAT**: Execute `date "+%Y_%m_%d"` to get current date, convert to `yyyy_MM_dd` format
 - **LOCATION**: `./docs/changes/` directory
+
+### Implementation plan
+- **MANDATORY**: Register all implementation plan of `@etus-methodology.mdc` in `./docs/implementation_plans/yyyy_MM_dd-<feature>.md`
+- **TIMING**: Always when executing the planning mode of `@etus-methodology.md` and starting the implementation plan step
+- **FORMAT**: Execute `date "+%Y_%m_%d"` to get current date, convert to `yyyy_MM_dd` format
+- **LOCATION**: `./docs/implementation_plans/` directory
+
+### Lessons learned
+- **MANDATORY**: Register all lessons learned of `@etus-methodology.mdc` in `./docs/lessons_learned/yyyy_MM_dd-<topic>.md`
+- **TIMING**: Always when finishing the feature development phases of `@etus-methodology.md`, after successfully executing the entire implementation plan
+- **FORMAT**: Execute `date "+%Y_%m_%d"` to get current date, convert to `yyyy_MM_dd` format
+- **LOCATION**: `./docs/lessons_learned/` directory
 
 ### Reference Usage
 - **MARKDOWN FILES**: Use as reference for structure, don't modify unless explicitly requested

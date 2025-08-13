@@ -1,0 +1,222 @@
+---
+description: Design system component documentation reference for development context
+globs: **/*.vue,**/*.ts
+alwaysApply: false
+---
+
+# Design System Documentation Reference
+
+## Documentation Access Pattern
+
+### Component Documentation Location
+All design system components are documented in:
+```
+docs/design-system-components/[ComponentName].md
+```
+
+### Usage Pattern for LLM Agents
+When implementing components from @BRIUS/design-system, agents MUST:
+
+1. **Locate Component Documentation**: Use the path provided in the Component Documentation Index below
+   - Format: `docs/design-system-components/[ComponentName].md`
+   - Example: For BButton → `docs/design-system-components/BButton.md`
+
+2. **Read Documentation Before Implementation**: 
+   ```bash
+   # Agent workflow:
+   read_file("docs/design-system-components/BButton.md")
+   # Then implement using documented Props API, Events API, and Slots API
+   ```
+
+3. **Follow Documentation Standards**: Use exact prop names, types, and patterns from docs
+   - Props API: Complete prop definitions with types and defaults
+   - Events API: Available events and their signatures  
+   - Slots API: Slot definitions with usage examples
+   - Usage patterns and best practices
+
+4. **Leverage Examples**: Copy implementation patterns from documented examples
+
+### Component Documentation Index
+Complete list of documented @BRIUS/design-system components:
+
+#### Core UI Components
+- **BAlert** → `docs/design-system-components/BAlert.md`
+  - Alert messages with different types and expandable content
+- **BButton** → `docs/design-system-components/BButton.md`
+  - Customizable buttons with loading states and progress indicators
+- **BCard** → `docs/design-system-components/BCard.md`
+  - Simple container component with card-like appearance
+- **BDialog** → `docs/design-system-components/BDialog.md`
+  - Modal dialogs for confirmations and forms
+- **BIcon** → `docs/design-system-components/BIcon.md`
+  - Material Design icon component
+- **BSpinner** → `docs/design-system-components/BSpinner.md`
+  - Loading indicator component
+
+#### Form Components  
+- **BInput** → `docs/design-system-components/BInput.md`
+  - Form inputs with validation and different types
+- **BSelect** → `docs/design-system-components/BSelect.md`
+  - Dropdown selection with search and multi-select
+- **BCheckbox** → `docs/design-system-components/BCheckbox.md`
+  - Checkbox input with custom styling
+- **BRadio** → `docs/design-system-components/BRadio.md`
+  - Radio button input component
+- **BRadioButton** → `docs/design-system-components/BRadioButton.md`
+  - Radio button with enhanced styling
+- **BToggle** → `docs/design-system-components/BToggle.md`
+  - Switch/toggle input component
+- **BAutoComplete** → `docs/design-system-components/BAutoComplete.md`
+  - Autocomplete input with filtered suggestions
+- **BColorPicker** → `docs/design-system-components/BColorPicker.md`
+  - Advanced color picker with multiple format support
+- **BSlider** → `docs/design-system-components/BSlider.md`
+  - Range slider input component
+- **BRangeSlider** → `docs/design-system-components/BRangeSlider.md`
+  - Dual-handle range slider component
+
+#### Data Display Components
+- **BTable** → `docs/design-system-components/BTable.md`
+  - Data tables with sorting, pagination, and custom columns
+- **BPagination** → `docs/design-system-components/BPagination.md`
+  - Page navigation component
+- **BTag** → `docs/design-system-components/BTag.md`
+  - Label and badge components
+- **BTagInput** → `docs/design-system-components/BTagInput.md`
+  - Input component for creating and managing tags
+- **BTagSelect** → `docs/design-system-components/BTagSelect.md`
+  - Tag-based selection component
+- **BAvatar** → `docs/design-system-components/BAvatar.md`
+  - Circular avatar component for user profiles
+- **BProgressBar** → `docs/design-system-components/BProgressBar.md`
+  - Progress indicator bar component
+
+#### Layout & Navigation Components
+- **BSidebar** → `docs/design-system-components/BSidebar.md`
+  - Slide-out panels for forms and navigation
+- **BNavbar** → `docs/design-system-components/BNavbar.md`
+  - Top navigation bar component
+- **BBreadcrumb** → `docs/design-system-components/BBreadcrumb.md`
+  - Breadcrumb navigation component
+- **BTab** → `docs/design-system-components/BTab.md`
+  - Tabbed interface component
+- **BDivider** → `docs/design-system-components/BDivider.md`
+  - Visual separator component
+- **BExpandableContainer** → `docs/design-system-components/BExpandableContainer.md`
+  - Collapsible content container
+
+#### Card Components
+- **BActionCard** → `docs/design-system-components/BActionCard.md`
+  - Interactive card with drag-and-drop and delete actions
+- **BFloatCard** → `docs/design-system-components/BFloatCard.md`
+  - Floating card with smart positioning and triggers
+- **BIconCard** → `docs/design-system-components/BIconCard.md`
+  - Card component with integrated icon display
+- **BMetricCard** → `docs/design-system-components/BMetricCard.md`
+  - Card for displaying metrics and statistics
+
+#### Interactive Components
+- **BDropdown** → `docs/design-system-components/BDropdown.md`
+  - Dropdown menu component
+- **BMenu** → `docs/design-system-components/BMenu.md`
+  - Menu component for navigation
+- **BSideMenu** → `docs/design-system-components/BSideMenu.md`
+  - Side navigation menu component
+- **BRoundMenu** → `docs/design-system-components/BRoundMenu.md`
+  - Circular menu component
+- **BRoundButton** → `docs/design-system-components/BRoundButton.md`
+  - Circular button component
+- **BTooltip** → `docs/design-system-components/BTooltip.md`
+  - Hover tooltip component
+
+#### Specialized Components
+- **BMultiSelect** → `docs/design-system-components/BMultiSelect.md`
+  - Multi-selection dropdown component
+- **BSmartSelect** → `docs/design-system-components/BSmartSelect.md`
+  - Enhanced select with intelligent features
+- **BSelectContainer** → `docs/design-system-components/BSelectContainer.md`
+  - Container for selection components
+- **BGroup** → `docs/design-system-components/BGroup.md`
+  - Component for grouping related elements
+- **BSkeleton** → `docs/design-system-components/BSkeleton.md`
+  - Loading skeleton component
+- **BProfile** → `docs/design-system-components/BProfile.md`
+  - User profile display component
+- **BHistory** → `docs/design-system-components/BHistory.md`
+  - History/timeline component
+
+#### Date & Time Components
+- **BDate** → `docs/design-system-components/BDate.md`
+  - Date display component
+- **BDatePicker** → `docs/design-system-components/BDatePicker.md`
+  - Date picker input component
+- **BDateFilter** → `docs/design-system-components/BDateFilter.md`
+  - Date filtering component
+- **BDateComparator** → `docs/design-system-components/BDateComparator.md`
+  - Date comparison component
+- **BDateComparatorFilter** → `docs/design-system-components/BDateComparatorFilter.md`
+  - Advanced date comparison filtering
+
+#### Content & Media Components
+- **BContentScreen** → `docs/design-system-components/BContentScreen.md`
+  - Full-screen content display component
+- **BCrop** → `docs/design-system-components/BCrop.md`
+  - Image cropping component
+- **BFilter** → `docs/design-system-components/BFilter.md`
+  - Content filtering component
+
+#### Step & Process Components
+- **BStepper** → `docs/design-system-components/BStepper.md`
+  - Step-by-step process component
+- **BStepOption** → `docs/design-system-components/BStepOption.md`
+  - Individual step option component
+
+#### Notification Components
+- **BToast** → `docs/design-system-components/BToast.md`
+  - Notification toast messages
+
+#### Function-Based Components
+- **BConfirm** → `docs/design-system-components/BConfirm.md`
+  - Programmatic confirmation dialog function (use with inject('confirm'))
+- **BCollpase** → `docs/design-system-components/BCollpase.md`
+  - Collapsible content component
+
+### Implementation Validation
+Before implementing any @BRIUS/design-system component:
+1. Read the corresponding .md file in docs/design-system-components/
+2. Follow the documented API exactly
+3. Use provided examples as implementation templates
+4. Respect documented constraints and best practices
+
+### Documentation Format Standard
+Each component documentation includes:
+- **Component Overview**: Purpose and basic usage
+- **Props API**: Complete prop definitions with types and defaults
+- **Events API**: Available events and their signatures  
+- **Slots API**: Slot definitions with usage examples
+- **Important Notes**: Accessibility and implementation guidance
+
+## Integration with Existing Rules
+
+This documentation reference integrates with:
+- **Component Rules**: Follow component-rules.mdc for structural patterns
+- **Frontend Rules**: Follow frontend-general-rules.mdc for design system enforcement
+- **CRUD Patterns**: Use documented components in standard CRUD implementations
+
+## Fail Conditions
+
+### CRITICAL FAILURES
+- Using @BRIUS/design-system components without consulting documentation
+- Implementing component props that don't exist in documentation
+- Missing required props as defined in documentation
+- Using deprecated patterns not reflected in current docs
+
+### QUALITY VIOLATIONS  
+- Not following documented best practices
+- Ignoring accessibility notes from component docs
+- Using components outside their documented intended use cases
+- Missing event handlers for documented interactive components
+
+---
+
+**This rule ensures agents have direct access to accurate, up-to-date component documentation for consistent implementation.**

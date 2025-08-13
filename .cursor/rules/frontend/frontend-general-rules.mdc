@@ -12,6 +12,7 @@ alwaysApply: false
 When working with specific file types, the LLM MUST also consult these specialized rules:
 
 - **Component Rules**: `@.cursor/rules/frontend/specialized-rules/component-rules.mdc` - Vue component patterns and CRUD screen layouts
+- **Design System Docs**: `@.cursor/rules/frontend/specialized-rules/design-system-docs.mdc` - Component documentation reference and API details
 - **Composable Rules**: `@.cursor/rules/frontend/specialized-rules/composable-rules.mdc` - Business logic and API integration patterns
 - **Store Rules**: `@.cursor/rules/frontend/specialized-rules/store-rules.mdc` - State management with account context
 - **Route Rules**: `@.cursor/rules/frontend/specialized-rules/route-rules.mdc` - Navigation and Canvas.vue integration

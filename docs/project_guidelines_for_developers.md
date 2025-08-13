@@ -65,9 +65,9 @@ Você deve atuar como um **engenheiro de software sênior** especializado na con
 ## 📝 **Documentação Obrigatória**
 
 ### **Registro de Mudanças**
-- ✅ **OBRIGATÓRIO**: Registrar mudanças em `./docs/changes/changes_dd_MM_yyyy.md`
+- ✅ **OBRIGATÓRIO**: Registrar mudanças em `./docs/changes/changes_yyyy_MM_dd.md`
 - ✅ **QUANDO**: Sempre que solicitado, sugerir quando necessário
-- ✅ **FORMATO**: Usar data real (executar `date "+%d_%m_%Y"` para data atual)
+- ✅ **FORMATO**: Usar data real (executar `date "+%Y_%m_%d"` para data atual)
 
 ### **Uso de Referências**
 - ✅ **Arquivos Markdown**: Usar como referência para estrutura

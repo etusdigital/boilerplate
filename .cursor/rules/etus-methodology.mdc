@@ -102,13 +102,13 @@ alwaysApply: false
 ## Documentation Requirements
 
 ### MANDATORY ARTIFACTS
-- Before execution: `./docs/implementation_plans/dd_MM_yyyy-<feature>.md`
-- After completion: `./docs/lessons_learned/dd_MM_yyyy-<topic>.md`
+- Before execution: `./docs/implementation_plans/yyyy_MM_dd-<feature>.md`
+- After completion: `./docs/lessons_learned/yyyy_MM_dd-<topic>.md`
 
 **CRITICAL**: To create artifacts with correct date format:
-1. Execute `date "+%d_%m_%Y"` to get current date
-2. Convert to `dd_MM_yyyy` format (e.g., 24_07_2025)
-3. Use in filename: `24_07_2025-feature_name.md`
+1. Execute `date "+%Y_%m_%d"` to get current date
+2. Convert to `yyyy_MM_dd` format (e.g., 2025_07_24)
+3. Use in filename: `2025_07_24-feature_name.md`
 
 ### Document Types
 - **Methodology**: HOW to plan and execute (rules, standards, processes)
