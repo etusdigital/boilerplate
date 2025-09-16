@@ -29,7 +29,7 @@ describe('Menu', () => {
     })
 
     expect(wrapper.text()).toContain('home')
-    expect(wrapper.html()).toContain('class="b-menu"')
+    expect(wrapper.html()).toContain('class="menu"')
     expect(wrapper.vm.modelValue).toBe('home')
   })
 })

@@ -1,10 +1,2 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@tailwind typography;
-
-@layer utilities {
-  .teste {
-    background-color: var(--neutral-surface-default);
-  }
-}
+@import 'tailwindcss';
+@config '@BRIUS/design-system/tailwind.config.cjs';

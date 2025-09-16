@@ -1,8 +1,5 @@
 <template>
-  <div class="menu-container">
-    <BMenu expanded="true" v-model="selected" :items="filteredMenuItems" class="side-menu"
-      @update:model-value="updateSelectedMenu" />
-  </div>
+  <Menu v-model="selected" expanded :items="filteredMenuItems" @update:model-value="updateSelectedMenu" />
 </template>
 
 <script setup lang="ts">
@@ -11,16 +8,16 @@ import { computed } from 'vue'
 const props = defineProps({
   modelValue: {
     type: String,
-    default: ''
+    default: '',
   },
   menuExpanded: {
     type: Boolean,
-    default: false
+    default: false,
   },
   menuItems: {
     type: Array,
-    default: () => []
-  }
+    default: () => [],
+  },
 })
 
 const filteredMenuItems = computed(() => {
@@ -41,20 +38,9 @@ function updateSelectedMenu(value: string) {
 </script>
 
 <style scoped>
-.menu-container {
-  display: flex;
-}
+@reference "@/app/assets/main.css";
 
-.side-menu {
-  inline-size: min-content;
-  width: 193px;
-  height: calc(100vh - 64.8px);
-}
-
-.b-menu {
-  z-index: 50;
-  position: sticky;
-  top: 64.8px;
-  /* height: calc(100vh - 64.8px); */
+.menu {
+  @apply z-50 sticky top-[64.8px];
 }
 </style>

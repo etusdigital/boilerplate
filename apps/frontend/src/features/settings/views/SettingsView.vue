@@ -1,31 +1,28 @@
 <template>
-  <div>
-    <h1 class="core-app-title">{{ $t('settings.settings') }}</h1>
+  <div class="main-container">
+    <h1>{{ $t('settings.settings') }}</h1>
     <div class="settings-wrapper">
-      <b-card v-for="route in settingsRoutes" :key="route.path" class="settings-card cursor-pointer"
-        @click="navigateTo(route.path)">
+      <Card v-for="route in settingsRoutes" :key="route.path" class="settings-card" @click="navigateTo(route.path)">
         <div class="settings-card-header">
-          <b-icon :size="'30px'" :name="route.icon" />
+          <Icon :name="route.icon" />
           <h2>{{ route.label }}</h2>
         </div>
+        <Separator />
         <p>{{ route.description }}</p>
-      </b-card>
+      </Card>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+
 const router = useRouter()
-
-const navigateTo = (path) => {
-  router.push(path)
-}
-
 const { t } = useI18n()
 
-const settingsRoutes = [
+const settingsRoutes = ref([
   {
     label: t('users.users'),
     icon: 'group',
@@ -37,51 +34,46 @@ const settingsRoutes = [
     icon: 'corporate_fare',
     path: '/accounts',
     description: t('accounts.description'),
-  }
-]
+  },
+])
 
+const navigateTo = (path: string) => {
+  router.push(path)
+}
 </script>
 
 <style scoped>
+@reference "@/app/assets/main.css";
+
+.main-container {
+  @apply flex flex-col gap-sm;
+}
+
 .settings-wrapper {
-  display: grid;
+  @apply grid gap-sm mt-sm;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
 }
 
 .settings-card {
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  gap: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.settings-card p {
-  padding: 1rem;
-  color: var(--neutral-interaction-default);
-}
-
-.settings-card .b-icon {
-  color: var(--primary-interaction-selected);
-}
-
-.settings-card-header {
-  display: flex;
-  gap: 1rem;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 1rem;
+  @apply grid grid-rows-2 gap-sm cursor-pointer transition-transform duration-200;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .settings-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transform: scale(1.05);
+  @apply shadow-md scale-105;
 }
 
-.settings-card h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  display: flex;
-  color: var(--primary-interaction-selected);
+.settings-card-header {
+  @apply flex gap-sm p-sm;
+}
+
+.settings-card .icon {
+  @apply text-3xl;
+}
+
+.settings-card p {
+  @apply p-sm;
 }
 </style>

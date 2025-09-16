@@ -1,37 +1,53 @@
 <template>
-  <b-sidebar v-model="model" :noOutsideClose="false" width="40%" @update:model-value="updateModelValue">
+  <Drawer v-model="model" no-outside-close width="40%" @update:model-value="updateModelValue">
     <div class="form-wrapper">
-      <div class="form-header flex flex-row items-center gap-4">
-        <BIcon name="close" @click="closeForm" class="cursor-pointer" />
-        <div class="title">{{ isEditing ? t('accounts.editAccount') : t('accounts.addAccount') }}</div>
-        <div class="save-container">
-          <b-button color="primary" :disabled="!saveConditions" :loading="false" size="medium" type="button"
-            @click="emit('save', editingAccount, isEditing)">
-            {{ t('save') }}
-          </b-button>
-        </div>
+      <div class="form-header">
+        <h1>{{ isEditing ? t('accounts.editAccount') : t('accounts.addAccount') }}</h1>
+        <Button icon="close" color="neutral" round @click="closeForm" />
       </div>
-      <div class="flex flex-col items-start justify-between w-full gap-xl">
-        <BInput v-model="editingAccount.name" :errorMessage="t('accounts.sideBarLabels.name')"
-          :isError="(editingAccount.name != '' && editingAccount.name.length < 3)" :labelValue="t('accounts.sideBarLabels.name')"
-          :required="true" size="base" type="text" :disabled="isEditing" />
+      <div class="form-content">
+        <Input
+          v-model="editingAccount.name"
+          :label-value="t('accounts.sideBarLabels.name')"
+          :is-error="editingAccount.name != '' && editingAccount.name.length < 3"
+          :error-message="t('accounts.sideBarLabels.name')"
+          :disabled="isEditing"
+          required
+        />
 
-        <BInput v-model="editingAccount.domain" :errorMessage="t('accounts.sideBarLabels.domain')"
-          :isError="(!isValidDomain && editingAccount.domain != '')" :labelValue="t('accounts.sideBarLabels.domain')" :required="true"
-          size="base" type="text" />
+        <Input
+          v-model="editingAccount.domain"
+          :label-value="t('accounts.sideBarLabels.domain')"
+          :is-error="!isValidDomain && editingAccount.domain != ''"
+          :error-message="t('accounts.sideBarLabels.domain')"
+          required
+        />
 
-        <BInput v-model="editingAccount.description" :errorMessage="t('accounts.sideBarLabels.description')"
-          :isError="(editingAccount.description != '' && editingAccount.description?.length < 3)"
-          :labelValue="t('accounts.sideBarLabels.description')" :required="true" :isTextArea="true" size="base" type="text" />
+        <Textarea
+          v-model="editingAccount.description"
+          :label-value="t('accounts.sideBarLabels.description')"
+          :is-error="editingAccount.description != '' && editingAccount.description?.length < 3"
+          :error-message="t('accounts.sideBarLabels.description')"
+          required
+        />
+      </div>
+      <div class="form-actions">
+        <Button variant="secondary" @click="closeForm">
+          {{ t('cancel') }}
+        </Button>
+        <Button :disabled="!saveConditions" @click="emit('save', editingAccount, isEditing)">
+          {{ t('save') }}
+        </Button>
       </div>
     </div>
-  </b-sidebar>
+  </Drawer>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import type { Account } from '@/features/accounts/types/account.type'
 import { useI18n } from 'vue-i18n'
+import type { Account } from '@/features/accounts/types/account.type'
+
 const { t } = useI18n()
 
 const props = defineProps<{
@@ -55,64 +71,44 @@ const saveConditions = computed(() => {
 })
 
 const isValidDomain = computed(() => {
-  const domain = editingAccount.value.domain.trim();
-  const domainRegex = /^(?:[a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$/;
-  return domainRegex.test(domain);
-});
-
-const updateModelValue = (value: boolean) => {
-  model.value = value
-  emit('update:modelValue', value)
-};
-
-const closeForm = () => {
-  emit('close', isEditing.value ? props.account : null)
-};
+  const domain = editingAccount.value.domain.trim()
+  const domainRegex = /^(?:[a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$/
+  return domainRegex.test(domain)
+})
 
 watch(
   () => props.modelValue,
   (value) => {
     model.value = value
   },
-);
+)
+
+const updateModelValue = (value: boolean) => {
+  model.value = value
+  emit('update:modelValue', value)
+}
+
+const closeForm = () => {
+  emit('close', isEditing.value ? props.account : null)
+}
 </script>
 
 <style>
+@reference "@/app/assets/main.css";
+
 .form-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 50px;
+  @apply flex flex-col gap-sm p-lg;
 }
 
-.form-container {
-  gap: 1rem;
+.form-header {
+  @apply flex justify-between items-center gap-sm;
+}
+
+.form-content {
+  @apply flex items-start justify-between gap-xl w-full;
 }
 
 .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  position: absolute;
-  bottom: 0;
-  width: calc(100% - 60px);
-  margin: 30px;
-}
-
-.form-header .title {
-  font-size: var(--font-size-4xl);
-  line-height: var(--line-height-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-neutral-800, #1B1F22);
-  font-family: var(--font-family-Font-Family, Poppins);
-  font-size: var(--font-size-2xl, 24px);
-  font-style: normal;
-  font-weight: var(--font-weight-bold, 700);
-  line-height: 120%;
-}
-
-.save-container {
-  position: absolute;
-  right: 50px;
+  @apply flex justify-end gap-sm;
 }
 </style>
