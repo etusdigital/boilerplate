@@ -5,6 +5,8 @@
       <div class="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
     </div>
   </div>
+  <Confirm />
+  <Toast />
 </template>
 
 <script setup lang="ts">

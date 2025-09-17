@@ -1,5 +1,5 @@
 <template>
-  <Menu v-model="selected" expanded :items="filteredMenuItems" @update:model-value="updateSelectedMenu" />
+  <Menu v-model="selected" expanded :options="filteredOptions" @update:model-value="updateSelectedMenu" />
 </template>
 
 <script setup lang="ts">
@@ -10,18 +10,14 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  menuExpanded: {
-    type: Boolean,
-    default: false,
-  },
-  menuItems: {
+  options: {
     type: Array,
     default: () => [],
   },
 })
 
-const filteredMenuItems = computed(() => {
-  return props.menuItems.filter((item: any) => {
+const filteredOptions = computed(() => {
+  return props.options.filter((item: any) => {
     return item.show !== false
   })
 })
