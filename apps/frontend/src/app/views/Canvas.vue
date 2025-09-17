@@ -1,10 +1,10 @@
 <template>
     <div>
-        <b-confirm style="z-index: 2000" />
-        <b-toast />
-        <BNavbar title="Etus Boilerplate" class="sticky top-0" style="z-index: 50">
+        <Confirm style="z-index: 2000" />
+        <Toast />
+        <Navbar title="Etus Boilerplate" class="sticky top-0" style="z-index: 50">
             <div>
-                <BSelect v-if="!mainStore.isLoading" :modelValue="selectedAccount.name"
+                <Select v-if="!mainStore.isLoading" :modelValue="selectedAccount.name"
                     @update:modelValue="changeAccount" :absolute="true" :items="selectItems" :required="false"
                     :searchable="false" :secondary="false" valueKey="value" />
             </div>
@@ -13,7 +13,7 @@
                 <span class="text-lg font-bold">Boilerplate</span>
             </template>
             <template #actions>
-                <BSelect v-if="!mainStore.isLoading" :modelValue="languageName" @update:modelValue="changeLanguage"
+                <Select v-if="!mainStore.isLoading" :modelValue="languageName" @update:modelValue="changeLanguage"
                     :absolute="true" :items="languages" :required="false" :searchable="false" :secondary="false" />
                 <div v-if="!mainStore.isLoading" class="flex items-center gap-2">
                     <img :src="profile.src" alt="profile" class="profile-image" />
@@ -21,12 +21,12 @@
                         <div class="profile-name">{{ profile.name }}</div>
                         <div class="profile-email">{{ profile.email }}</div>
                     </div>
-                    <BTooltip position="bottom" :text="$t('logout')">
-                        <b-icon name="logout" @click="mainStore.logout()" class="cursor-pointer" />
-                    </BTooltip>
+                    <Tooltip position="bottom" :text="$t('logout')">
+                        <Icon name="logout" @click="mainStore.logout()" class="cursor-pointer" />
+                    </Tooltip>
                 </div>
             </template>
-        </BNavbar>
+        </Navbar>
         <div class="flex">
             <Menu v-if="!mainStore.isLoading" v-model="selectedMenu" :expanded="menuExpanded" :menuItems="menuItems"
                 @update:selectedMenu="handleMenuSelect" />
