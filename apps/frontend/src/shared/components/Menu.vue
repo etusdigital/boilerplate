@@ -1,10 +1,9 @@
 <template>
-  <Sidebar expanded :options="options" @update:model-value="updateSelectedMenu" />
+  <Sidebar v-model="selectedItem" expanded :options="options" />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ref, inject } from 'vue'
 import { routes } from '@/app/router'
 
 type MenuItem = {
@@ -16,7 +15,9 @@ type MenuItem = {
   items?: MenuItem[]
 }
 
-const { t } = useI18n({ useScope: 'global' })
+const t = inject('t') as Function
+
+const selectedItem = ref('')
 
 const options = ref<MenuItem[]>(routes.filter((route) => route.icon && route.meta?.title).map((route) => ({
   label: t(route.meta.title as string),

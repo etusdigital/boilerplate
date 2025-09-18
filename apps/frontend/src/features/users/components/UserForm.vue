@@ -1,79 +1,105 @@
 <template>
-  <b-sidebar v-model="model" :noOutsideClose="false" width="40%" @update:model-value="updateModelValue">
-    <div class="form-wrapper">
-      <div class="form-header flex flex-row items-center gap-4">
-        <BIcon name="close" @click="closeForm" class="cursor-pointer" />
-        <div class="title">{{ isEditing ? t('users.edit_user') : t('users.invite_user') }}</div>
-        <div class="save-container">
-          <b-button color="primary" :disabled="isSaving || props.loadingUserData" :loading="isSaving" size="medium" type="button"
-            @click="handleSave">
-            {{ isEditing ? t('save') : t('users.send_invite') }}
-          </b-button>
-        </div>
+  <Drawer v-model="model" size="40%" @update:model-value="updateModelValue">
+    <div v-if="props.loadingUserData" class="form-wrapper">
+      <Skeleton v-for="i in 4" :key="i" />
+    </div>
+    <div class="form-wrapper" v-else>
+      <div class="form-header">
+        <h2>{{ isEditing ? t('users.edit_user') : t('users.invite_user') }}</h2>
+        <Button icon="close" size="small" variant="plain" color="neutral" round @click="closeForm" />
       </div>
       <div class="form-content">
-        <!-- Loading state enquanto carrega dados do usuário -->
-        <div v-if="props.loadingUserData" class="loading-container flex flex-col items-center justify-center py-xl">
-          <div class="loading-spinner"></div>
-          <p class="text-neutral-foreground-low mt-4">{{ t('users.loadingUserData') }}</p>
+        <Avatar
+          v-if="editingUser.profileImage"
+          :src="editingUser.profileImage"
+          :name="editingUser.name"
+          :alt="t('users.roles.profileImage')"
+        />
+        <Input
+          v-model="editingUser.name"
+          :error-message="t('usersPage.validation.name')"
+          :label-value="t('name')"
+          required
+        />
+
+        <Input
+          v-model="editingUser.email"
+          :label-value="t('email')"
+          :error-message="t('usersPage.validation.email')"
+          required
+          :disabled="isEditing"
+          type="email"
+        />
+
+        <Textarea
+          v-if="isSameUser"
+          v-model="editingUser.profileImage"
+          :label-value="t('users.roles.profileImage')"
+          :is-error="!isValidUrl"
+          :error-message="t('users.roles.profileImage')"
+          required
+        />
+
+        <Checkbox v-model="editingUser.isSuperAdmin" @update:model-value="changeSuperAdmin">
+          {{ t('users.roles.isSuperAdmin') }}
+        </Checkbox>
+
+        <div class="flex flex-col gap-sm">
+          <div class="flex flex-row gap-sm items-center">
+            <h5>{{ t('users.roles.userPermissionsPerAccount') }}</h5>
+            <Button v-if="allAccountsParsed.length" size="small" round @click="addRole" />
+          </div>
+          <div
+            v-for="(permission, index) in parsedPermissions"
+            :key="permission.accountId"
+            class="flex items-center gap-sm w-full"
+          >
+            <Select v-model="permission.accountId" :options="allAccountsParsed" absolute searchable />
+            <Select v-model="permission.role" :options="roleOptions" absolute />
+            <Button
+              class="w-fit h-fit"
+              icon="delete"
+              size="small"
+              variant="plain"
+              color="danger"
+              round
+              @click="removeRole(index)"
+            />
+          </div>
         </div>
-        
-        <!-- Conteúdo normal do form -->
-        <template v-else>
-          <div class="profile-img-wrapper">
-            <img
-              :src="!!editingUser.profileImage ? editingUser.profileImage : 'https://stbbankstown.syd.catholic.edu.au/wp-content/uploads/sites/130/2019/05/Person-icon.jpg'"
-              :alt="t('users.roles.profileImage')" class="profile-img" />
-          </div>
-          <div class="flex flex-col items-start justify-between w-full gap-xl">
-            <BInput v-model="editingUser.name" :errorMessage="t('usersPage.validation.name')" :labelValue="t('name')"
-              :required="true" size="base" type="text" />
-
-            <BInput v-model="editingUser.email" :errorMessage="t('usersPage.validation.email')" :isError="false"
-              :isTextArea="false" labelValue="Email" :required="true" size="base" type="email" :disabled="isEditing" />
-
-            <BInput v-if="isSameUser" v-model="editingUser.profileImage" errorMessage="A url da imagem não é válida"
-              :isError="!isValidUrl" :isTextArea="false" :labelValue="t('users.roles.profileImage')" :required="true" size="base"
-              type="text" />
-
-            <UserRolesSelect :roles="parsedPermissions" :allAccounts="allAccountsParsed" :allowSuperAdmin="true"
-              @roles-updated="updateSelectedPermissions" @change-super-admin="changeSuperAdmin"
-              :isSuperAdmin="editingUser.isSuperAdmin" />
-
-          </div>
-        </template>
+      </div>
+      <div class="form-actions">
+        <Button variant="secondary" @click="closeForm">
+          {{ t('cancel') }}
+        </Button>
+        <Button :disabled="!saveConditions" @click="handleSave">
+          {{ t('save') }}
+        </Button>
       </div>
     </div>
-
-    <div class="form-actions">
-    </div>
-  </b-sidebar>
+  </Drawer>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import type { User } from '@/features/users/types/user.type';
-import type { Account } from '@/features/accounts/types/account.type';
-import { useUserForm } from '@/features/users/composables/useUserForm';
-import UserRolesSelect from './UserRolesSelect.vue'
-import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+import { inject, ref, watch, computed } from 'vue'
+import type { User } from '@/features/users/types/user.type'
+import type { Account } from '@/features/accounts/types/account.type'
+import { useUserForm } from '@/features/users/composables/useUserForm'
 
 const props = defineProps<{
-  modelValue: boolean;
-  user: User;
-  allAccounts: Array<Account>;
-  loadingUserData?: boolean;
-}>();
+  modelValue: boolean
+  user: User
+  allAccounts: Array<Account>
+  loadingUserData?: boolean
+}>()
 
 const emit = defineEmits<{
-  (e: 'save', user: User, isEditing: boolean): void;
-  (e: 'close', user?: User | null): void;
-  (e: 'update:modelValue', value: boolean): void;
-}>();
+  (e: 'save', user: User, isEditing: boolean): void
+  (e: 'close', user?: User | null): void
+  (e: 'update:modelValue', value: boolean): void
+}>()
 
-// Estado de loading para o save
-const isSaving = ref(false)
+const t = inject('t') as Function
 
 const {
   model,
@@ -83,90 +109,71 @@ const {
   parsedPermissions,
   isEditing,
   isValidUrl,
+  isValidEmail,
   editingUserBind,
   updateSelectedPermissions,
   changeSuperAdmin,
   updateModelValue,
   closeForm,
-} = useUserForm(props, emit);
+} = useUserForm(props, emit)
 
-// Função para save com loading
-const handleSave = async () => {
-  isSaving.value = true
-  emit('save', editingUserBind.value, isEditing.value)
-  // O loading será resetado no onCloseForm do componente pai
-}
+const roleOptions = ref([
+  { label: 'Reader', value: 'reader' },
+  { label: 'Writer', value: 'writer' },
+  { label: 'Admin', value: 'admin' },
+])
 
-// Watch para resetar loading quando o modal fechar
-watch(() => props.modelValue, (newValue) => {
-  if (!newValue) {
-    isSaving.value = false
-  }
+const saveConditions = computed(() => {
+  return (
+    editingUser.value.name?.length &&
+    ((isValidUrl.value && isSameUser.value) || !isSameUser.value) &&
+    isValidEmail.value &&
+    parsedPermissions.value.filter((permission) => permission.accountName && permission.role).length ==
+      parsedPermissions.value.length
+  )
 })
 
-</script>
+watch(
+  () => parsedPermissions.value,
+  () => {
+    updateSelectedPermissions(parsedPermissions.value)
+  },
+)
 
-<style>
-.form-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 50px;
+function handleSave() {
+  emit('save', editingUserBind.value, isEditing.value)
 }
 
-.form-container {
-  gap: 1rem;
+function addRole() {
+  const destruc = { ...allAccountsParsed.value[0] }
+  parsedPermissions.value.push({
+    accountId: destruc.value,
+    role: 'reader',
+    accountName: destruc.label,
+  })
+}
+
+function removeRole(index: number) {
+  parsedPermissions.value.splice(index, 1)
+}
+</script>
+
+<style scoped>
+@reference "@/app/assets/main.css";
+
+.form-wrapper {
+  @apply flex flex-col gap-sm h-screen p-lg;
+}
+
+.form-header {
+  @apply flex justify-between items-center gap-sm;
+}
+
+.form-content {
+  @apply flex flex-col gap-base w-full flex-1;
 }
 
 .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  position: absolute;
-  bottom: 0;
-  width: calc(100% - 60px);
-  margin: 30px;
-}
-
-.profile-img-wrapper {
-  margin: 20px 0;
-}
-
-.profile-img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border: 1px solid rgba(var(--primary-interaction-selected), 0.9);
-}
-
-.form-header .title {
-  font-size: var(--font-size-4xl);
-  line-height: var(--line-height-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-neutral-800, #1B1F22);
-  font-family: var(--font-family-Font-Family, Poppins);
-  font-size: var(--font-size-2xl, 24px);
-  font-style: normal;
-  font-weight: var(--font-weight-bold, 700);
-  line-height: 120%;
-}
-
-.save-container {
-  position: absolute;
-  right: 50px;
-}
-
-.loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 6px solid #e5e7eb;
-  border-top: 6px solid rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  @apply flex justify-end gap-sm;
 }
 </style>

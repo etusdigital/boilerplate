@@ -15,31 +15,34 @@ const selectedAccount = reactive({})
 
 getSavedLanguage()
 
-watch(authUser, async () => {
-  if (isAuthenticated.value && authUser.value) {
-    user.value = {
-      ...authUser.value,
-      name: authUser.value.name || '',
-      email: authUser.value.email || '',
-      roles: authUser.value.roles || [],
-      isAdmin: authUser.value.roles?.includes('master-admin') || authUser.value.roles?.includes('admin') || false,
+watch(
+  () => authUser.value,
+  async () => {
+    if (isAuthenticated.value && authUser.value) {
+      user.value = {
+        ...authUser.value,
+        name: authUser.value.name || '',
+        email: authUser.value.email || '',
+        roles: authUser.value.roles || [],
+        isAdmin: authUser.value.roles?.includes('master-admin') || authUser.value.roles?.includes('admin') || false,
+      }
+      const email = authUser.value.email || ''
+      if (!email) return
+
+      Object.assign(user.value, await getLogin(email))
+
+      // Ensure VITE_AUTH0_ROLES_NAME is a string
+      const rolesName = import.meta.env.VITE_AUTH0_ROLES_NAME as string
+      user.value.roles = (user.value as any)[rolesName] || []
+      user.value.isAdmin = user.value.roles?.includes('master-admin') || user.value.roles?.includes('admin') || false
+      getSelectedAccount()
+      endLoading()
+    } else {
+      user.value = {} as User
+      loginWithRedirect()
     }
-    const email = authUser.value.email || ''
-    if (!email) return
-
-    Object.assign(user.value, await getLogin(email))
-
-    // Ensure VITE_AUTH0_ROLES_NAME is a string
-    const rolesName = import.meta.env.VITE_AUTH0_ROLES_NAME as string
-    user.value.roles = (user.value as any)[rolesName] || []
-    user.value.isAdmin = user.value.roles?.includes('master-admin') || user.value.roles?.includes('admin') || false
-    getSelectedAccount()
-    endLoading()
-  } else {
-    user.value = {} as User
-    loginWithRedirect()
-  }
-})
+  },
+)
 
 async function getLogin(email: string) {
   const accessToken = await getAccessTokenSilently()
@@ -57,19 +60,18 @@ async function getLogin(email: string) {
 }
 
 async function getSelectedAccount(): Promise<Account> {
-  if (window.localStorage) {
-    const found = window.localStorage.getItem('selected_account')
-    try {
-      if (!found) return {} as Account
+  const found = window?.localStorage?.getItem('selected_account')
+  if (!window.localStorage || !found)
+    Object.assign(selectedAccount, user.value?.userAccounts?.[0]?.account || ({} as Account))
 
-      return Object.assign(
-        selectedAccount,
-        user.value.userAccounts?.find((account: any) => account.account.id == found)?.account || ({} as Account),
-      )
-    } catch (error) {}
+  try {
+    return Object.assign(
+      selectedAccount,
+      user.value.userAccounts?.find((account: any) => account.account.id == found)?.account || ({} as Account),
+    )
+  } catch (error) {
+    return {} as Account
   }
-
-  return Object.assign(selectedAccount, user.value?.userAccounts?.[0]?.account || ({} as Account))
 }
 
 function endLoading() {

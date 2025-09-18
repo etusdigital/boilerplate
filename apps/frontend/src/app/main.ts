@@ -1,6 +1,5 @@
 import DesignSystem from '@BRIUS/design-system'
 import '@BRIUS/design-system/styles.css'
-import './assets/main.css'
 import { useMainStore } from '@/app/stores'
 
 import { createApp, watch, computed } from 'vue'

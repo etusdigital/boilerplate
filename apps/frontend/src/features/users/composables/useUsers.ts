@@ -1,16 +1,14 @@
-import { ref, computed, onMounted, inject } from 'vue'
+import { ref, inject } from 'vue'
 import api from '@/shared/api'
 import { useMainStore } from '@/app/stores'
 import type { User, PaginatedUsersResponse, UsersQueryParams, PaginationMeta } from '@/features/users/types/user.type'
-import { useI18n } from 'vue-i18n'
 
 export function useUsers() {
   const mainStore = useMainStore()
   const toastOptions = mainStore.toastOptions
-  const toast = inject('toast') as any
-  const { t } = useI18n()
+  const toast = inject('toast') as Function
+  const t = inject('t') as Function
 
-  // Estado de paginação
   const users = ref<User[]>([])
   const isLoading = ref(false)
   const paginationMeta = ref<PaginationMeta>({
@@ -22,8 +20,7 @@ export function useUsers() {
     hasNextPage: false,
   })
 
-  // Método paginado principal
-  const getAllUsers = async (params: UsersQueryParams = {}): Promise<PaginatedUsersResponse> => {
+  async function getAllUsers(params: UsersQueryParams = {}): Promise<PaginatedUsersResponse> {
     isLoading.value = true
     try {
       const response = await api.get('/users', { params })
@@ -53,10 +50,9 @@ export function useUsers() {
     }
   }
 
-  const saveUser = async (editingUser: User, isEditing: boolean): Promise<User> => {
-    if (editingUser.isSuperAdmin === null || editingUser.isSuperAdmin === undefined) {
-      editingUser.isSuperAdmin = false
-    }
+  async function saveUser(editingUser: User, isEditing: boolean): Promise<User> {
+    if (editingUser.isSuperAdmin === null || editingUser.isSuperAdmin === undefined) editingUser.isSuperAdmin = false
+
     editingUser.status = 'accepted'
     const method = isEditing ? api.put : api.post
     const saveUrl = isEditing ? `/users/${editingUser.id}` : `/users`
@@ -79,7 +75,7 @@ export function useUsers() {
     }
   }
 
-  const deleteUser = async (val: User): Promise<User> => {
+  async function deleteUser(val: User): Promise<User> {
     try {
       const response = await api.delete(`/users/${val.id}`)
 
@@ -99,7 +95,7 @@ export function useUsers() {
     }
   }
 
-  const getUserWithRelations = async (id: number): Promise<User> => {
+  async function getUserWithRelations(id: number): Promise<User> {
     try {
       const response = await api.get(`/users/${id}`)
       return response.data
@@ -113,14 +109,12 @@ export function useUsers() {
   }
 
   return {
-    // State
     users,
     isLoading,
     paginationMeta,
-    // Methods
-    getAllUsers, // método paginado principal
+    getAllUsers,
     saveUser,
     deleteUser,
-    getUserWithRelations, // método para buscar usuário com relações
+    getUserWithRelations,
   }
 }

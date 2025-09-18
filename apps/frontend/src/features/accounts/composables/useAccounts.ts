@@ -9,7 +9,7 @@ export function useAccounts() {
   const mainStore = useMainStore()
   const toastOptions = mainStore.toastOptions
 
-  const getAllAccounts = async (): Promise<Account[]> => {
+  async function getAllAccounts(): Promise<Account[]> {
     try {
       const response = await api.get(`/accounts`)
       return response.data
@@ -22,11 +22,10 @@ export function useAccounts() {
     }
   }
 
-  const saveAccount = async (editingAccount: Account, isEditing: boolean): Promise<Account> => {
+  async function saveAccount(editingAccount: Account, isEditing: boolean): Promise<Account> {
     const method = isEditing ? api.put : api.post
     const saveUrl = isEditing ? `/accounts/${editingAccount.id}` : `/accounts`
     
-    // Extrai apenas os campos permitidos pelo DTO
     const { name, description, domain } = editingAccount
     const accountData = { name, description, domain }
     
@@ -49,7 +48,7 @@ export function useAccounts() {
     }
   }
 
-  const deleteAccount = async (val: Account): Promise<boolean> => {
+  async function deleteAccount(val: Account): Promise<boolean> {
     try {
       await api.delete(`/accounts/${val.id}`)
 

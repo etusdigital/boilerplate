@@ -115,6 +115,8 @@ export default {
         createdAt: "Created At",
         deletedAt: "Deleted At",
         itemsPerPage: "Items per page",
-        showingNofN: "Showing {0} to {1} of {2}"
+        showingNofN: "Showing {0} to {1} of {2}",
+        noItemFound: "No item found",
+        noResultsFound: "No results found",
     }
 }

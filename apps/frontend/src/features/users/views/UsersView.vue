@@ -1,15 +1,11 @@
 <template>
   <div class="main-container">
-    <!-- TitleBar com título e botão de ação -->
     <TitleBar :title="t('users')" :actions="titleBarActions" />
 
-    <!-- Campo de busca -->
-    <div class="flex gap-base w-[100%] justify-between items-center mb-base">
-      <Input v-model="searchQuery" type="search" :placeholder="t('search')" @input="handleSearchChange" />
-    </div>
+    <Input v-model="searchQuery" type="search" :placeholder="t('search')" @input="handleSearchChange" />
 
-    <!-- Tabela de usuários -->
-    <b-table
+    <Table
+      class="w-full mt-base"
       :columns="tcolumns"
       :items="users"
       :sort-options="{ by: 'name', desc: false }"
@@ -41,26 +37,28 @@
       </template>
       <template v-slot:actions="{ item, index }">
         <td>
-          <div class="flex justify-center gap-sm">
-            <Button icon="edit" color="neutral" round @click="onEdit(item, index)" />
-            <Button icon="delete" color="danger" round @click="onDelete(item)" />
+          <div class="flex justify-center gap-xxs">
+            <Button icon="edit" size="small" variant="plain" color="neutral" round @click="onEdit(item, index)" />
+            <Button icon="delete" size="small" variant="plain" color="danger" round @click="onDelete(item)" />
           </div>
         </td>
       </template>
 
       <template #empty-state>
-        <div class="flex flex-col items-center justify-center py-xl">
-          <p v-if="paginationMeta.totalItems === 0" class="text-neutral-foreground-low">
-            {{ t('messages.noItemFound') }}
+        <div class="flex flex-col items-center justify-center p-base text-neutral-foreground-low">
+          <p v-if="paginationMeta.totalItems === 0">
+            {{ t('btable.noItemFound') }}
           </p>
-          <p v-else class="text-neutral-foreground-low">{{ t('messages.noResultsFound') }}</p>
+          <p v-else>{{ t('btable.noResultsFound') }}</p>
         </div>
       </template>
-    </b-table>
 
-    <!-- Empty State -->
+      <template #items-per-page>{{ t('btable.itemsPerPage') }}</template>
+      <template #showing-page="{ min, max, total }">
+        {{ t('btable.showingNofN', [min, max, total]) }}
+      </template>
+    </Table>
 
-    <!-- Formulário de usuário -->
     <UserForm
       v-if="showFormControl"
       v-model="showForm"
@@ -75,64 +73,33 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, computed, inject } from 'vue'
-import UserForm from '@/features/users/components/UserForm.vue'
-import type { User, UsersQueryParams } from '@/features/users/types/user.type'
 import { useUsers } from '@/features/users/composables/useUsers'
 import { useAccounts } from '@/features/accounts/composables/useAccounts'
-import { useI18n } from 'vue-i18n'
-import TitleBar from '@/shared/components/TitleBar.vue'
 import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
+import type { User, UsersQueryParams } from '@/features/users/types/user.type'
+import TitleBar from '@/shared/components/TitleBar.vue'
+import UserForm from '@/features/users/components/UserForm.vue'
 
 const confirm = inject('confirm') as Function
-const { t } = useI18n()
+const t = inject('t') as Function
 
-// Composables
 const { users, isLoading, paginationMeta, getAllUsers, saveUser, deleteUser, getUserWithRelations } = useUsers()
 const { getAllAccounts } = useAccounts()
 
-// Estado da busca e paginação
 const searchQuery = ref('')
 const itemsPerPage = ref(10)
 const currentSortBy = ref('name')
 const currentSortDesc = ref(false)
 
-// Debounce timer universal
 let universalDebounceTimer: NodeJS.Timeout | null = null
 
-// Função universal com debounce
-const debouncedFetchUsers = async (params: UsersQueryParams = {}, delay: number = 0) => {
-  if (universalDebounceTimer) {
-    clearTimeout(universalDebounceTimer)
-  }
-
-  universalDebounceTimer = setTimeout(async () => {
-    const queryParams: UsersQueryParams = {
-      page: paginationMeta.value.currentPage,
-      limit: itemsPerPage.value,
-      sortBy: currentSortBy.value as 'createdAt' | 'updatedAt' | 'name' | 'email',
-      sortOrder: currentSortDesc.value ? 'DESC' : 'ASC',
-      ...params,
-    }
-
-    if (searchQuery.value) {
-      queryParams.search = searchQuery.value
-    }
-
-    await getAllUsers(queryParams)
-  }, delay)
-}
-
-// Estados do formulário
 const allAccounts = ref<Array<any>>([])
 const editingUser = ref<User>({} as User)
-const deletingUser = ref({} as any)
 const editingIndex = ref(0)
 const showForm = ref(false)
-const showDelete = ref(false)
 const showFormControl = ref(false)
 const isLoadingUserData = ref(false)
 
-// Configuração das colunas da tabela
 const tcolumns = ref([
   {
     text: t('btable.name'),
@@ -161,11 +128,42 @@ const tcolumns = ref([
   },
 ])
 
-// Função fetchUsers inicial otimizada
-const fetchUsers = async () => {
+const titleBarActions = computed<TitleBarAction[]>(() => [
+  {
+    key: 'add-user',
+    text: t('users.addUser'),
+    icon: 'add_circle',
+    color: 'primary',
+    onClick: onCreate,
+  },
+])
+
+onMounted(async () => {
+  await fetchUsers()
+})
+
+async function debouncedFetchUsers(params: UsersQueryParams = {}, delay: number = 0) {
+  if (universalDebounceTimer) clearTimeout(universalDebounceTimer)
+
+  universalDebounceTimer = setTimeout(async () => {
+    const queryParams: UsersQueryParams = {
+      page: paginationMeta.value.currentPage,
+      limit: itemsPerPage.value,
+      sortBy: currentSortBy.value as 'createdAt' | 'updatedAt' | 'name' | 'email',
+      sortOrder: currentSortDesc.value ? 'DESC' : 'ASC',
+      ...params,
+    }
+
+    if (searchQuery.value) queryParams.search = searchQuery.value
+
+    await getAllUsers(queryParams)
+  }, delay)
+}
+
+async function fetchUsers() {
   showForm.value = false
   forceResetForm()
-  await debouncedFetchUsers({}, 0) // Carregamento inicial sem delay
+  await debouncedFetchUsers({}, 0)
   const accounts = await getAllAccounts()
   allAccounts.value = accounts.map((account) => ({
     label: account.name,
@@ -174,44 +172,25 @@ const fetchUsers = async () => {
   editingUser.value = {} as User
 }
 
-// Handlers otimizados
-const handlePageChange = async (page: number) => {
+async function handlePageChange(page: number) {
   paginationMeta.value.currentPage = page
-  await debouncedFetchUsers({}, 50) // Pequeno delay para UX fluida
+  await debouncedFetchUsers({}, 50)
 }
 
-const handleItemsPerPageChange = async (newItemsPerPage: number) => {
+async function handleItemsPerPageChange(newItemsPerPage: number) {
   itemsPerPage.value = newItemsPerPage
   paginationMeta.value.limit = newItemsPerPage
   paginationMeta.value.currentPage = 1
-  await debouncedFetchUsers({}, 100) // Delay maior para mudança significativa
+  await debouncedFetchUsers({}, 100)
 }
 
-const handleSortBy = async (key: string, isSortDesc: boolean = false) => {
-  // Atualizar os estados com os valores recebidos
-  if (key) {
-    currentSortBy.value = key
-  }
+async function handleSortBy(key: string, isSortDesc: boolean = false) {
+  if (key) currentSortBy.value = key
+
   currentSortDesc.value = isSortDesc
 
-  // Ordenação instantânea - sem delay
   await debouncedFetchUsers({}, 0)
 }
-
-// Actions da TitleBar
-const titleBarActions = computed<TitleBarAction[]>(() => [
-  {
-    key: 'add-user',
-    text: t('users.addUser'),
-    icon: 'add_circle',
-    color: 'primary',
-    onClick: createUser,
-  },
-])
-
-onMounted(async () => {
-  await fetchUsers()
-})
 
 async function handleSearchChange() {
   paginationMeta.value.currentPage = 1
@@ -219,7 +198,7 @@ async function handleSearchChange() {
   await debouncedFetchUsers({}, 300)
 }
 
-const formatDisplayDate = (dateString: string): string => {
+function formatDisplayDate(dateString: string): string {
   if (!dateString) return '-'
   try {
     const date = new Date(dateString)
@@ -236,41 +215,7 @@ const formatDisplayDate = (dateString: string): string => {
   }
 }
 
-// Handlers de CRUD
-const onEdit = async (val: any, index: number) => {
-  showFormControl.value = false
-  editingIndex.value = index
-  isLoadingUserData.value = true
-
-  // Define usuário temporário com ID para indicar edição
-  editingUser.value = {
-    ...val,
-    userAccounts: [], // Será populado pela API
-  }
-
-  // Mostra sidebar imediatamente
-  showFormControl.value = true
-  nextTick(() => {
-    showForm.value = true
-  })
-
-  try {
-    // Busca o usuário com as relações userAccounts para edição
-    const fullUser = await getUserWithRelations(val.id)
-    editingUser.value = fullUser
-  } finally {
-    isLoadingUserData.value = false
-  }
-}
-
-const onDeleteUser = async (val: any) => {
-  await deleteUser(val)
-  closeDelete()
-  await fetchUsers()
-}
-
-const createUser = () => {
-  // Limpa completamente os dados do usuário
+function onCreate() {
   editingUser.value = {
     name: '',
     email: '',
@@ -287,8 +232,56 @@ const createUser = () => {
   })
 }
 
-const forceResetForm = () => {
-  // Limpa completamente os dados para evitar persistência
+async function onSave(editingUser: any, isEditing: boolean) {
+  try {
+    await saveUser(editingUser, isEditing)
+    await fetchUsers()
+
+    showForm.value = false
+    forceResetForm()
+  } finally {
+    isLoadingUserData.value = false
+  }
+}
+
+async function onEdit(val: any, index: number) {
+  showFormControl.value = false
+  editingIndex.value = index
+  isLoadingUserData.value = true
+
+  editingUser.value = {
+    ...val,
+    userAccounts: [],
+  }
+
+  showFormControl.value = true
+  nextTick(() => {
+    showForm.value = true
+  })
+
+  try {
+    const fullUser = await getUserWithRelations(val.id)
+    editingUser.value = fullUser
+  } finally {
+    isLoadingUserData.value = false
+  }
+}
+
+async function onDelete(user: User) {
+  const result = await confirm({
+    title: t('deleteUser'),
+    message: `${t('deleteUserConfirm')}: ${user.name}?`,
+    acceptLabel: t('delete'),
+    cancelLabel: t('cancel'),
+  })
+
+  if (!result) return
+
+  await deleteUser(user)
+  await fetchUsers()
+}
+
+function forceResetForm() {
   editingUser.value = {} as User
   isLoadingUserData.value = false
 
@@ -297,36 +290,9 @@ const forceResetForm = () => {
   }, 500)
 }
 
-const onSave = async (editingUser: any, isEditing: boolean) => {
-  try {
-    await saveUser(editingUser, isEditing)
-    await fetchUsers()
+function onCloseForm(data: any) {
+  if (data && users.value[editingIndex.value]) users.value[editingIndex.value] = data
 
-    // Fechar o form após salvar com sucesso
-    showForm.value = false
-    forceResetForm()
-  } finally {
-    // Reset dos estados de loading
-    isLoadingUserData.value = false
-  }
-}
-
-const closeDelete = () => {
-  showDelete.value = false
-  deletingUser.value = {}
-}
-
-const onDelete = async (val: any) => {
-  deletingUser.value = val
-  showDelete.value = true
-}
-
-const onCloseForm = (data: any) => {
-  if (data && users.value[editingIndex.value]) {
-    users.value[editingIndex.value] = data
-  }
-
-  // Reset completo do estado
   editingUser.value = {} as User
   isLoadingUserData.value = false
   showForm.value = false

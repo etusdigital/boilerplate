@@ -2,17 +2,18 @@ import { ref, computed, watch } from 'vue'
 import { useMainStore } from '@/app/stores'
 import type { Ref } from 'vue'
 
-// Define a type for roles
-interface Role {
+export type RoleType = 'reader' | 'writer' | 'admin'
+
+export interface Role {
   accountId: string
-  role: string
+  role: RoleType
   accountName: string
 }
 
-// Define a type for user accounts if not already defined
-interface UserAccount {
+export interface UserAccount {
+  userAccounts: never[]
   accountId: string
-  role: string
+  role: RoleType
   account: {
     name: string
   }
@@ -24,51 +25,15 @@ export function useUserForm(props: any, emit: any) {
   const isSameUser = computed(() => props.user?.id === mainStore.user?.id)
   const model = ref(props.modelValue)
   const editingUser = ref({ ...props.user })
-  
-  // Função para atualizar dados do usuário
-  const updateUserData = (newUser: any) => {
-    editingUser.value = { ...newUser }
-    
-    // Reseta permissões quando é um usuário vazio
-    if (!newUser.id) {
-      parsedPermissions.value = []
-      editedUserAccounts.value = []
-    } else {
-      // Recalcula permissões para usuário existente
-      parsedPermissions.value = (newUser.userAccounts || []).map(
-        (acc: UserAccount) =>
-          ({
-            accountId: acc.accountId,
-            role: getParsedRole(acc.role) || 'Reader',
-            accountName: acc.account.name,
-          }) as Role,
-      )
-      editedUserAccounts.value = parsedPermissions.value
-    }
-  }
-  const allAccountsParsed = ref([...props.allAccounts])
-  allAccountsParsed.value = allAccountsParsed.value.map((account) => ({
-    ...account,
-  }))
-
-  const parsedPermissions: Ref<Role[]> = ref([])
-
-  const getParsedRole = (role: string) => {
-    const lowerCaseRole = role.toLowerCase()
-    return (lowerCaseRole.charAt(0).toUpperCase() + lowerCaseRole.slice(1)) as 'Reader' | 'Writer' | 'Admin'
-  }
-
-  parsedPermissions.value = (editingUser.value.userAccounts || []).map(
-    (acc: UserAccount) =>
-      ({
-        accountId: acc.accountId,
-        role: getParsedRole(acc.role) || 'Reader',
-        accountName: acc.account.name,
-      }) as Role,
+  const parsedPermissions: Ref<Role[]> = ref(parsePermissions())
+  const editedUserAccounts: Ref<Role[]> = ref(parsedPermissions.value || [])
+  const allAccountsParsed = ref(
+    [...props.allAccounts].map((account) => ({
+      ...account,
+    })),
   )
 
   const isEditing = computed(() => !!editingUser.value.id)
-
   const isValidUrl = computed(() => {
     try {
       new URL(editingUser.value.profileImage || '')
@@ -77,31 +42,13 @@ export function useUserForm(props: any, emit: any) {
       return false
     }
   })
-
-  const editedUserAccounts: Ref<Role[]> = ref([])
-  editedUserAccounts.value = parsedPermissions.value
-
+  const isValidEmail = computed(() => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editingUser.value.email || '')
+  })
   const editingUserBind = computed(() => ({
     ...editingUser.value,
     userAccounts: editedUserAccounts.value,
   }))
-
-  const updateSelectedPermissions = (value: Role[]) => {
-    editedUserAccounts.value = value.map((p) => ({ ...p, role: p.role.toLowerCase() as 'reader' | 'writer' | 'admin' }))
-  }
-
-  const changeSuperAdmin = (value: boolean) => {
-    editingUser.value.isSuperAdmin = value
-  }
-
-  const updateModelValue = (value: boolean) => {
-    model.value = value
-    emit('update:modelValue', value)
-  }
-
-  const closeForm = () => {
-    emit('close', isEditing.value ? props.user : null)
-  }
 
   watch(
     () => props.modelValue,
@@ -110,17 +57,54 @@ export function useUserForm(props: any, emit: any) {
     },
   )
 
-  // Watch para resetar dados quando recebe um usuário vazio (criar novo)
   watch(
     () => props.user,
     (newUser) => {
-      // Só atualiza se realmente mudou o usuário (evita loops)
-      if (JSON.stringify(newUser) !== JSON.stringify(editingUser.value)) {
-        updateUserData(newUser)
-      }
+      if (JSON.stringify(newUser) === JSON.stringify(editingUser.value)) return
+      updateUserData(newUser)
     },
-    { deep: true, immediate: true }
+    { deep: true, immediate: true },
   )
+
+  function updateUserData(newUser: any) {
+    editingUser.value = { ...newUser }
+
+    if (!newUser.id) {
+      parsedPermissions.value = []
+      editedUserAccounts.value = []
+    } else {
+      parsedPermissions.value = parsePermissions(newUser)
+      editedUserAccounts.value = parsedPermissions.value
+    }
+  }
+
+  function parsePermissions(newUser: UserAccount = editingUser.value) {
+    return (newUser.userAccounts || []).map(
+      (acc: UserAccount) =>
+        ({
+          accountId: acc.accountId,
+          role: acc.role || 'reader',
+          accountName: acc.account.name,
+        }) as Role,
+    )
+  }
+
+  function updateSelectedPermissions(value: Role[]) {
+    editedUserAccounts.value = value.map((p) => ({ ...p }))
+  }
+
+  function changeSuperAdmin(value: boolean) {
+    editingUser.value.isSuperAdmin = value
+  }
+
+  function updateModelValue(value: boolean) {
+    model.value = value
+    emit('update:modelValue', value)
+  }
+
+  function closeForm() {
+    emit('close', isEditing.value ? props.user : null)
+  }
 
   return {
     model,
@@ -130,6 +114,7 @@ export function useUserForm(props: any, emit: any) {
     parsedPermissions,
     isEditing,
     isValidUrl,
+    isValidEmail,
     editedUserAccounts,
     editingUserBind,
     updateSelectedPermissions,
