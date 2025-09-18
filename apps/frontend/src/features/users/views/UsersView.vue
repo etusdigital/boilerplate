@@ -222,7 +222,7 @@ async function handleSearchChange() {
 const formatDisplayDate = (dateString: string): string => {
   if (!dateString) return '-'
   try {
-    const date = new Date(dateString).len
+    const date = new Date(dateString)
     if (isNaN(date.getTime())) return '-'
 
     return date.toLocaleString('pt-BR', {
