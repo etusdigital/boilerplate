@@ -24,45 +24,33 @@ When working with specific file types, the LLM MUST also consult these specializ
 ### Design System Foundation (CRITICAL)
 **ABSOLUTE REQUIREMENT**: ALL UI components MUST use `@BRIUS/design-system`
 
-```typescript
-// MANDATORY - Only allowed UI imports
-import { 
-  BButton, BInput, BCard, BModal, BTable, BSelect, 
-  BSpinner, BPagination, BDialog 
-} from '@BRIUS/design-system'
-
-// FORBIDDEN - Any custom UI components
-// import CustomButton from './components/CustomButton.vue' ❌
-// <div class="custom-modal">❌
-```
-
 ### Color Architecture
 ```typescript
 // Project Color Scheme (BRIUS Design System Integration)
 PRIMARY: 'Custom Green' // Project's signature color for save actions
-SECONDARY: 'Gray' // Edit/configure actions 
-DANGER: 'Red' // Delete/destructive actions
-NEUTRAL: 'Gray variants' // Cancel/secondary actions
+INFO: 'Blue' // Edit/configure actions 
 SUCCESS: 'Green' // Success states
 WARNING: 'Amber' // Warning states
+DANGER: 'Red' // Delete/destructive actions
+NEUTRAL: 'Gray variants' // Cancel/secondary actions
 ```
 
 ### Component Sizing Standards
 ```typescript
 // Button Standards
-BButton: {
+Button: {
   default: 'Standard form actions',
   lg: 'Search inputs and primary CTAs'
 }
 
 // Input Standards  
-BInput: {
+Input: {
   lg: 'Search fields (mandatory)',
   default: 'Form fields'
 }
 
 // Modal Standards
-BModal/BDialog: {
+Dialog: {
   minWidth: '515px', // Standard dialog width
   minHeight: '200px', // Minimum dialog height
   padding: 'p-base' // Standard internal padding
@@ -79,9 +67,7 @@ BModal/BDialog: {
     <TitleBar :title="t('entity.title')" :actions="titleBarActions" />
     
     <!-- 2. Search Section -->
-    <div class="flex gap-base w-[100%] justify-between items-center mb-base">
-      <BInput type="search" size="lg" :placeholder="t('search')" />
-    </div>
+    <Input type="search" :placeholder="t('search')" />
     
     <!-- 3. Content Grid/Cards -->
     <div class="entity-grid">
@@ -96,7 +82,6 @@ BModal/BDialog: {
     
     <!-- 6. Modals (Form + Delete Confirmation) -->
     <EntityForm />
-    <BDialog><!-- Delete confirmation --></BDialog>
   </div>
 </template>
 ```

@@ -47,15 +47,15 @@
       <template #empty-state>
         <div class="flex flex-col items-center justify-center p-base text-neutral-foreground-low">
           <p v-if="paginationMeta.totalItems === 0">
-            {{ t('btable.noItemFound') }}
+            {{ t('table.noItemFound') }}
           </p>
-          <p v-else>{{ t('btable.noResultsFound') }}</p>
+          <p v-else>{{ t('table.noResultsFound') }}</p>
         </div>
       </template>
 
-      <template #items-per-page>{{ t('btable.itemsPerPage') }}</template>
+      <template #items-per-page>{{ t('table.itemsPerPage') }}</template>
       <template #showing-page="{ min, max, total }">
-        {{ t('btable.showingNofN', [min, max, total]) }}
+        {{ t('table.showingNofN', [min, max, total]) }}
       </template>
     </Table>
 
@@ -102,27 +102,27 @@ const isLoadingUserData = ref(false)
 
 const tcolumns = ref([
   {
-    text: t('btable.name'),
-    label: t('btable.name'),
+    text: t('table.name'),
+    label: t('table.name'),
     value: 'name',
     sortable: true,
     width: '50%',
   },
   {
-    text: t('btable.email'),
-    label: t('btable.email'),
+    text: t('table.email'),
+    label: t('table.email'),
     value: 'email',
     sortable: true,
   },
   {
-    text: t('btable.updatedAt'),
-    label: t('btable.updatedAt'),
+    text: t('table.updatedAt'),
+    label: t('table.updatedAt'),
     value: 'updatedAt',
     sortable: true,
   },
   {
-    text: t('btable.deletedAt'),
-    label: t('btable.deletedAt'),
+    text: t('table.deletedAt'),
+    label: t('table.deletedAt'),
     value: 'deletedAt',
     sortable: true,
   },
@@ -290,9 +290,7 @@ function forceResetForm() {
   }, 500)
 }
 
-function onCloseForm(data: any) {
-  if (data && users.value[editingIndex.value]) users.value[editingIndex.value] = data
-
+function onCloseForm() {
   editingUser.value = {} as User
   isLoadingUserData.value = false
   showForm.value = false

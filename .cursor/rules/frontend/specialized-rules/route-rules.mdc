@@ -9,9 +9,10 @@ alwaysApply: false
 ## Mandatory Route Structure
 
 ### Feature Routes Pattern (REAL PROJECT)
+
 ```typescript
 // features/[feature]/routes.ts
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router';
 
 export const entitiesRoutes: RouteRecordRaw[] = [
   {
@@ -20,8 +21,9 @@ export const entitiesRoutes: RouteRecordRaw[] = [
     component: () => import('./views/EntitiesView.vue'),
     meta: {
       requiresAuth: true,
-      title: 'Entities'
-    }
+      title: 'Entities',
+      icon: 'entities',
+    },
   },
   {
     path: '/admin/entities',
@@ -30,54 +32,51 @@ export const entitiesRoutes: RouteRecordRaw[] = [
     meta: {
       requiresAuth: true,
       title: 'Entity Management',
-      adminOnly: true
-    }
-  }
-]
+      icon: 'admin',
+      adminOnly: true,
+    },
+  },
+];
 ```
 
 ## Canvas.vue Menu Integration (CRITICAL)
 
 ### MANDATORY: Menu Registration Workflow
+
 Every new feature route MUST be added to Canvas.vue menu:
 
 ```typescript
 // Canvas.vue - MenuItem Type (REQUIRED)
 type MenuItem = {
-  label: string
-  value: string
-  icon: string
-  path: string
-  bottom?: boolean  // Settings items
-  show?: boolean    // Conditional visibility
-}
+  label: string;
+  value: string;
+  icon: string;
+  path: string;
+  bottom?: boolean;
+  options?: MenuItem[];
+};
 
-// Example menu integration
-const menuItems = computed<MenuItem[]>(() => [
-  {
-    label: t('entities'),
-value: 'entities',
-icon: 'mdi-entity-group',
-path: '/entities'
-  },
-  {
-    label: t('accounts'),
-    value: 'accounts', 
-    icon: 'mdi-domain',
-    path: '/accounts'
-  },
-  {
-    label: t('settings'),
-    value: 'settings',
-    icon: 'mdi-cog',
-    path: '/settings',
-    bottom: true  // Settings section
-  }
-])
+// Get menu options from routes file (REQUIRED)
+const options = ref<MenuItem[]>(parseRoutes(routes));
+
+function parseRoutes(routes: RouteRecordRaw[]) {
+  return routes
+    .filter((route: RouteRecordRaw) => route.meta?.icon && route.meta?.title)
+    .map((route: RouteRecordRaw) => ({
+      label: t(route.meta.title as string),
+      value: route.name as string,
+      icon: route.meta?.icon,
+      path: route.path,
+      bottom: route.meta?.bottom,
+      options: route.children ? parseRoutes(route.children) : [],
+    }));
+}
 ```
 
 ### Feature Creation Workflow
+
 When creating new feature:
+
 1. **FIRST**: Create route in feature/routes.ts
 2. **SECOND**: Add menu item to Canvas.vue
 3. **THEN**: Implement components
@@ -85,6 +84,7 @@ When creating new feature:
 ## Route Configuration Patterns
 
 ### Meta Properties (MANDATORY)
+
 ```typescript
 {
   path: '/feature',
@@ -94,6 +94,7 @@ When creating new feature:
     requiresAuth: true,      // REQUIRED for protected routes
     title: 'featureTitle',   // i18n key for title
     icon: 'mdi-icon-name',   // Material Design icon
+    bottom: false            // Position in the sidebar
     roles?: ['admin'],       // Optional role restriction
     accountRequired?: true   // Account context required
   }
@@ -101,9 +102,10 @@ When creating new feature:
 ```
 
 ### Lazy Loading (MANDATORY)
+
 ```typescript
 // CORRECT - Dynamic imports for code splitting
-component: () => import('./views/FeatureView.vue')
+component: () => import('./views/FeatureView.vue');
 
 // FORBIDDEN - Direct imports
 // import FeatureView from './views/FeatureView.vue'  ❌
@@ -112,41 +114,43 @@ component: () => import('./views/FeatureView.vue')
 ## Authentication Guards
 
 ### Global Auth Guard Pattern
+
 ```typescript
 // router/index.ts
 router.beforeEach(async (to, from, next) => {
-  const { isAuthenticated, isLoading } = useAuth0()
-  
+  const { isAuthenticated, isLoading } = useAuth0();
+
   // Wait for auth to initialize
   if (isLoading.value) {
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       const unwatch = watch(isLoading, (loading) => {
         if (!loading) {
-          unwatch()
-          resolve(true)
+          unwatch();
+          resolve(true);
         }
-      })
-    })
+      });
+    });
   }
-  
+
   // Check authentication requirement
   if (to.meta.requiresAuth && !isAuthenticated.value) {
-    return next('/login')
+    return next('/login');
   }
-  
+
   // Check account context requirement
   if (to.meta.accountRequired) {
-    const mainStore = useMainStore()
+    const mainStore = useMainStore();
     if (!mainStore.selectedAccount.id) {
-      return next('/account-selection')
+      return next('/account-selection');
     }
   }
-  
-  next()
-})
+
+  next();
+});
 ```
 
 ### Route-Level Guards
+
 ```typescript
 // Feature-specific guards
 {
@@ -165,84 +169,91 @@ router.beforeEach(async (to, from, next) => {
 ## Router Configuration
 
 ### Main Router Setup
+
 ```typescript
 // router/index.ts
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 
 // Import feature routes
-import userRoutes from '@/features/users/routes'
-import accountRoutes from '@/features/accounts/routes'
-import entityRoutes from '@/features/entity/routes'
+import userRoutes from '@/features/users/routes';
+import accountRoutes from '@/features/accounts/routes';
+import entityRoutes from '@/features/entity/routes';
 
 const routes = [
   {
     path: '/',
     name: 'home',
-    redirect: '/dashboard'
+    redirect: '/dashboard',
+    meta: {
+      title: 'Dashboard',
+      icon: 'dashboard'
+    }
   },
-  
+
   // Feature routes
   ...userRoutes,
   ...accountRoutes,
   ...entityRoutes,
-  
+
   // App-level routes
   {
     path: '/callback',
     name: 'callback',
-    component: () => import('@/app/views/Callback.vue')
+    component: () => import('@/app/views/Callback.vue'),
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
-    component: () => import('@/app/views/NotFound.vue')
-  }
-]
+    component: () => import('@/app/views/NotFound.vue'),
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_LOCAL_PATH),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;
 ```
 
 ## Navigation Patterns
 
 ### Programmatic Navigation
+
 ```typescript
 // In composables or components
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router';
 
 export function useNavigation() {
-  const router = useRouter()
-  const route = useRoute()
-  
+  const router = useRouter();
+  const route = useRoute();
+
   const navigateToEntity = (entityId: number) => {
-    router.push({ 
-      name: 'entity-details', 
-      params: { id: entityId.toString() } 
-    })
-  }
-  
+    router.push({
+      name: 'entity-details',
+      params: { id: entityId.toString() },
+    });
+  };
+
   const navigateToList = () => {
-    router.push({ name: 'entity-list' })
-  }
-  
+    router.push({ name: 'entity-list' });
+  };
+
   const goBack = () => {
-    router.back()
-  }
-  
+    router.back();
+  };
+
   return {
     currentRoute: route,
     navigateToEntity,
     navigateToList,
-    goBack
-  }
+    goBack,
+  };
 }
 ```
 
 ### Route Parameters Handling
+
 ```typescript
 // In components
 <script setup lang="ts">
@@ -269,10 +280,15 @@ watch(() => route.params.id, (newId) => {
 ## Nested Routes Pattern
 
 ### Parent-Child Routes
+
 ```typescript
 {
   path: '/entity',
   component: () => import('./views/EntityLayout.vue'),
+  meta: {
+    title: 'Entities',
+    icon: 'entities',
+  },
   children: [
     {
       path: '',
@@ -296,11 +312,12 @@ watch(() => route.params.id, (newId) => {
 ## i18n Integration
 
 ### Route Titles
+
 ```typescript
 // Route meta with i18n
 meta: {
   title: 'entities',  // Key for t('entities')
-breadcrumb: 'entityManagement'  // For breadcrumb navigation
+  breadcrumb: 'entityManagement'  // For breadcrumb navigation
 }
 
 // In components
@@ -311,6 +328,7 @@ const pageTitle = computed(() => t(route.meta.title))
 ## Validation Rules
 
 ### FAIL CONDITIONS
+
 - Routes without lazy loading (direct component imports)
 - Missing Canvas.vue menu registration for new features
 - Protected routes without requiresAuth meta
@@ -318,6 +336,7 @@ const pageTitle = computed(() => t(route.meta.title))
 - Routes without proper TypeScript typing
 
 ### QUALITY REQUIREMENTS
+
 - All routes use dynamic imports for components
 - Feature routes exported as RouteRecordRaw arrays
 - Menu integration for all accessible routes

@@ -5,6 +5,7 @@
 <script setup lang="ts">
 import { ref, inject } from 'vue'
 import { routes } from '@/app/router'
+import type { RouteRecordRaw } from 'vue-router'
 
 type MenuItem = {
   label: string
@@ -12,20 +13,27 @@ type MenuItem = {
   icon: string
   path: string
   bottom?: boolean
-  items?: MenuItem[]
+  options?: MenuItem[]
 }
 
 const t = inject('t') as Function
 
 const selectedItem = ref('')
 
-const options = ref<MenuItem[]>(routes.filter((route) => route.icon && route.meta?.title).map((route) => ({
-  label: t(route.meta.title as string),
-  value: route.name as string,
-  icon: route.icon,
-  path: route.path,
-  bottom: route.bottom,
-})))
+const options = ref<MenuItem[]>(parseRoutes(routes));
+
+function parseRoutes(routes: RouteRecordRaw[]) {
+  return routes
+    .filter((route: RouteRecordRaw) => route.meta?.icon && route.meta?.title)
+    .map((route: RouteRecordRaw) => ({
+      label: t(route.meta.title as string),
+      value: route.name as string,
+      icon: route.meta?.icon,
+      path: route.path,
+      bottom: route.meta?.bottom,
+      options: route.children ? parseRoutes(route.children) : [],
+    }));
+}
 </script>
 
 <style scoped>

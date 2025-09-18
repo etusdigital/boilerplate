@@ -95,8 +95,8 @@ export function useEntityTable() {
 ```typescript
 // MOST COMMON - Real project pattern
 import { ref, inject } from 'vue'
-import api from '@/shared/api'
 import { useMainStore } from '@/app/stores'
+import api from '@/shared/api'
 
 export function useEntityManager(tFunction?: (key: string) => string) {
   const toast = inject('toast') as any

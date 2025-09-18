@@ -98,15 +98,14 @@ export default routes
 <!-- components/EntityForm.vue -->
 <template>
   <div class="form-wrapper">
-    <BInput v-model="formData.name" :label="t('name')" />
-    <BInput v-model="formData.email" :label="t('email')" />
+    <Input v-model="formData.name" :label="t('name')" />
+    <Input v-model="formData.email" :label="t('email')" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { BInput } from '@BRIUS/design-system'
 import type { Entity, CreateEntityData } from '../types/entity.type'
 
 interface Props {
@@ -233,8 +232,8 @@ export function useEntities(tFunction?: (key: string) => string) {
   <div class="main-container">
     <TitleBar :title="t('entities')" :actions="titleBarActions" />
     
-    <BTable 
-      :headers="headers" 
+    <Table 
+      :columns="headers" 
       :items="entities" 
       :loading="isLoading"
       @edit="onEdit"
@@ -254,7 +253,6 @@ export function useEntities(tFunction?: (key: string) => string) {
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { BTable } from '@BRIUS/design-system'
 import { TitleBar } from '@/shared/components/TitleBar.vue'
 import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
 import EntityForm from '../components/EntityForm.vue'
@@ -386,7 +384,6 @@ export function useFeatureWithGlobalState() {
 ### Import Rules
 ```typescript
 // ALLOWED imports
-import { BButton } from '@BRIUS/design-system'  // ✅ Design system
 import { useI18n } from 'vue-i18n'              // ✅ Vue ecosystem
 import { useMainStore } from '@/app/stores'     // ✅ Global stores
 import { toast } from '@/shared/composables'    // ✅ Shared utilities

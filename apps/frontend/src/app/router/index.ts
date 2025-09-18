@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import type { Route } from '@/shared/types/Route'
 
 import { createPinia } from 'pinia'
 import { useMainStore } from '../stores'
@@ -15,13 +14,13 @@ const pinia = createPinia()
 useMainStore(pinia)
 
 // --- Define Core App Routes ---
-const coreAppRoutes: Route[] = [
+const coreAppRoutes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Home',
-    icon: 'home',
     component: HomeView,
     meta: {
+      icon: 'home',
       title: 'home',
     },
   },
@@ -35,7 +34,7 @@ const coreAppRoutes: Route[] = [
 
 // --- Define Catch-all Route (404 Not Found) ---
 // IMPORTANT: This should usually be the LAST route in the array
-const notFoundRoute: Route = {
+const notFoundRoute: RouteRecordRaw = {
   path: '/:pathMatch(.*)*', // Matches everything that wasn't caught by earlier routes
   name: 'NotFound',
   component: NotFoundView,
@@ -44,7 +43,7 @@ const notFoundRoute: Route = {
   },
 }
 
-export const routes: Route[] = [
+export const routes: RouteRecordRaw[] = [
   ...coreAppRoutes,
   ...userRoutes,
   ...settingsRoutes,

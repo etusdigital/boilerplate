@@ -99,11 +99,13 @@ export function useUserForm(props: any, emit: any) {
 
   function updateModelValue(value: boolean) {
     model.value = value
+    if (!value) closeForm()
     emit('update:modelValue', value)
   }
 
   function closeForm() {
-    emit('close', isEditing.value ? props.user : null)
+    updateModelValue(false)
+    emit('close')
   }
 
   return {

@@ -94,9 +94,9 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'save', user: User, isEditing: boolean): void
-  (e: 'close', user?: User | null): void
   (e: 'update:modelValue', value: boolean): void
+  (e: 'save', user: User, isEditing: boolean): void
+  (e: 'close'): void
 }>()
 
 const t = inject('t') as Function
@@ -114,7 +114,6 @@ const {
   updateSelectedPermissions,
   changeSuperAdmin,
   updateModelValue,
-  closeForm,
 } = useUserForm(props, emit)
 
 const roleOptions = ref([
@@ -139,6 +138,10 @@ watch(
     updateSelectedPermissions(parsedPermissions.value)
   },
 )
+
+function closeForm() {
+  updateModelValue(false)
+}
 
 function handleSave() {
   emit('save', editingUserBind.value, isEditing.value)
@@ -170,7 +173,7 @@ function removeRole(index: number) {
 }
 
 .form-content {
-  @apply flex flex-col gap-base w-full flex-1;
+  @apply flex flex-col gap-base flex-1;
 }
 
 .form-actions {

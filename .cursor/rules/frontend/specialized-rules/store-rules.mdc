@@ -11,8 +11,8 @@ alwaysApply: false
 ### Composition API Pattern (REQUIRED)
 ```typescript
 // features/[feature]/stores/[feature]Store.ts
-import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'
 import type { Entity } from '../types/entity.type'
 
 export const useEntityStore = defineStore('entities', () => {
@@ -77,7 +77,7 @@ export const useEntityStore = defineStore('entities', () => {
 ### Main Store (App-Level)
 ```typescript
 // app/stores/index.ts
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia' 
 import { ref, computed } from 'vue'
 import type { Account, User } from '@/shared/types'
 

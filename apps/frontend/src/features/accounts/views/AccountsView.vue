@@ -1,10 +1,9 @@
 <template>
   <Transition name="page" mode="out-in">
     <div class="main-container">
-      <!-- TitleBar com título e botão de ação -->
       <TitleBar :title="t('accounts.accounts')" :actions="titleBarActions" />
-      <!-- início b-table usada para listar os usuários -->
       <Table
+        class="w-full"
         :columns="tcolumns"
         :items="data"
         :sort-options="{ by: 'name', desc: false }"
@@ -18,7 +17,7 @@
               <span class="w-full text-left">{{ formatDisplayDate(item.updatedAt) }}</span>
               <br />
               <span v-if="item?.updatedAt && item?.createdAt" class="text-xxs w-full text-center"
-                >{{ t('btable.createdAt') }} {{ formatDisplayDate(item.createdAt) }}</span
+                >{{ t('table.createdAt') }} {{ formatDisplayDate(item.createdAt) }}</span
               >
             </template>
             <template v-else-if="metric.value === 'deletedAt'">
@@ -31,18 +30,17 @@
         </template>
         <template v-slot:actions="{ item, index }">
           <td>
-            <div class="flex justify-center gap-sm">
-              <Button icon="edit" color="neutral" round @click="onEdit(item, index)" />
-              <Button icon="delete" color="danger" round @click="onDelete(item)" />
+            <div class="flex justify-center gap-xxs">
+              <Button icon="edit" size="small" variant="plain" color="neutral" round @click="onEdit(item, index)" />
+              <Button icon="delete" size="small" variant="plain" color="danger" round @click="onDelete(item)" />
             </div>
           </td>
         </template>
-        <template #items-per-page>{{ t('btable.itemsPerPage') }}</template>
+        <template #items-per-page>{{ t('table.itemsPerPage') }}</template>
         <template #showing-page="{ min, max, total }">
-          {{ t('btable.showingNofN', [min, max, total]) }}
+          {{ t('table.showingNofN', [min, max, total]) }}
         </template>
       </Table>
-      <!-- fim b-table -->
       <AccountForm
         v-if="showFormControl"
         v-model="showForm"
@@ -71,23 +69,23 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const tcolumns = ref([
   {
-    label: t('btable.name'),
+    label: t('table.name'),
     value: 'name',
     sortable: true,
     width: '50%',
   },
   {
-    label: t('btable.description'),
+    label: t('table.description'),
     value: 'description',
     sortable: true,
   },
   {
-    label: t('btable.updatedAt'),
+    label: t('table.updatedAt'),
     value: 'updatedAt',
     sortable: true,
   },
   {
-    label: t('btable.deletedAt'),
+    label: t('table.deletedAt'),
     value: 'deletedAt',
     sortable: true,
   },
@@ -106,7 +104,7 @@ const titleBarActions = computed<TitleBarAction[]>(() => [
     text: t('accounts.addAccount'),
     icon: 'add_circle',
     color: 'primary',
-    onClick: createAccount,
+    onClick: onCreate,
   },
 ])
 
@@ -114,7 +112,7 @@ onMounted(async () => {
   await fetchAccounts()
 })
 
-const formatDisplayDate = (dateString: string): string => {
+function formatDisplayDate(dateString: string): string {
   if (!dateString) return '-'
   try {
     const date = new Date(dateString)
@@ -129,7 +127,7 @@ const formatDisplayDate = (dateString: string): string => {
   }
 }
 
-const createAccount = (): void => {
+function onCreate(): void {
   editingAccount.value = {
     name: '',
     description: '',
@@ -143,7 +141,7 @@ const createAccount = (): void => {
   })
 }
 
-const onEdit = (val: Account, index: number): void => {
+function onEdit(val: Account, index: number): void {
   showFormControl.value = false
   editingAccount.value = val
   editingIndex.value = index
@@ -153,13 +151,7 @@ const onEdit = (val: Account, index: number): void => {
   })
 }
 
-const forceResetForm = (): void => {
-  setTimeout(() => {
-    showFormControl.value = false
-  }, 500)
-}
-
-const fetchAccounts = async (): Promise<void> => {
+async function fetchAccounts(): Promise<void> {
   isLoading.value = true
   showForm.value = false
   forceResetForm()
@@ -168,12 +160,12 @@ const fetchAccounts = async (): Promise<void> => {
   isLoading.value = false
 }
 
-const onSave = async (editingAccount: Account, isEditing: boolean): Promise<void> => {
+async function onSave(editingAccount: Account, isEditing: boolean): Promise<void> {
   await saveAccount(editingAccount, isEditing)
   await fetchAccounts()
 }
 
-const onDelete = async (val: Account): Promise<void> => {
+async function onDelete(val: Account): Promise<void> {
   const result = await confirm({
     title: t('deleteAccount'),
     message: `${t('deleteAccountConfirm')}: ${val.name}?`,
@@ -187,10 +179,13 @@ const onDelete = async (val: Account): Promise<void> => {
   await fetchAccounts()
 }
 
-const onCloseForm = (account: Account): void => {
-  if (data.value && data.value[editingIndex.value]) {
-    data.value[editingIndex.value] = account
-  }
+function forceResetForm(): void {
+  setTimeout(() => {
+    showFormControl.value = false
+  }, 500)
+}
+
+function onCloseForm(): void {
   editingAccount.value = {} as Account
   showForm.value = false
   forceResetForm()

@@ -15,7 +15,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@BRIUS/design-system": "file:../../../design-system-github",
+    "@BRIUS/design-system": "^3.0.0",
     "@auth0/auth0-vue": "^2.4.0",
     "@vue/test-utils": "^2.4.6",
     "axios": "^1.6.8",

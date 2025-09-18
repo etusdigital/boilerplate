@@ -1,15 +1,15 @@
-import type { Route } from '@/shared/types/Route'
+import type { RouteRecordRaw } from 'vue-router'
 
-export const userRoutes: Route[] = [
+export const userRoutes: RouteRecordRaw[] = [
   {
     path: '/users',
     name: 'Users', // Unique name for the route
-    icon: 'group',
     component: () => import('./views/UsersView.vue'), // Lazy-loaded view
     meta: {
       // Example meta fields (optional)
       requiresAuth: true,
       title: 'users.users',
+      icon: 'group',
       adminOnly: true,
     },
   },

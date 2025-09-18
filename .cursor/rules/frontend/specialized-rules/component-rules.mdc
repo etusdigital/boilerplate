@@ -9,42 +9,43 @@ alwaysApply: false
 ## Mandatory Component Structure
 
 ### Script Setup Pattern
+
 All Vue components MUST use Composition API with script setup:
 
 ```vue
 <template>
   <div class="main-container">
-    <BButton @click="handleClick">{{ t('buttons.save') }}</BButton>
+    <Button @click="handleClick">{{ t('buttons.save') }}</Button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { BButton } from '@BRIUS/design-system'
+import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
-  modelValue: string
-  disabled?: boolean
+  modelValue: string;
+  disabled?: boolean;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: string): void
-  (e: 'submit'): void
+  (e: 'update:modelValue', value: string): void;
+  (e: 'submit'): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  disabled: false
-})
+  disabled: false,
+});
 
-const emit = defineEmits<Emits>()
-const { t } = useI18n()
+const emit = defineEmits<Emits>();
+const { t } = useI18n();
 </script>
 ```
 
 ## CRUD Screen Patterns (DUAL ARCHITECTURE)
 
 ### Pattern 1: Grid-Based Layout (Card-Based Features)
+
 For features with card-based interfaces:
 
 ```vue
@@ -54,19 +55,16 @@ For features with card-based interfaces:
     <TitleBar :title="t('usersPage.users')" :actions="titleBarActions" />
 
     <!-- Campo de busca -->
-    <div class="flex gap-base w-[100%] justify-between items-center mb-base">
-      <BInput 
-        type="search" 
-        size="lg" 
-        :placeholder="t('search')" 
-        v-model="searchQuery"
-        @input="handleSearchChange" 
-      />
-    </div>
+    <Input
+      type="search"
+      :placeholder="t('search')"
+      v-model="searchQuery"
+      @input="handleSearchChange"
+    />
 
     <div class="flex flex-col gap-base mt-base">
-          <!-- Grid de Cards - GENERIC PATTERN -->
-    <div class="entities-grid">
+      <!-- Grid de Cards - GENERIC PATTERN -->
+      <div class="entities-grid">
         <!-- Skeleton Loading Cards - 10 items standard -->
         <template v-if="isLoading">
           <EntityCard
@@ -85,7 +83,7 @@ For features with card-based interfaces:
             :loading="isEntityLoading(entity.id || 0)"
             @configure="handleConfigure(entity)"
             @edit="handleEdit(entity)"
-            @delete="handleDeleteAction(entity)"
+            @delete="onDelete(entity)"
             @activate="handleActivate(entity)"
             @deactivate="handleDeactivate(entity)"
           />
@@ -95,62 +93,53 @@ For features with card-based interfaces:
       <!-- Empty State -->
       <div
         v-if="!isLoading && users.length === 0"
-        class="flex flex-col items-center justify-center py-xl"
+        class="flex flex-col items-center justify-center p-xl text-neutral-foreground-low"
       >
-        <p v-if="paginationMeta.totalItems === 0" class="text-neutral-foreground-low">
+        <p
+          v-if="paginationMeta.totalItems === 0"
+        >
           {{ t('messages.noItemFound') }}
         </p>
-        <p v-else class="text-neutral-foreground-low">
+        <p v-else>
           {{ t('messages.noResultsFound') }}
         </p>
       </div>
 
       <!-- Paginação -->
-      <div v-if="!isLoading && users.length > 0" class="flex justify-center mt-base">
-        <BPagination
-          :model-value="paginationMeta.currentPage"
-          :length="paginationMeta.totalPages"
-          @update:model-value="handlePageChange"
-        />
-      </div>
+      <Pagination
+        v-if="!isLoading && users.length > 0"
+        class="mt-base"
+        v-model="paginationMeta.currentPage"
+        :length="paginationMeta.totalPages"
+        @update:model-value="handlePageChange"
+      />
     </div>
 
     <!-- Form Component -->
-    <UserForm v-model="showForm" :user="currentUser" @save="handleSave" @close="handleCloseForm" />
-
-    <!-- Delete Confirmation Dialog -->
-    <BDialog v-model="showDelete">
-      <div class="flex flex-col gap-base p-base min-h-[200px] min-w-[515px]">
-        <h3 class="text-lg font-bold">{{ t('usersPage.deleteUser') }}</h3>
-        <p>{{ t('usersPage.deleteUserConfirm', { name: deletingUser?.name }) }}</p>
-        <div class="flex justify-end gap-base">
-          <BButton @click="handleCloseDeleteModal" variant="secondary">
-            {{ t('cancel') }}
-          </BButton>
-          <BButton @click="handleDelete" color="danger">
-            {{ t('delete') }}
-          </BButton>
-        </div>
-      </div>
-    </BDialog>
+    <UserForm
+      v-model="showForm"
+      :user="currentUser"
+      @save="handleSave"
+      @close="handleCloseForm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { BInput, BPagination, BDialog, BButton } from '@BRIUS/design-system'
-import { TitleBar } from '@/shared/components/TitleBar.vue'
-import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
-import UserCard from '../components/UserCard.vue'
-import UserForm from '../components/UserForm.vue'
-import { useUsers } from '../composables/useUsers'
+import { ref, computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useUsers } from '../composables/useUsers';
+import type { TitleBarAction } from '@/shared/components/TitleBar.vue';
+import { TitleBar } from '@/shared/components/TitleBar.vue';
+import UserCard from '../components/UserCard.vue';
+import UserForm from '../components/UserForm.vue';
 
-const { t } = useI18n()
-const { 
-  users, 
-  isLoading, 
-  showForm, 
+const confirm = inject('confirm') as Function;
+const { t } = useI18n();
+const {
+  users,
+  isLoading,
+  showForm,
   showDelete,
   currentUser,
   deletingUser,
@@ -165,260 +154,329 @@ const {
   handleCloseDeleteModal,
   handleSearchChange,
   handlePageChange,
-  isUserLoading
-} = useUsers(t)
+  isUserLoading,
+} = useUsers(t);
 
 const titleBarActions = computed<TitleBarAction[]>(() => [
-  { label: t('addUser'), action: () => handleEdit({}), variant: 'primary' }
-])
+  { label: t('addUser'), action: () => handleEdit({}), variant: 'primary' },
+]);
 
-onMounted(() => fetchEntities())
+onMounted(async () => await fetchEntities());
+
+function onDelete(entity: any) {
+  const result = await confirm({
+    title: t('deleteItem'),
+    message: `${t('deleteItemConfirm')}: ${entity.name}?`,
+    acceptLabel: t('delete'),
+    cancelLabel: t('cancel'),
+  });
+
+  if (!result) return;
+
+  handleDeleteAction(entity);
+}
 </script>
 
 <style scoped>
+@reference "@/app/assets/main.css";
+
 /* Grid responsivo padrão do projeto */
 .entities-grid {
-  display: grid;
+  @apply grid gap-base w-full;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  width: 100%;
 }
 
 /* Breakpoints padrão do projeto */
 @media (min-width: 1600px) {
-  .entities-grid { grid-template-columns: repeat(5, 1fr); }
+  .entities-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 @media (max-width: 1599px) and (min-width: 1280px) {
-  .entities-grid { grid-template-columns: repeat(4, 1fr); }
+  .entities-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 @media (max-width: 1279px) and (min-width: 960px) {
-  .entities-grid { grid-template-columns: repeat(3, 1fr); }
+  .entities-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 @media (max-width: 959px) and (min-width: 640px) {
-  .entities-grid { grid-template-columns: repeat(2, 1fr); }
+  .entities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 @media (max-width: 639px) {
-  .entities-grid { grid-template-columns: 1fr; }
+  .entities-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 ```
 
 ### Pattern 2: Table-Based Layout (Tabular Features)
+
 For features with tabular data:
 
 ```vue
 <template>
   <div class="main-container">
     <TitleBar :title="t('entityPage.entities')" :actions="titleBarActions" />
-    
-    <!-- BTable pattern -->
-    <b-table 
-      :headers="tcolumns" 
-      :items="tdata" 
+
+    <!-- Table pattern -->
+    <Table
+      :columns="tcolumns"
+      :items="tdata"
       :loading="isLoading"
-      v-model:page="page" 
+      v-model:page="page"
       v-model:items-per-page="itemsPerPage"
     >
       <!-- Custom columns -->
-      <template v-for="(metric, index) in tcolumns" v-slot:[metric.value]="{ item }">
+      <template
+        v-for="(metric, index) in tcolumns"
+        v-slot:[metric.value]="{ item }"
+      >
         <td v-if="item && metric.value" :key="`child-${index}-${item.value}`">
           <!-- Custom column content -->
         </td>
       </template>
-      
+
       <!-- Actions column -->
       <template #actions="{ item, index }">
         <td>
-          <div class="flex justify-center gap-4">
-            <b-icon name="edit" class="table-action edit" @click="onEdit(item, index)" />
-            <b-icon name="delete" class="table-action delete" @click="onDelete(item)" />
+          <div class="flex justify-center gap-xxs">
+            <Button
+              icon="edit"
+              size="small"
+              variant="plain"
+              color="neutral"
+              round
+              @click="onEdit(item, index)"
+            />
+            <Button
+              icon="delete"
+              size="small"
+              variant="plain"
+              color="danger"
+              round
+              @click="onDelete(item)"
+            />
           </div>
         </td>
       </template>
-    </b-table>
+    </Table>
   </div>
 </template>
-
-<style scoped>
-.table-action {
-  cursor: pointer;
-  font-size: 1.25rem;
-  transition: color 0.2s, background-color 0.2s;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-}
-
-.table-action:hover {
-  background-color: var(--neutral-surface-hover, #f3f4f6);
-}
-
-.table-action.edit {
-  color: var(--color-primary-600);
-}
-
-.table-action.delete {
-  color: var(--color-danger-600);
-}
-</style>
 ```
 
 ### Form Screens - Sidebar vs Modal Patterns
+
 #### Sidebar Form Pattern (Complex Forms)
+
 For complex multi-step forms:
 
 ```vue
 <template>
-  <b-sidebar v-model="model" width="40%" @update:model-value="updateModelValue">
+  <Drawer v-model="model" size="40%" @update:model-value="updateModelValue">
     <div class="form-container">
       <div class="form-header">
-        <BIcon name="close" @click="closeForm" class="cursor-pointer" />
-        <div class="title">{{ getFormTitle() }}</div>
-        <div class="save-container">
-          <b-button color="primary" :disabled="!isFormValid" @click="handleSave">
-            {{ t('save') }}
-          </b-button>
-        </div>
+        <h2>{{ getFormTitle() }}</h2>
+        <Button
+          icon="close"
+          size="small"
+          variant="plain"
+          color="neutral"
+          round
+          @click="closeForm"
+        />
       </div>
-      
+
       <div class="form-content">
         <!-- Multi-step content -->
         <FormGenerator v-model="entityData" :keys="currentFields" />
       </div>
+      <div class="form-actions">
+        <Button variant="secondary" @click="closeForm">
+          {{ t('cancel') }}
+        </Button>
+        <Button :disabled="!isFormValid" @click="handleSave">
+          {{ t('save') }}
+        </Button>
+      </div>
     </div>
-  </b-sidebar>
+  </Drawer>
 </template>
+
+<style scoped>
+@reference "@/app/assets/main.css";
+
+.form-wrapper {
+  @apply flex flex-col gap-sm h-screen p-lg;
+}
+
+.form-header {
+  @apply flex justify-between items-center gap-sm;
+}
+
+.form-content {
+  @apply flex flex-col gap-xl flex-1;
+}
+
+.form-actions {
+  @apply flex justify-end gap-sm;
+}
+</style>
 ```
 
 #### Modal/Dialog Form Pattern (Simple Forms)
+
 For simple CRUD forms:
 
 ```vue
 <template>
   <div class="form-wrapper">
-    <BInput v-model="formData.name" :label="t('name')" />
-    <BInput v-model="formData.email" :label="t('email')" />
-    
+    <Input v-model="formData.name" :label-value="t('name')" />
+    <Input v-model="formData.email" :label-value="t('email')" />
+
     <div class="form-actions">
-      <BButton @click="handleSave" variant="primary">{{ t('save') }}</BButton>
-      <BButton @click="handleCancel" variant="secondary">{{ t('cancel') }}</BButton>
+      <Button variant="secondary" @click="handleCancel">{{
+        t('cancel')
+      }}</Button>
+      <Button @click="handleSave">{{ t('save') }}</Button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { BInput, BButton } from '@BRIUS/design-system'
+import { reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
-  initialData?: User
+  initialData?: User;
 }
 
 interface Emits {
-  (e: 'save', data: User): void
-  (e: 'cancel'): void
+  (e: 'save', data: User): void;
+  (e: 'cancel'): void;
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-const { t } = useI18n()
+const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
+
+const { t } = useI18n();
 
 const formData = reactive({
   name: props.initialData?.name || '',
-  email: props.initialData?.email || ''
-})
+  email: props.initialData?.email || '',
+});
 </script>
 ```
 
 ## Design System Enforcement (CRITICAL)
 
-### MANDATORY Imports (REAL PROJECT)
-```typescript
-// Core UI components (MANDATORY)
-import { 
-  BButton, BInput, BCard, BModal, BTable, BSelect, BSpinner,
-  BPagination, BDialog, BCheckbox, BTag, BIcon, BDivider
-} from '@BRIUS/design-system'
-
-// Additional components for specific features
-import { 
-  BSidebar,  // For forms (IntegrationForm pattern)
-  BIcon      // Material Design icons (edit, delete, more_vert, etc.)
-} from '@BRIUS/design-system'
-
-// FORBIDDEN - Any other UI library
-// import { Button } from 'vuetify'     ❌
-// import CustomButton from './Custom'  ❌
-```
-
 ### MANDATORY Classes (REAL PROJECT)
+
 ```vue
 <template>
   <!-- DUAL ARCHITECTURE PATTERNS -->
-  
+
   <!-- Pattern 1: Grid-based layouts (Card-based features) -->
   <div class="main-container">
-    <div class="entities-grid">        <!-- Generic grid class -->
-      <div class="entity-card">        <!-- Fixed size: 266x237px -->
-        
-  <!-- Pattern 2: Table-based layouts (Tabular features) -->
-  <div class="main-container">
-    <b-table class="entities-table">    <!-- BTable instead of grid -->
-      <template #actions>
-        <b-icon class="table-action edit">   <!-- Table actions -->
-        <b-icon class="table-action delete">
-      </template>
-    </b-table>
-    
-  <!-- Common classes -->
-  <div class="loading-container">       <!-- Loading states -->
-  <div class="empty-state">            <!-- Empty states -->
-  <div class="loading-spinner">        <!-- Custom spinner -->
+    <div class="entities-grid">
+      <!-- Generic grid class -->
+      <div class="entity-card">
+
+        <!-- Pattern 2: Table-based layouts (Tabular features) -->
+        <div class="main-container">
+          <Table class="entities-table" :loading="isLoading">
+            <!-- Table instead of grid -->
+            <template #actions>
+              <!-- Table actions -->
+              <Button
+                icon="edit"
+                size="small"
+                variant="plain"
+                color="neutral"
+                round
+              />
+              <!-- Table's edit action -->
+              <Button
+                icon="delete"
+                size="small"
+                variant="plain"
+                color="danger"
+                round
+              />
+              <!-- Table's delete action -->
+            </template>
+            <template #empty-state> <!-- Empty states --> </template>
+          </Table>
+
+          <!-- Common classes -->
+          <div class="loading-spinner" />
+          <!-- Custom spinner -->
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 ```
 
 ## State Management Patterns (REAL PROJECT)
 
 ### Multi-Level Loading States
+
 ```typescript
 // Global loading
-const isLoading = ref(false)
-const isSaving = ref(false)
+const isLoading = ref(false);
+const isSaving = ref(false);
 
 // Granular loading per item (REAL PROJECT PATTERN)
-const loadingIntegrations = ref<Set<number>>(new Set())
+const loadingIntegrations = ref<Set<number>>(new Set());
 const isIntegrationLoading = (integrationId: number) => {
-  return loadingIntegrations.value.has(integrationId)
-}
+  return loadingIntegrations.value.has(integrationId);
+};
 
 // Complex operation states
-const isCheckingUsage = ref(false)
-const isDeletingIntegration = ref(false)
-const isDeactivatingIntegration = ref(false)
+const isCheckingUsage = ref(false);
+const isDeletingIntegration = ref(false);
+const isDeactivatingIntegration = ref(false);
 ```
 
 ### Complex Dialog States (REAL PROJECT)
+
 ```vue
 <template>
-  <BDialog v-model="showDelete">
+  <Dialog v-model="showDelete">
     <!-- Loading state for checking usage -->
-    <div v-if="isCheckingUsage" class="flex flex-col gap-4 items-center justify-center py-8">
-      <div class="loading-spinner"></div>
+    <div
+      v-if="isCheckingUsage"
+      class="flex flex-col gap-sm items-center justify-center"
+    >
+      <Skeleton v-for="i in 4" :key="i" />
     </div>
 
     <!-- Warning with affected items -->
     <div v-else-if="usageCheckResult && usageCheckResult.isUsedInRelations">
       <h3>{{ t('deleteEntityWithName', { name: deletingEntity?.name }) }}</h3>
-      <p>{{ t('entityUsedInCount', { count: usageCheckResult.affectedItems.length }) }}</p>
-      
+      <p>
+        {{
+          t('entityUsedInCount', {
+            count: usageCheckResult.affectedItems.length,
+          })
+        }}
+      </p>
+
       <!-- Grey container with affected items -->
-      <div class="related-items-container">
+      <Card class="related-items-container">
         <h4 class="related-items-title">{{ t('relatedItemsTitle') }}</h4>
         <ul class="related-items-list">
           <li v-for="item in usageCheckResult.affectedItems" :key="item.id">
             • {{ item.name }}
           </li>
         </ul>
-      </div>
+      </Card>
     </div>
 
     <!-- Simple confirmation -->
@@ -426,59 +484,52 @@ const isDeactivatingIntegration = ref(false)
       <h3>{{ t('deleteEntity') }}</h3>
       <p>{{ t('deleteEntityMessage', { name: deletingEntity?.name }) }}</p>
     </div>
-  </BDialog>
+  </Dialog>
 </template>
 
 <style scoped>
-.loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 6px solid #e5e7eb;
-  border-top: 6px solid rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
+@reference "@/app/assets/main.css";
 
 .related-items-container {
-  background-color: #f8f9fa !important;
-  padding: 16px !important;
-  border-radius: 8px !important;
-  border: 1px solid #e9ecef !important;
+  @apply p-base;
 }
 </style>
 ```
 
 ### CRUD State Pattern (REAL PROJECT)
+
 ```typescript
 // Multiple composables pattern
-const { entities, isLoading, paginationMeta, fetchEntitiesPaginated } = useCreateTable()
-const { 
-  createEntity, 
-  updateEntity, 
+const { entities, isLoading, paginationMeta, fetchEntitiesPaginated } =
+  useCreateTable();
+const {
+  createEntity,
+  updateEntity,
   deleteEntity,
-  checkEntityUsage  // Complex validation
-} = useEntityManager(t)
+  checkEntityUsage, // Complex validation
+} = useEntityManager(t);
 
 // Form states
-const showForm = ref(false)
-const showDelete = ref(false)
-const showDeactivate = ref(false)  // Additional states
-const currentEntity = ref<Entity>({})
-const deletingEntity = ref<Entity | null>(null)
-const usageCheckResult = ref<any>(null)  // Complex validation results
+const showForm = ref(false);
+const showDelete = ref(false);
+const showDeactivate = ref(false); // Additional states
+const currentEntity = ref<Entity>({});
+const deletingEntity = ref<Entity | null>(null);
+const usageCheckResult = ref<any>(null); // Complex validation results
 ```
 
 ## Internationalization (MANDATORY)
 
 ### Text Pattern
+
 ```vue
 <template>
   <!-- CORRECT -->
-  <BButton>{{ t('buttons.save') }}</BButton>
+  <Button>{{ t('buttons.save') }}</Button>
   <p>{{ t('messages.welcome', { name: userName }) }}</p>
-  
+
   <!-- FORBIDDEN -->
-  <!-- <BButton>Save</BButton>           ❌ -->
+  <!-- <BButton>Save</Button>           ❌ -->
   <!-- <p>Welcome, {{ userName }}!</p>   ❌ -->
 </template>
 ```
@@ -486,29 +537,31 @@ const usageCheckResult = ref<any>(null)  // Complex validation results
 ## Props and Emits Typing
 
 ### Standard Pattern
+
 ```typescript
 interface Props {
-  modelValue?: string
-  disabled?: boolean
-  required?: boolean
+  modelValue?: string;
+  disabled?: boolean;
+  required?: boolean;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: string): void
-  (e: 'change', value: string): void
+  (e: 'update:modelValue', value: string): void;
+  (e: 'change', value: string): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
-  required: false
-})
+  required: false,
+});
 
-const emit = defineEmits<Emits>()
+const emit = defineEmits<Emits>();
 ```
 
 ## Validation Rules
 
 ### FAIL CONDITIONS (REAL PROJECT)
+
 - Missing TitleBar in [Entity]View.vue screens
 - Using components outside @BRIUS/design-system
 - Hardcoded text without t() function
@@ -520,6 +573,7 @@ const emit = defineEmits<Emits>()
 - Delete button not using color="danger"
 
 ### QUALITY REQUIREMENTS (REAL PROJECT)
+
 - Dual architecture: Grid-based OR Table-based patterns
 - Granular loading states per item when applicable
 - Complex dialog states with usage validation
@@ -530,6 +584,7 @@ const emit = defineEmits<Emits>()
 - Usage checking before destructive operations
 
 ### CRITICAL PROJECT PATTERNS
+
 - TitleBar actions use color="primary" not variant="primary"
 - Delete confirmations always check usage first
 - Loading states: global + granular + operation-specific

@@ -40,7 +40,7 @@ import { ref, computed, inject } from 'vue'
 import { useMainStore } from '../stores/index'
 import Menu from '@/shared/components/Menu.vue'
 
-const t = inject('t')
+const t = inject('t') as Function
 const mainStore = useMainStore()
 
 const profile = ref({

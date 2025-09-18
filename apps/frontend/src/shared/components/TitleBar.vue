@@ -47,7 +47,7 @@ defineProps<{
 }
 
 .title {
-  @apply m-none text-4xl font-bold;
+  @apply m-none text-4xl font-bold capitalize;
 }
 
 .actions {
