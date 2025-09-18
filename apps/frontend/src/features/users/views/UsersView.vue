@@ -5,36 +5,31 @@
 
     <!-- Campo de busca -->
     <div class="flex gap-base w-[100%] justify-between items-center mb-base">
-      <BInput 
-        type="search" 
-        size="lg" 
-        :placeholder="t('search')" 
-        v-model="searchQuery"
-        @input="handleSearchChange" 
-      />
+      <Input v-model="searchQuery" type="search" :placeholder="t('search')" @input="handleSearchChange" />
     </div>
 
     <!-- Tabela de usuários -->
-    <b-table 
-      :headers="tcolumns" 
-      :items="users" 
-      :options="{ sortBy: 'name', sortDesc: false }" 
+    <b-table
+      :columns="tcolumns"
+      :items="users"
+      :sort-options="{ by: 'name', desc: false }"
       :loading="isLoading"
-      :renderPaginationInBackEnd="true"
-      :itemsPerPage="itemsPerPage"
+      :items-per-page="itemsPerPage"
       :page="paginationMeta.currentPage"
-      :numberOfItems="paginationMeta.totalItems"
+      :number-of-items="paginationMeta.totalItems"
+      render-pagination-in-back-end
+      @sort-by="handleSortBy"
       @update:page="handlePageChange"
-      @update:itemsPerPage="handleItemsPerPageChange"
-      @sortBy="handleSortBy"
+      @update:items-per-page="handleItemsPerPageChange"
     >
       <template v-for="(metric, index) in tcolumns" v-slot:[metric.value]="{ item }">
         <td v-if="item && metric.value" :key="`child-${index}-${item.value}`">
           <template v-if="metric.value === 'updatedAt'">
             <span class="w-full text-left">{{ formatDisplayDate(item.updatedAt) }}</span>
             <br />
-            <span v-if="item?.updatedAt && item?.createdAt" class="text-xxs w-full text-center">{{
-              t('createdAt') }} {{ formatDisplayDate(item.createdAt) }}</span>
+            <span v-if="item?.updatedAt && item?.createdAt" class="text-xxs w-full text-center"
+              >{{ t('createdAt') }} {{ formatDisplayDate(item.createdAt) }}</span
+            >
           </template>
           <template v-else-if="metric.value === 'deletedAt'">
             <span class="w-full text-left">{{ formatDisplayDate(item.deletedAt) }}</span>
@@ -46,50 +41,40 @@
       </template>
       <template v-slot:actions="{ item, index }">
         <td>
-          <div class="flex justify-center gap-4">
-            <b-icon name="edit" class="table-action edit" @click="onEdit(item, index)" />
-            <b-icon name="delete" class="table-action delete" @click="onDelete(item)" />
+          <div class="flex justify-center gap-sm">
+            <Button icon="edit" color="neutral" round @click="onEdit(item, index)" />
+            <Button icon="delete" color="danger" round @click="onDelete(item)" />
           </div>
         </td>
+      </template>
+
+      <template #empty-state>
+        <div class="flex flex-col items-center justify-center py-xl">
+          <p v-if="paginationMeta.totalItems === 0" class="text-neutral-foreground-low">
+            {{ t('messages.noItemFound') }}
+          </p>
+          <p v-else class="text-neutral-foreground-low">{{ t('messages.noResultsFound') }}</p>
+        </div>
       </template>
     </b-table>
 
     <!-- Empty State -->
-    <div v-if="!isLoading && users.length === 0" class="flex flex-col items-center justify-center py-xl">
-      <p v-if="paginationMeta.totalItems === 0" class="text-neutral-foreground-low">{{ t('messages.noItemFound') }}</p>
-      <p v-else class="text-neutral-foreground-low">{{ t('messages.noResultsFound') }}</p>
-    </div>
 
     <!-- Formulário de usuário -->
-    <UserForm v-if="showFormControl" v-model="showForm" :user="editingUser" :allAccounts="allAccounts" 
-      :loading-user-data="isLoadingUserData" @save="onSave" @close="onCloseForm" />
-
-    <!-- Dialog de confirmação de exclusão -->
-    <b-dialog v-model="showDelete" :width="1000" class="op">
-      <div class="form-wrapper">
-        <h1>{{ t('deleteUser') }}</h1>
-        <p class="text-danger">
-          {{ t('messages.deleteUserConfirm') }}: <b>{{ deletingUser.email }}</b>?
-        </p>
-        <p class="text-danger">{{ t('messages.actionIrreversible') }}.</p>
-        <div class="delete-form-actions">
-          <div class="flex items-center justify-between w-full form-container">
-            <b-button color="primary" :disabled="false" :loading="false" size="medium" type="button"
-              @click="closeDelete">
-              {{ t('cancel') }}
-            </b-button>
-            <b-button color="danger" :disabled="false" size="medium" type="submit" @click="onDeleteUser(deletingUser)">
-              {{ t('delete') }}
-            </b-button>
-          </div>
-        </div>
-      </div>
-    </b-dialog>
+    <UserForm
+      v-if="showFormControl"
+      v-model="showForm"
+      :user="editingUser"
+      :all-accounts="allAccounts"
+      :loading-user-data="isLoadingUserData"
+      @save="onSave"
+      @close="onCloseForm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, computed, watch } from 'vue'
+import { ref, onMounted, nextTick, computed, inject } from 'vue'
 import UserForm from '@/features/users/components/UserForm.vue'
 import type { User, UsersQueryParams } from '@/features/users/types/user.type'
 import { useUsers } from '@/features/users/composables/useUsers'
@@ -97,6 +82,8 @@ import { useAccounts } from '@/features/accounts/composables/useAccounts'
 import { useI18n } from 'vue-i18n'
 import TitleBar from '@/shared/components/TitleBar.vue'
 import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
+
+const confirm = inject('confirm') as Function
 const { t } = useI18n()
 
 // Composables
@@ -206,25 +193,9 @@ const handleSortBy = async (key: string, isSortDesc: boolean = false) => {
     currentSortBy.value = key
   }
   currentSortDesc.value = isSortDesc
-  
+
   // Ordenação instantânea - sem delay
   await debouncedFetchUsers({}, 0)
-}
-
-const handleSearchChange = async (eventOrValue: any) => {
-  // Normalizar entrada (pode ser string direta ou evento)
-  let newSearchQuery = ''
-  if (typeof eventOrValue === 'string') {
-    newSearchQuery = eventOrValue
-  } else if (eventOrValue && eventOrValue.target && typeof eventOrValue.target.value === 'string') {
-    newSearchQuery = eventOrValue.target.value
-  }
-  
-  searchQuery.value = newSearchQuery
-  paginationMeta.value.currentPage = 1 // Reset para primeira página na busca
-  
-  // Busca com delay maior para evitar requests excessivos
-  await debouncedFetchUsers({}, 300)
 }
 
 // Actions da TitleBar
@@ -234,18 +205,26 @@ const titleBarActions = computed<TitleBarAction[]>(() => [
     text: t('users.addUser'),
     icon: 'add_circle',
     color: 'primary',
-    onClick: createUser
-  }
+    onClick: createUser,
+  },
 ])
 
-// Funções de formatação
+onMounted(async () => {
+  await fetchUsers()
+})
+
+async function handleSearchChange() {
+  paginationMeta.value.currentPage = 1
+
+  await debouncedFetchUsers({}, 300)
+}
+
 const formatDisplayDate = (dateString: string): string => {
   if (!dateString) return '-'
   try {
-    const date = new Date(dateString)
-    if (isNaN(date.getTime())) {
-      return '-'
-    }
+    const date = new Date(dateString).len
+    if (isNaN(date.getTime())) return '-'
+
     return date.toLocaleString('pt-BR', {
       timeZone: 'America/Sao_Paulo',
       year: 'numeric',
@@ -262,19 +241,19 @@ const onEdit = async (val: any, index: number) => {
   showFormControl.value = false
   editingIndex.value = index
   isLoadingUserData.value = true
-  
+
   // Define usuário temporário com ID para indicar edição
   editingUser.value = {
     ...val,
-    userAccounts: [] // Será populado pela API
+    userAccounts: [], // Será populado pela API
   }
-  
+
   // Mostra sidebar imediatamente
   showFormControl.value = true
   nextTick(() => {
     showForm.value = true
   })
-  
+
   try {
     // Busca o usuário com as relações userAccounts para edição
     const fullUser = await getUserWithRelations(val.id)
@@ -312,7 +291,7 @@ const forceResetForm = () => {
   // Limpa completamente os dados para evitar persistência
   editingUser.value = {} as User
   isLoadingUserData.value = false
-  
+
   setTimeout(() => {
     showFormControl.value = false
   }, 500)
@@ -322,7 +301,7 @@ const onSave = async (editingUser: any, isEditing: boolean) => {
   try {
     await saveUser(editingUser, isEditing)
     await fetchUsers()
-    
+
     // Fechar o form após salvar com sucesso
     showForm.value = false
     forceResetForm()
@@ -346,30 +325,19 @@ const onCloseForm = (data: any) => {
   if (data && users.value[editingIndex.value]) {
     users.value[editingIndex.value] = data
   }
-  
+
   // Reset completo do estado
   editingUser.value = {} as User
   isLoadingUserData.value = false
   showForm.value = false
   forceResetForm()
 }
-
-// Inicialização
-onMounted(() => {
-  fetchUsers()
-})
 </script>
 
-<style>
+<style scoped>
+@reference "@/app/assets/main.css";
+
 .main-container {
-  padding: 20px;
-}
-
-.form-card {
-  padding: 2rem;
-}
-
-p.text-danger {
-  margin-bottom: 0.75rem;
+  @apply p-lg;
 }
 </style>

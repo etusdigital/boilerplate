@@ -1,5 +1,5 @@
 <template>
-  <Menu expanded :options="options" @update:model-value="updateSelectedMenu" />
+  <Sidebar expanded :options="options" @update:model-value="updateSelectedMenu" />
 </template>
 
 <script setup lang="ts">
@@ -18,7 +18,7 @@ type MenuItem = {
 
 const { t } = useI18n({ useScope: 'global' })
 
-const options = ref<MenuItem[]>(routes.filter((route) => !route.icon && route.meta?.title).map((route) => ({
+const options = ref<MenuItem[]>(routes.filter((route) => route.icon && route.meta?.title).map((route) => ({
   label: t(route.meta.title as string),
   value: route.name as string,
   icon: route.icon,

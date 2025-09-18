@@ -5,6 +5,7 @@ export const settingsRoutes: Route[] = [
     path: '/settings',
     name: 'Settings',
     icon: 'settings',
+    bottom: true,
     component: () => import('./views/SettingsView.vue'),
     meta: {
       requiresAuth: true,

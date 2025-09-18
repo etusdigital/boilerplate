@@ -2,11 +2,12 @@
   <div>
     <Navbar title="Etus Boilerplate" class="z-[50] sticky top-none">
       <Select
-        v-model="selectedAccount.name"
+        v-model="selectedAccount"
         absolute
         :options="selectItems"
         label-key="name"
         value-key="id"
+        get-object
         @update:modelValue="changeAccount"
       />
       <template #logo>
@@ -22,7 +23,7 @@
             <div class="profile-email">{{ profile.email }}</div>
           </div>
           <Tooltip position="bottom" :label-value="t('logout')">
-            <Button icon="logout" @click="mainStore.logout()" />
+            <Button icon="logout" variant="plain" size="small" color="neutral" round @click="mainStore.logout()" />
           </Tooltip>
         </div>
       </template>
@@ -47,7 +48,7 @@ const profile = ref({
   name: mainStore.user.name,
   email: mainStore.user.email,
 })
-const selectItems = ref(mainStore.user?.userAccounts || [])
+const selectItems = ref(mainStore.user?.userAccounts?.map((account: any) => account.account) || [])
 const languages = ref([
   { label: 'Português', value: 'pt' },
   { label: 'English', value: 'en' },
