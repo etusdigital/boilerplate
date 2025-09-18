@@ -56,15 +56,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, computed, inject } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useAccounts } from '@/features/accounts/composables/useAccounts'
-import AccountForm from '@/features/accounts/components/AccountForm.vue'
-import TitleBar from '@/shared/components/TitleBar.vue'
 import type { Account } from '@/features/accounts/types/account.type'
 import type { TitleBarAction } from '@/shared/components/TitleBar.vue'
+import AccountForm from '@/features/accounts/components/AccountForm.vue'
+import TitleBar from '@/shared/components/TitleBar.vue'
 
 const confirm = inject('confirm') as Function
-const { t } = useI18n()
+const t = inject('t') as Function
 const { getAllAccounts, saveAccount, deleteAccount } = useAccounts()
 
 const isLoading = ref(true)

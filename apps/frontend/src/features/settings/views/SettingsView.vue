@@ -1,6 +1,6 @@
 <template>
   <div class="main-container">
-    <h1>{{ $t('settings.settings') }}</h1>
+    <h1>{{ t('settings.settings') }}</h1>
     <div class="settings-wrapper">
       <Card v-for="route in settingsRoutes" :key="route.path" class="settings-card" @click="navigateTo(route.path)">
         <div class="settings-card-header">
@@ -15,12 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
 
+const t = inject('t') as Function
 const router = useRouter()
-const { t } = useI18n()
 
 const settingsRoutes = ref([
   {

@@ -1,13 +1,14 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { Route } from '@/shared/types/Route'
 
-export const settingsRoutes: RouteRecordRaw[] = [
+export const settingsRoutes: Route[] = [
   {
     path: '/settings',
     name: 'Settings',
+    icon: 'settings',
     component: () => import('./views/SettingsView.vue'),
     meta: {
       requiresAuth: true,
-      title: 'Settings',
+      title: 'settings.settings',
       adminOnly: true,
     },
   },

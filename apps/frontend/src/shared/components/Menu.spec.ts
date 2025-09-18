@@ -11,18 +11,6 @@ describe('Menu', () => {
       propsData: {
         modelValue: 'home',
       },
-      props: {
-        selectedMenu: 'home',
-        menuExpanded: false,
-        menuItems: [
-          {
-            label: 'Home',
-            value: 'home',
-            icon: 'home',
-            path: '/home',
-          },
-        ],
-      },
       global: {
         plugins: [DesignSystem], // Adicionando o Design System como plugin
       },

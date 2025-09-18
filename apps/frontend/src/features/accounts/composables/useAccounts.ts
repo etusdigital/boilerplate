@@ -1,14 +1,13 @@
-import { ref, computed, onMounted, inject } from 'vue'
-import api from '@/shared/api'
+import { inject } from 'vue'
 import { useMainStore } from '@/app/stores'
+import api from '@/shared/api'
 import type { Account } from '@/features/accounts/types/account.type'
-import { useI18n } from 'vue-i18n'
 
 export function useAccounts() {
+  const t = inject('t') as Function
+  const toast = inject('toast') as Function
   const mainStore = useMainStore()
-  const toast = inject('toast') as any
   const toastOptions = mainStore.toastOptions
-  const { t } = useI18n()
 
   const getAllAccounts = async (): Promise<Account[]> => {
     try {

@@ -1,9 +1,5 @@
-<script setup lang="ts"></script>
-
 <template>
   <div id="callback-page">
-    <div>
-      <slot />
-    </div>
+    <slot />
   </div>
 </template>

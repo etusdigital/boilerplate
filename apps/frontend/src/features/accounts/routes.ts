@@ -1,13 +1,14 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { Route } from '@/shared/types/Route'
 
-export const accountRoutes: RouteRecordRaw[] = [
+export const accountRoutes: Route[] = [
   {
     path: '/accounts',
     name: 'Accounts',
+    icon: 'domain',
     component: () => import('./views/AccountsView.vue'),
     meta: {
       requiresAuth: true,
-      title: 'Accounts',
+      title: 'accounts.accounts',
       adminOnly: true,
     },
   },

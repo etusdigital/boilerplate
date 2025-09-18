@@ -23,6 +23,11 @@ export default {
     action_irreversible: "This action is irreversible",
     pagination_text: "Showing {0} to {1} of {2}",
     add_account: "Add account",
+    not_found: {
+        title: "Oops! Page Not Found",
+        description: "Sorry, we couldn't find the page you were looking for. It might have been moved, deleted, or maybe it never existed.",
+        button: "Go Back to Home",
+    },
     users: {
         users: "Users",
         edit_user: "Edit User",

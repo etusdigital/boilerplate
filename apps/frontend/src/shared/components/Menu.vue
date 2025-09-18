@@ -1,36 +1,30 @@
 <template>
-  <Menu v-model="selected" expanded :options="filteredOptions" @update:model-value="updateSelectedMenu" />
+  <Menu expanded :options="options" @update:model-value="updateSelectedMenu" />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { routes } from '@/app/router'
 
-const props = defineProps({
-  modelValue: {
-    type: String,
-    default: '',
-  },
-  options: {
-    type: Array,
-    default: () => [],
-  },
-})
-
-const filteredOptions = computed(() => {
-  return props.options.filter((item: any) => {
-    return item.show !== false
-  })
-})
-
-const emit = defineEmits(['update:selectedMenu'])
-
-const selected = computed(() => {
-  return props.modelValue
-})
-
-function updateSelectedMenu(value: string) {
-  emit('update:selectedMenu', value)
+type MenuItem = {
+  label: string
+  value: string
+  icon: string
+  path: string
+  bottom?: boolean
+  items?: MenuItem[]
 }
+
+const { t } = useI18n({ useScope: 'global' })
+
+const options = ref<MenuItem[]>(routes.filter((route) => !route.icon && route.meta?.title).map((route) => ({
+  label: t(route.meta.title as string),
+  value: route.name as string,
+  icon: route.icon,
+  path: route.path,
+  bottom: route.bottom,
+})))
 </script>
 
 <style scoped>

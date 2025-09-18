@@ -44,11 +44,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ref, watch, computed, inject } from 'vue'
 import type { Account } from '@/features/accounts/types/account.type'
 
-const { t } = useI18n()
+const t = inject('t') as Function
 
 const props = defineProps<{
   modelValue: boolean

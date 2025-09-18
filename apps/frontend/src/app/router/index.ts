@@ -1,22 +1,28 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import type { Route } from '@/shared/types/Route'
+
+import { createPinia } from 'pinia'
+import { useMainStore } from '../stores'
+import { userRoutes } from '@/features/users/index'
+import { settingsRoutes } from '@/features/settings'
+import { accountRoutes } from '@/features/accounts/index'
 
 import HomeView from '@/app/views/HomeView.vue'
 import Callback from '@/app/views/Callback.vue'
 import NotFoundView from '@/app/views/NotFoundView.vue'
 
-import { userRoutes } from '@/features/users/index'
-import { settingsRoutes } from '@/features/settings'
-import { accountRoutes } from '@/features/accounts/index'
-import { useMainStore } from '../stores'
-import { createPinia } from 'pinia'
+const pinia = createPinia()
+useMainStore(pinia)
+
 // --- Define Core App Routes ---
-const coreAppRoutes: RouteRecordRaw[] = [
+const coreAppRoutes: Route[] = [
   {
     path: '/',
     name: 'Home',
+    icon: 'home',
     component: HomeView,
     meta: {
-      title: 'Welcome Home',
+      title: 'home',
     },
   },
   {
@@ -29,7 +35,7 @@ const coreAppRoutes: RouteRecordRaw[] = [
 
 // --- Define Catch-all Route (404 Not Found) ---
 // IMPORTANT: This should usually be the LAST route in the array
-const notFoundRoute: RouteRecordRaw = {
+const notFoundRoute: Route = {
   path: '/:pathMatch(.*)*', // Matches everything that wasn't caught by earlier routes
   name: 'NotFound',
   component: NotFoundView,
@@ -38,7 +44,7 @@ const notFoundRoute: RouteRecordRaw = {
   },
 }
 
-const routes: RouteRecordRaw[] = [
+export const routes: Route[] = [
   ...coreAppRoutes,
   ...userRoutes,
   ...settingsRoutes,
@@ -48,10 +54,8 @@ const routes: RouteRecordRaw[] = [
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes,
+  routes: routes as RouteRecordRaw[],
 })
-const pinia = createPinia()
-const store = useMainStore(pinia)
 
 // Route Guard
 router.beforeEach((to, from, next) => {

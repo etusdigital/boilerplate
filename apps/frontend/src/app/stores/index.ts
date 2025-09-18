@@ -1,4 +1,4 @@
-import { ref, computed, watch, reactive, nextTick } from 'vue'
+import { ref, watch, reactive, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import { defineStore, type StoreDefinition } from 'pinia'
 import { auth0 } from '../auth/index'
@@ -10,9 +10,12 @@ const { isAuthenticated, loginWithRedirect, logout, user: authUser, getAccessTok
 
 const user = ref<User>({} as User)
 const isLoading: Ref<boolean> = ref(true)
+const currentLanguage = ref('pt')
 const selectedAccount = reactive({})
 
-watch(authUser, async (newValue) => {
+getSavedLanguage()
+
+watch(authUser, async () => {
   if (isAuthenticated.value && authUser.value) {
     user.value = {
       ...authUser.value,
@@ -22,23 +25,23 @@ watch(authUser, async (newValue) => {
       isAdmin: authUser.value.roles?.includes('master-admin') || authUser.value.roles?.includes('admin') || false,
     }
     const email = authUser.value.email || ''
-    if (email) {
-      Object.assign(user.value, await getLogin(email))
+    if (!email) return
 
-      // Ensure VITE_AUTH0_ROLES_NAME is a string
-      const rolesName = import.meta.env.VITE_AUTH0_ROLES_NAME as string
-      user.value.roles = user.value[rolesName] || []
-      user.value.isAdmin = user.value.roles?.includes('master-admin') || user.value.roles?.includes('admin') || false
-      getSelectedAccount()
-      endLoading()
-    }
+    Object.assign(user.value, await getLogin(email))
+
+    // Ensure VITE_AUTH0_ROLES_NAME is a string
+    const rolesName = import.meta.env.VITE_AUTH0_ROLES_NAME as string
+    user.value.roles = (user.value as any)[rolesName] || []
+    user.value.isAdmin = user.value.roles?.includes('master-admin') || user.value.roles?.includes('admin') || false
+    getSelectedAccount()
+    endLoading()
   } else {
     user.value = {} as User
     loginWithRedirect()
   }
 })
 
-const getLogin = async (email: string) => {
+async function getLogin(email: string) {
   const accessToken = await getAccessTokenSilently()
   const response = await axios.post(
     `${import.meta.env.VITE_BACKEND_URL}/users/login`,
@@ -53,61 +56,57 @@ const getLogin = async (email: string) => {
   return response.data
 }
 
-const getSelectedAccount = async (): Promise<Account> => {
+async function getSelectedAccount(): Promise<Account> {
   if (window.localStorage) {
     const found = window.localStorage.getItem('selected_account')
     try {
-      if (found) {
-        return Object.assign(
-          selectedAccount,
-          user.value.userAccounts.find((account: any) => account.account.id == found).account,
-        )
-      }
+      if (!found) return {} as Account
+
+      return Object.assign(
+        selectedAccount,
+        user.value.userAccounts?.find((account: any) => account.account.id == found)?.account || ({} as Account),
+      )
     } catch (error) {}
   }
 
-  return Object.assign(selectedAccount, user.value?.userAccounts[0].account || {})
+  return Object.assign(selectedAccount, user.value?.userAccounts?.[0]?.account || ({} as Account))
 }
 
-const endLoading = () => {
+function endLoading() {
   setTimeout(() => {
     isLoading.value = false
   }, 500)
 }
 
-const changeAccount = (accountId: string) => {
+function changeAccount(accountId: string) {
   isLoading.value = true
-  if (window.localStorage) {
-    window.localStorage.setItem('selected_account', accountId)
-  }
+  if (window.localStorage) window.localStorage.setItem('selected_account', accountId)
+
   endLoading()
   return getSelectedAccount()
 }
 
-const currentLanguage = ref('pt')
+function getSavedLanguage() {
+  if (!window.localStorage) return
 
-const getSavedLanguage = () => {
-  if (window.localStorage) {
-    const savedLanguage = window.localStorage.getItem('app_lang')
-    if (savedLanguage) {
-      currentLanguage.value = savedLanguage
-    }
-  }
+  const savedLanguage = window.localStorage.getItem('app_lang')
+  if (savedLanguage) currentLanguage.value = savedLanguage
 }
 
-const setLanguage = (language: string) => {
+function saveLanguage(language: string) {
+  if (!window.localStorage) return
+  window.localStorage.setItem('app_lang', language)
+  currentLanguage.value = language
+}
+
+function setLanguage(language: string) {
   isLoading.value = true
 
-  if (window.localStorage) {
-    window.localStorage.setItem('app_lang', language)
-    currentLanguage.value = language
-  }
+  saveLanguage(language)
   nextTick(() => {
     isLoading.value = false
   })
 }
-
-getSavedLanguage()
 
 export const useMainStore: StoreDefinition = defineStore('main', () => {
   return {

@@ -1,28 +1,32 @@
 <template>
   <Canvas v-if="!mainStore.isLoading" />
-  <div v-else>
-    <div class="flex justify-center items-center h-screen">
-      <div class="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
-    </div>
-  </div>
+  <Spinner class="text-5xl" v-else />
   <Confirm />
   <Toast />
 </template>
 
 <script setup lang="ts">
-import Canvas from './views/Canvas.vue'
+import { provide } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useMainStore } from './stores/index'
+import Canvas from './views/Canvas.vue'
 
 const mainStore = useMainStore()
+const router = useRouter()
+const route = useRoute()
+const { t, locale } = useI18n({ useScope: 'global' })
+provide('router', router)
+provide('route', route)
+provide('t', t)
+provide('locale', locale)
 </script>
 
 <style>
+@reference "@/app/assets/main.css";
+
 div[type] {
   border: unset;
-}
-
-.table-action {
-  cursor: pointer;
 }
 
 .main-container {
@@ -31,30 +35,6 @@ div[type] {
 }
 
 .form-container {
-  min-height: 80px;
-}
-
-.profile-image {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.profile-details {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-right: 1rem;
-}
-
-.profile-name {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.profile-email {
-  font-size: 12px;
-  font-weight: 400;
+  @apply min-h-6xl;
 }
 </style>
