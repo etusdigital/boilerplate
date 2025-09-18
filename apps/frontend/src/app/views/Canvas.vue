@@ -7,7 +7,6 @@
         :options="selectItems"
         label-key="name"
         value-key="id"
-        get-object
         @update:modelValue="changeAccount"
       />
       <template #logo>
