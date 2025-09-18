@@ -6,6 +6,7 @@ export interface Auth0TokenPayload {
   exp: number;
   scope: string;
   azp: string;
-  permissionss: string[];
+  permissions: string[];
+  identities: string[];
   [key: string]: unknown;
 }

@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClsService } from 'nestjs-cls';
 import { UserAccount } from '../../entities/user-accounts.entity';
@@ -7,13 +7,11 @@ import { Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
 import { LoginDto } from './dto/login.dto';
-import { UsersQueryDto } from './dto/users-query.dto';
-import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
-import { PaginationMetaDto } from '../../common/dto/pagination-meta.dto';
 import { Auth0Provider } from './providers/auth0.provider';
 import { AccountsService } from '../accounts/accounts.service';
 import { Role } from 'src/auth/enums/roles.enum';
 import { v7 as uuidv7 } from 'uuid';
+import { PaginationQueryDto, createPaginationMeta } from 'src/utils';
 
 @Injectable()
 export class UsersService {
@@ -27,122 +25,50 @@ export class UsersService {
     private readonly accountsService: AccountsService,
   ) {}
 
-  /**
-   * Create pagination metadata
-   */
-  private createPaginationMeta(
-    totalItems: number,
-    page: number,
-    limit: number,
-  ): PaginationMetaDto {
-    const totalPages = Math.ceil(totalItems / limit);
-    const currentPage = page;
-    const hasPreviousPage = currentPage > 1;
-    const hasNextPage = currentPage < totalPages;
-
-    return {
-      currentPage,
-      limit,
-      totalItems,
-      totalPages,
-      hasPreviousPage,
-      hasNextPage,
-    };
+  async find() {
+    return await this.userRepository.find();
   }
 
-  /**
-   * Find users with pagination and filters - OPTIMIZED VERSION
-   */
-  async findAllPaginated(
-    queryDto: UsersQueryDto,
-  ): Promise<PaginatedUsersResponseDto> {
-    // Calculate pagination values
-    let skip = 0;
-    const limit = queryDto.limit || 10;
-    const page = queryDto.page || 1;
+  async findWithPagination(paginationQuery: PaginationQueryDto): Promise<{ data: User[]; meta: any }> {
+    const user = this.cls.get<User>('user');
+    const { page = 1, limit = 50 } = paginationQuery;
+    const skip = (page - 1) * limit;
 
-    if (queryDto.offset !== undefined) {
-      skip = queryDto.offset;
-    } else {
-      skip = (page - 1) * limit;
+    if (user?.isSuperAdmin) {
+      const [users, totalItems] = await this.userRepository.findAndCount({
+        skip,
+        take: limit,
+        order: { createdAt: 'DESC' },
+        relations: ['userAccounts'],
+      });
+
+      const meta = createPaginationMeta(totalItems, page, limit);
+
+      return {
+        data: users,
+        meta,
+      };
     }
 
-    // Build base query for counting (optimized)
-    const countQueryBuilder = this.userRepository.createQueryBuilder('user');
-    
-    // Apply filters to count query
-    if (queryDto.search) {
-      countQueryBuilder.andWhere(
-        '(user.name LIKE :search OR user.email LIKE :search)',
-        { search: `%${queryDto.search}%` }
-      );
-    }
+    // For non-super admin users, only show users from their accounts
+    const userAccounts = await this.userAccountRepository.find({
+      where: { userId: user.id },
+      relations: ['account'],
+    });
 
-    if (queryDto.status) {
-      countQueryBuilder.andWhere('user.status = :status', { status: queryDto.status });
-    }
+    const accountIds = userAccounts.map((ua) => ua.accountId);
 
-    // For role filter, use EXISTS for better performance
-    if (queryDto.role) {
-      countQueryBuilder.andWhere(
-        'EXISTS (SELECT 1 FROM user_accounts ua WHERE ua.userId = user.id AND ua.role = :role)',
-        { role: queryDto.role }
-      );
-    }
+    const [users, totalItems] = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.userAccounts', 'userAccount')
+      .leftJoinAndSelect('userAccount.account', 'account')
+      .where('userAccount.accountId IN (:...accountIds)', { accountIds })
+      .skip(skip)
+      .take(limit)
+      .orderBy('user.createdAt', 'DESC')
+      .getManyAndCount();
 
-    // Get total count
-    const totalItems = await countQueryBuilder.getCount();
-
-    // Build data query - only load relations when needed
-    const dataQueryBuilder = this.userRepository.createQueryBuilder('user')
-      .select([
-        'user.id',
-        'user.name', 
-        'user.email',
-        'user.profileImage',
-        'user.status',
-        'user.isSuperAdmin',
-        'user.createdAt',
-        'user.updatedAt',
-        'user.deletedAt'
-      ]);
-
-    // Only JOIN relations if role filter is needed or if we need role info
-    if (queryDto.role) {
-      dataQueryBuilder
-        .leftJoinAndSelect('user.userAccounts', 'userAccount')
-        .leftJoinAndSelect('userAccount.account', 'account');
-    }
-
-    // Apply same filters to data query
-    if (queryDto.search) {
-      dataQueryBuilder.andWhere(
-        '(user.name LIKE :search OR user.email LIKE :search)',
-        { search: `%${queryDto.search}%` }
-      );
-    }
-
-    if (queryDto.status) {
-      dataQueryBuilder.andWhere('user.status = :status', { status: queryDto.status });
-    }
-
-    if (queryDto.role) {
-      dataQueryBuilder.andWhere('userAccount.role = :role', { role: queryDto.role });
-    }
-
-    // Add sorting
-    const sortBy = queryDto.sortBy || 'createdAt';
-    const sortOrder = queryDto.sortOrder || 'DESC';
-    dataQueryBuilder.orderBy(`user.${sortBy}`, sortOrder as 'ASC' | 'DESC');
-
-    // Add pagination
-    dataQueryBuilder.skip(skip).take(limit);
-
-    // Execute data query
-    const users = await dataQueryBuilder.getMany();
-
-    // Create pagination metadata with correct totalItems
-    const meta = this.createPaginationMeta(totalItems, page, limit);
+    const meta = createPaginationMeta(totalItems, page, limit);
 
     return {
       data: users,
@@ -150,40 +76,44 @@ export class UsersService {
     };
   }
 
-  async find() {
-    return await this.userRepository.find();
-  }
-
   async findById() {
     return await this.userRepository.find({
-      where: { id: this.cls.get('user').id },
+      where: { id: this.cls.get<User>('user').id },
     });
   }
 
-  async findByProviderId(providerId: string) {
-    return await this.userRepository.findOne({
-      where: { providerId },
-    });
-  }
+  async findByProviderId(providerId: string | string[]): Promise<User | null> {
+    const providerIds = Array.isArray(providerId) ? providerId : [providerId];
 
-  async findOneWithRelations(id: number) {
-    const user = await this.userRepository.findOne({
-      where: { id },
-      relations: ['userAccounts', 'userAccounts.account'],
-    });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-
-    return user;
+    // Use array overlap operator (&&) to leverage GIN index for optimal performance
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.userAccounts', 'userAccount')
+      .where('user.provider_ids && :providerIds', { providerIds })
+      .getOne();
   }
 
   async create(user: UserDto) {
+    const currentUser = await this.userRepository.findOne({
+      where: { email: user.email },
+    });
+    if (currentUser && currentUser.status === 'accepted') {
+      throw new BadRequestException('User already exists');
+    }
+
+    let existingUsers = await this.auth0Provider.getUserByEmail(user.email);
+    if (existingUsers.length === 0) {
+      const { user: auth0User } = await this.auth0Provider.sendInvitation(user.email, user.name);
+      existingUsers = [auth0User];
+    }
+
+    const auth0User = existingUsers.find((user) => user.user_id.includes('google-oauth2')) || existingUsers[0];
+
     const newUser = this.userRepository.create({
       name: user.name,
       email: user.email,
-      profileImage: user.profileImage,
+      profileImage: user.profileImage || auth0User.picture,
+      providerIds: [auth0User.user_id],
       status: 'invited',
       isSuperAdmin: user.isSuperAdmin || false,
     });
@@ -197,18 +127,13 @@ export class UsersService {
       }));
       await this.createUserAccounts(userAccounts);
     }
-    const createdTicket = await this.auth0Provider.sendInvitation(
-      user.email,
-      user.name,
-    );
 
     return savedUser;
   }
 
-  async update(id: number, user: UserDto) {
+  async update(id: string, user: UserDto) {
     const userToUpdate = await this.userRepository.findOne({
       where: { id },
-      relations: ['userAccounts'],
     });
 
     if (userToUpdate) {
@@ -219,26 +144,19 @@ export class UsersService {
       const uaDel: UserAccountDto[] = [];
 
       receivedAccounts.forEach((account) => {
-        const existingAccount = user.userAccounts?.find((a) => a.accountId === account.accountId);
-        
-        if (!existingAccount) {
-          // Account não existe, precisa criar
+        if (!user.userAccounts?.some((a) => a.accountId === account.accountId)) {
           uaAdd.push({
             ...account,
             userId: id,
           });
-        } else if (existingAccount.role !== account.role) {
-          // Account existe mas role mudou, precisa deletar o antigo e criar novo
-          uaDel.push({
-            accountId: existingAccount.accountId,
-            userId: id,
-            role: existingAccount.role,
+        }
+
+        if (user.userAccounts?.some((a) => a.accountId === account.accountId && a.role !== account.role)) {
+          const matched = user.userAccounts?.find((a) => a.accountId === account.accountId);
+          uaAdd.push({
+            ...matched,
+            role: account.role,
           } as UserAccountDto);
-          
-          uaAdd.push({
-            ...account,
-            userId: id,
-          });
         }
       });
 
@@ -254,40 +172,25 @@ export class UsersService {
 
       delete user.userAccounts;
 
-      // Atualiza os campos do usuário existente
-      Object.assign(userToUpdate, user);
-      
-      // Executa as operações de userAccounts
-      await this.createUserAccounts(uaAdd);
-      await this.deleteUserAccounts(uaDel);
+      await this.userRepository.update(id, { ...user, id } as User);
 
-      // Sempre salva o usuário para:
-      // 1. Atualizar campos modificados do usuário (nome, email, etc.)
-      // 2. Forçar atualização do updatedAt quando há mudanças nas roles
-      const hasRoleChanges = uaAdd.length > 0 || uaDel.length > 0;
-      
-      if (hasRoleChanges) {
-        // Força atualização do updatedAt quando há mudanças nas roles
-        userToUpdate.updatedAt = new Date();
-      }
-      
-      await this.userRepository.save(userToUpdate);
+      await this.createUserAccounts(uaAdd);
+
+      await this.deleteUserAccounts(uaDel);
 
       return await this.userRepository.findOne({
         where: { id },
-        relations: ['userAccounts', 'userAccounts.account'],
       });
     }
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     return await this.userRepository.softDelete(id);
   }
 
-  async login(userLogin: LoginDto, jwtUser) {
+  async login(userLogin: LoginDto, jwtUser: { userId: string; [key: string]: any }) {
     // Set these manually since this route is excluded from the middleware that does it.
     this.cls.set('transactionId', uuidv7());
-    this.cls.set('accountId', 1);
 
     const user = await this.userRepository.findOne({
       where: { email: userLogin.email },
@@ -296,10 +199,18 @@ export class UsersService {
     if (!user) throw new ForbiddenException();
 
     this.cls.set('user', { ...user, userAccounts: null });
+    if (user.userAccounts?.length) {
+      this.cls.set('accountId', user.userAccounts[0].accountId);
+    }
 
-    if (user.status === 'invited') {
+    if (user.isSuperAdmin) {
+      const accounts = await this.accountsService.findAll(user);
+      this.cls.set('accountId', accounts[0].id);
+    }
+
+    if (user.status !== 'accepted') {
       user.status = 'accepted';
-      user.providerId = jwtUser.userId;
+      user.addProvider(jwtUser.userId);
       await this.userRepository.save(user);
     }
 
@@ -309,13 +220,16 @@ export class UsersService {
 
     if (user?.isSuperAdmin) {
       const accounts = await this.accountsService.findAll(user);
-      user.userAccounts = accounts.map((account) => ({
-        accountId: account.id,
-        userId: user.id,
-        role: Role.ADMIN,
-        id: 0,
-        account: account,
-      }));
+      user.userAccounts = accounts.map(
+        (account) =>
+          ({
+            id: 0,
+            accountId: account.id,
+            userId: user.id,
+            role: Role.ADMIN,
+            account: account,
+          }) as UserAccount,
+      );
     }
 
     return user;
@@ -338,5 +252,21 @@ export class UsersService {
     }
 
     return { success: true };
+  }
+
+  async getUserAccountIds(user: User): Promise<string[]> {
+    let userAccounts: string[] = [];
+    if (user?.isSuperAdmin) {
+      const accounts = await this.accountsService.findAll(user);
+      userAccounts = accounts.map((account) => account.id);
+
+      return userAccounts;
+    }
+
+    const ua = await this.userAccountRepository.find({
+      where: { userId: user.id },
+    });
+
+    return ua.map((account) => account.accountId);
   }
 }

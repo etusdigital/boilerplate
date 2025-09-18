@@ -1,16 +1,9 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsArray,
-  IsBoolean,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsArray, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 class UserAccountInput {
   @ApiProperty()
-  accountId: number;
+  accountId: string;
 
   @ApiProperty()
   @IsOptional()
@@ -32,7 +25,7 @@ export class UserDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  id?: number;
+  id?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -45,13 +38,14 @@ export class UserDto {
   @ApiProperty({ required: false })
   @IsOptional()
   deletedAt?: Date;
-  @IsString()
-  status?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  providerId?: string;
+  status?: string;
+
+  // providerIds is managed internally by the backend when interacting with Auth0
+  // It should not be included in create/update requests from the frontend
 
   @ApiProperty({ required: false, type: [UserAccountInput] })
   @IsOptional()

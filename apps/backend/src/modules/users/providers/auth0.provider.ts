@@ -1,50 +1,54 @@
 import { Injectable } from '@nestjs/common';
-import { ManagementClient } from 'auth0';
-import * as dotenv from 'dotenv';
-import { v7 as uuidv7 } from 'uuid';
-
-dotenv.config();
+import { ConfigService } from '@nestjs/config';
+import { GetUsers200ResponseOneOfInner, ManagementClient } from 'auth0';
+import { generateStrongPassword } from 'src/utils';
 
 @Injectable()
 export class Auth0Provider {
   private readonly managementClient: ManagementClient;
 
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     this.managementClient = new ManagementClient({
-      domain: process.env.AUTH0_DOMAIN || '',
-      clientId: process.env.AUTH0_CLIENT_ID || '',
-      clientSecret: process.env.AUTH0_CLIENT_SECRET || '',
+      domain: `${configService.get<string>('AUTH0_TENANT_ID')}.${configService.get<string>('AUTH0_REGION')}.auth0.com`,
+      clientId: configService.get<string>('AUTH0_CLIENT_ID')!,
+      clientSecret: configService.get<string>('AUTH0_CLIENT_SECRET')!,
     });
   }
 
-  async sendInvitation(email: string, name: string): Promise<any> {
+  async sendInvitation(email: string, name: string): Promise<{ user: GetUsers200ResponseOneOfInner; ticket: string }> {
     try {
-
-      const user: any = await this.managementClient.users.create({
+      const user = await this.managementClient.users.create({
         email,
         name,
-        connection: process.env.AUTH0_CONNECTION_TYPE as string,
+        connection: this.configService.get<string>('AUTH0_CONNECTION_TYPE')!,
         email_verified: false,
         verify_email: false,
-        password: uuidv7(),
+        password: generateStrongPassword(),
       });
 
       const ticket = await this.managementClient.tickets.changePassword({
-        connection_id: process.env.AUTH0_CONNECTION_ID,
-        user_id: user.user_id,
+        connection_id: this.configService.get<string>('AUTH0_CONNECTION_ID')!,
         email: email,
-        client_id: process.env.AUTH0_CLIENT_ID,
         mark_email_as_verified: false,
         ttl_sec: 0,
+        result_url: this.configService.get<string>('FRONTEND_URL')!,
       });
-      return ticket;
+      return { user: user.data, ticket: ticket.data.ticket };
     } catch (error) {
       console.error('Error sending Auth0 invitation:', error);
       throw error;
     }
   }
 
-  async getUserByEmail(email: string) {
-    return this.managementClient.usersByEmail.getByEmail({ email });
+  async getUserByEmail(email: string): Promise<GetUsers200ResponseOneOfInner[]> {
+    try {
+      const user = await this.managementClient.usersByEmail.getByEmail({
+        email,
+      });
+      return user.data;
+    } catch (error) {
+      console.error('Error getting Auth0 user by email:', error);
+      throw error;
+    }
   }
 }

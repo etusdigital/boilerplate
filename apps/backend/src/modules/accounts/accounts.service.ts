@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Account } from '../../entities/account.entity';
@@ -6,6 +6,8 @@ import { CreateAccountDto, UpdateAccountDto } from './dto/account.dto';
 import { ClsService } from 'nestjs-cls';
 import { UserAccount } from '../../entities/user-accounts.entity';
 import { User } from '../../entities/user.entity';
+import { PaginationQueryDto, createPaginationMeta } from 'src/utils';
+
 @Injectable()
 export class AccountsService {
   constructor(
@@ -26,6 +28,10 @@ export class AccountsService {
       user = this.cls.get('user');
     }
 
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     if (user?.isSuperAdmin) {
       return await this.accountRepository.find();
     }
@@ -42,7 +48,52 @@ export class AccountsService {
     return userAccounts.map((userAccount) => userAccount.account) as Account[];
   }
 
-  async findOne(id: number): Promise<Account> {
+  async findAllWithPagination(paginationQuery: PaginationQueryDto, user: User | null = null) {
+    if (!user) {
+      user = this.cls.get('user');
+    }
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const { page = 1, limit = 50 } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    if (user?.isSuperAdmin) {
+      const [accounts, totalItems] = await this.accountRepository.findAndCount({
+        skip,
+        take: limit,
+        order: { createdAt: 'DESC' },
+      });
+
+      const meta = createPaginationMeta(totalItems, page, limit);
+
+      return {
+        data: accounts,
+        meta,
+      };
+    }
+
+    // For non-super admin users, get accounts through user-account relationship
+    const [userAccounts, totalItems] = await this.userAccountRepository.findAndCount({
+      where: { userId: user?.id },
+      relations: ['account'],
+      skip,
+      take: limit,
+      order: { account: { createdAt: 'DESC' } },
+    });
+
+    const accounts = userAccounts.map((userAccount) => userAccount.account) as Account[];
+    const meta = createPaginationMeta(totalItems, page, limit);
+
+    return {
+      data: accounts,
+      meta,
+    };
+  }
+
+  async findOne(id: string): Promise<Account> {
     const account = await this.accountRepository.findOne({ where: { id } });
     if (!account) {
       throw new NotFoundException(`Account with ID ${id} not found`);
@@ -50,25 +101,8 @@ export class AccountsService {
     return account;
   }
 
-  async update(
-    id: number,
-    updateAccountDto: UpdateAccountDto,
-  ): Promise<Account> {
-    try {
-      const account = await this.findOne(id);
-      Object.assign(account, updateAccountDto);
-      
-      // MANDATORY: Use save() for audit system compatibility
-      return await this.accountRepository.save(account);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Failed to update account');
-    }
-  }
-
-  async delete(id: number): Promise<void> {
-    await this.accountRepository.delete(id);
+  async update(id: string, updateAccountDto: UpdateAccountDto): Promise<Account> {
+    await this.accountRepository.update(id, { ...updateAccountDto, id });
+    return await this.findOne(id);
   }
 }

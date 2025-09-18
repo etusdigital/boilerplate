@@ -11,12 +11,17 @@ export class CreateAccountDto {
   @IsOptional()
   description?: string;
 
-  @ApiProperty({ description: 'The domain of the account' })
+  @ApiPropertyOptional({ description: 'The domain of the account' })
   @IsString()
-  domain: string;
+  @IsOptional()
+  domain?: string;
 }
 
 export class UpdateAccountDto {
+  @ApiProperty({ required: true })
+  @IsOptional()
+  id: string;
+
   @ApiPropertyOptional({ description: 'The name of the account' })
   @IsString()
   @IsOptional()
@@ -31,4 +36,16 @@ export class UpdateAccountDto {
   @IsString()
   @IsOptional()
   domain?: string;
-} 
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  createdAt?: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  updatedAt?: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  deletedAt?: Date;
+}

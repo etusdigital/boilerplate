@@ -1,26 +1,12 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Body,
-  Param,
-  UseGuards,
-  ValidationPipe,
-  Delete,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { Controller, Get, Post, Put, Body, Param, UseGuards, ValidationPipe, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto, UpdateAccountDto } from './dto/account.dto';
 import { Role } from 'src/auth/enums/roles.enum';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+import { MinRole } from 'src/auth/decorators/min-role.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { PaginationQueryDto } from 'src/utils';
 
 @ApiTags('accounts')
 @ApiBearerAuth()
@@ -30,7 +16,7 @@ export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.MASTER_ADMIN)
+  @MinRole(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new account' })
   @ApiResponse({
     status: 201,
@@ -43,24 +29,24 @@ export class AccountsController {
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.MASTER_ADMIN)
-  @ApiOperation({ summary: 'Get all accounts' })
-  @ApiResponse({ status: 200, description: 'Return all accounts.' })
-  async findAll() {
-    return await this.accountsService.findAll();
+  @MinRole(Role.ADMIN)
+  @ApiOperation({ summary: 'Get all accounts with pagination' })
+  @ApiResponse({ status: 200, description: 'Return paginated accounts.' })
+  async findAll(@Query() paginationQuery: PaginationQueryDto) {
+    return await this.accountsService.findAllWithPagination(paginationQuery);
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN, Role.MASTER_ADMIN)
+  @MinRole(Role.ADMIN)
   @ApiOperation({ summary: 'Get an account by id' })
   @ApiResponse({ status: 200, description: 'Return the account.' })
   @ApiResponse({ status: 404, description: 'Account not found.' })
-  async findOne(@Param('id') id: number) {
+  async findOne(@Param('id') id: string) {
     return await this.accountsService.findOne(id);
   }
 
   @Put(':id')
-  @Roles(Role.ADMIN, Role.MASTER_ADMIN)
+  @MinRole(Role.ADMIN)
   @ApiOperation({ summary: 'Update an account' })
   @ApiResponse({
     status: 200,
@@ -69,20 +55,7 @@ export class AccountsController {
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @ApiResponse({ status: 404, description: 'Account not found.' })
-  async update(
-    @Param('id') id: number,
-    @Body(ValidationPipe) updateAccountDto: UpdateAccountDto,
-  ) {
+  async update(@Param('id') id: string, @Body(ValidationPipe) updateAccountDto: UpdateAccountDto) {
     return await this.accountsService.update(id, updateAccountDto);
-  }
-
-  @Delete(':id')
-  @Roles(Role.ADMIN, Role.MASTER_ADMIN)
-  @ApiOperation({ summary: 'Delete an account' })
-  @ApiResponse({ status: 200, description: 'The account has been successfully deleted.' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiResponse({ status: 404, description: 'Account not found.' })
-  async delete(@Param('id') id: number) {
-    return await this.accountsService.delete(id);
   }
 }

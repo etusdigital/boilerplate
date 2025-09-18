@@ -3,8 +3,8 @@ import { SoftDeleteEntity } from './base.entity';
 
 @Entity('accounts')
 export class Account extends SoftDeleteEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
   name: string;
