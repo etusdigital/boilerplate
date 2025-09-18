@@ -104,7 +104,7 @@ export function useEntityManager(tFunction?: (key: string) => string) {
   const toastOptions = mainStore.toastOptions
   const t = tFunction || ((key: string) => key)
 
-  const deleteEntity = async (id: string) => {
+  async function deleteEntity(id: string) {
     try {
       const response = await api.delete(`/entities/${id}`)
       toast({
@@ -131,7 +131,7 @@ export function useEntityManager(tFunction?: (key: string) => string) {
   const toast = inject('toast') as any
   const mainStore = useMainStore()
 
-  const createEntity = async (entity: Entity) => {
+  async function createEntity(entity: Entity) {
     try {
       const response = await api.post('/entities', entity)
       return response.data
@@ -228,7 +228,7 @@ export function useApiWithAccount() {
   const mainStore = useMainStore()
 
   // MANDATORY - All API calls include account context
-  const apiCall = async (endpoint: string, data?: any) => {
+  async function apiCall(endpoint: string, data?: any) {
     const headers = {
       'Authorization': `Bearer ${accessToken}`,
       'account-id': mainStore.selectedAccount.id, // REQUIRED
@@ -250,18 +250,18 @@ export function useEntityForm<T>(initialData?: T) {
   const errors = ref<Record<string, string>>({})
   const isSubmitting = ref(false)
 
-  const resetForm = () => {
+  function resetForm() {
     Object.assign(formData, initialData || {} as T)
     errors.value = {}
   }
 
-  const validateForm = (): boolean => {
+  function validateForm(): boolean {
     errors.value = {}
     // Validation logic
     return Object.keys(errors.value).length === 0
   }
 
-  const submitForm = async (submitFn: (data: T) => Promise<any>) => {
+  async function submitForm(submitFn: (data: T) => Promise<any>) {
     if (!validateForm()) return false
 
     isSubmitting.value = true
@@ -301,11 +301,11 @@ import { useEventBus } from '@/shared/composables/useEventBus'
 export function useUserEvents() {
   const { emit, on } = useEventBus()
 
-  const notifyUserCreated = (user: User) => {
+  function notifyUserCreated(user: User) {
     emit('user:created', user)
   }
 
-  const listenUserUpdates = (callback: (user: User) => void) => {
+  function listenUserUpdates(callback: (user: User) => void) {
     on('user:updated', callback)
   }
 
@@ -323,14 +323,15 @@ import { useUserStore } from '@/features/users/stores/userStore'
 
 export function useUserManagement() {
   const userStore = useUserStore()
+  const users = computed(() => userStore.users)
 
-  const syncWithStore = () => {
+  function syncWithStore() {
     // Sync local state with store
     userStore.setUsers(users.value)
   }
 
   return {
-    users: computed(() => userStore.users),
+    users,
     syncWithStore
   }
 }
@@ -342,15 +343,15 @@ export function useUserManagement() {
 ```typescript
 export function useResourceManagement() {
   const resources = ref([])
+
+  // Auto-cleanup on unmount
+  onUnmounted(cleanup)
   
-  const cleanup = () => {
+  function cleanup() {
     // Clear timeouts, intervals, listeners
     resources.value.forEach(resource => resource.cleanup())
     resources.value = []
   }
-
-  // Auto-cleanup on unmount
-  onUnmounted(cleanup)
 
   return { cleanup }
 }

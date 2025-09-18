@@ -432,16 +432,18 @@ const formData = reactive({
 const isLoading = ref(false);
 const isSaving = ref(false);
 
-// Granular loading per item (REAL PROJECT PATTERN)
-const loadingIntegrations = ref<Set<number>>(new Set());
-const isIntegrationLoading = (integrationId: number) => {
-  return loadingIntegrations.value.has(integrationId);
-};
-
 // Complex operation states
 const isCheckingUsage = ref(false);
 const isDeletingIntegration = ref(false);
 const isDeactivatingIntegration = ref(false);
+
+// Granular loading per item (REAL PROJECT PATTERN)
+const loadingIntegrations = ref<Set<number>>(new Set());
+
+// Functions
+function isIntegrationLoading(integrationId: number) {
+  return loadingIntegrations.value.has(integrationId);
+};
 ```
 
 ### Complex Dialog States (REAL PROJECT)

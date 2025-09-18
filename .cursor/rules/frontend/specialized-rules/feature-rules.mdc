@@ -153,7 +153,7 @@ export function useEntities(tFunction?: (key: string) => string) {
   const editingEntity = ref<Entity>({} as Entity)
 
   // CRUD operations with standard naming
-  const fetchEntities = async () => {
+  async function fetchEntities() {
     isLoading.value = true
     try {
       const response = await api.get('/entities')
@@ -168,17 +168,17 @@ export function useEntities(tFunction?: (key: string) => string) {
     }
   }
 
-  const handleEdit = (entity: Entity) => {
+  async function handleEdit(entity: Entity) {
     editingEntity.value = entity.id ? { ...entity } : {} as Entity
     showForm.value = true
   }
 
-  const handleDeleteAction = async (entity: Entity) => {
+  async function handleDeleteAction(entity: Entity) {
     // Delete logic with confirmation
     // Implementation follows project patterns
   }
 
-  const handleSave = async (entityData: CreateEntityData) => {
+  async function handleSave(entityData: CreateEntityData) {
     isSaving.value = true
     try {
       if (editingEntity.value.id) {
@@ -281,7 +281,7 @@ const headers = computed(() => [
   { key: 'actions', label: t('actions') }
 ])
 
-onMounted(() => fetchEntities())
+onMounted(async () => await fetchEntities())
 </script>
 ```
 
@@ -339,15 +339,15 @@ import { useEventBus } from '@/shared/composables/useEventBus'
 export function useEntityEvents() {
   const { emit, on } = useEventBus()
 
-  const notifyEntityCreated = (entity: Entity) => {
+  function notifyEntityCreated(entity: Entity) {
     emit('entity:created', entity)
   }
 
-  const notifyEntityUpdated = (entity: Entity) => {
+  function notifyEntityUpdated(entity: Entity) {
     emit('entity:updated', entity)
   }
 
-  const listenEntityChanges = (callback: (entity: Entity) => void) => {
+  function listenEntityChanges(callback: (entity: Entity) => void) {
     on('entity:created', callback)
     on('entity:updated', callback)
   }
@@ -368,11 +368,11 @@ import { useMainStore } from '@/app/stores'
 export function useFeatureWithGlobalState() {
   const mainStore = useMainStore()
   
-  const syncWithGlobalState = () => {
+  function syncWithGlobalState() {
     // Sync feature state with global state
-    if (mainStore.selectedAccount.id) {
-      // Feature logic
-    }
+    if (!mainStore.selectedAccount.id) return
+
+    // Feature logic
   }
 
   return { syncWithGlobalState }
@@ -386,7 +386,7 @@ export function useFeatureWithGlobalState() {
 // ALLOWED imports
 import { useI18n } from 'vue-i18n'              // ✅ Vue ecosystem
 import { useMainStore } from '@/app/stores'     // ✅ Global stores
-import { toast } from '@/shared/composables'    // ✅ Shared utilities
+import { api } from '@/shared/composables'      // ✅ Shared utilities
 
 // FORBIDDEN imports
 // import { useOtherFeature } from '@/features/other'  ❌ Direct feature import
