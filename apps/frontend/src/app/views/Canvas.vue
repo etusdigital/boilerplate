@@ -21,7 +21,7 @@
             <div class="profile-name">{{ profile.name }}</div>
             <div class="profile-email">{{ profile.email }}</div>
           </div>
-          <Tooltip position="bottom" :text="t('logout')">
+          <Tooltip position="bottom" :label-value="t('logout')">
             <Button icon="logout" @click="mainStore.logout()" />
           </Tooltip>
         </div>
