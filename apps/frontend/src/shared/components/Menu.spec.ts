@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 
 import { mount } from '@vue/test-utils'
 import Menu from './Menu.vue'
-import '@BRIUS/design-system/styles.css'
-import DesignSystem from '@BRIUS/design-system'
+import '@etus/design-system/styles.css'
+import DesignSystem from '@etus/design-system'
 
 describe('Menu', () => {
   it('renders properly', () => {

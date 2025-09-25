@@ -18,7 +18,7 @@ docs/design-system-components/[ComponentName].md
 
 ### Usage Pattern for LLM Agents
 
-When implementing components from @BRIUS/design-system, agents MUST:
+When implementing components from @etus/design-system, agents MUST:
 
 1. **Locate Component Documentation**: Use the path provided in the Component Documentation Index below
 
@@ -44,7 +44,7 @@ When implementing components from @BRIUS/design-system, agents MUST:
 
 ### Component Documentation Index
 
-Complete list of documented @BRIUS/design-system components:
+Complete list of documented @etus/design-system components:
 
 #### Core UI Components
 
@@ -195,7 +195,7 @@ Complete list of documented @BRIUS/design-system components:
 
 ### Implementation Validation
 
-Before implementing any @BRIUS/design-system component:
+Before implementing any @etus/design-system component:
 
 1. Read the corresponding .md file in docs/design-system-components/
 2. Follow the documented API exactly
@@ -224,7 +224,7 @@ This documentation reference integrates with:
 
 ### CRITICAL FAILURES
 
-- Using @BRIUS/design-system components without consulting documentation
+- Using @etus/design-system components without consulting documentation
 - Implementing component props that don't exist in documentation
 - Missing required props as defined in documentation
 - Using deprecated patterns not reflected in current docs

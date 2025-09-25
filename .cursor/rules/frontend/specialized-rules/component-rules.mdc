@@ -565,7 +565,7 @@ const emit = defineEmits<Emits>();
 ### FAIL CONDITIONS (REAL PROJECT)
 
 - Missing TitleBar in [Entity]View.vue screens
-- Using components outside @BRIUS/design-system
+- Using components outside @etus/design-system
 - Hardcoded text without t() function
 - Missing .main-container in list screens
 - Wrong architecture: Grid for tabular data or Table for card data

@@ -2,8 +2,8 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 import { mount } from '@vue/test-utils'
 import UserForm from './UserForm.vue'
-import '@BRIUS/design-system/styles.css'
-import DesignSystem from '@BRIUS/design-system'
+import '@etus/design-system/styles.css'
+import DesignSystem from '@etus/design-system'
 
 // Mock ResizeObserver globally
 beforeAll(() => {

@@ -22,7 +22,7 @@ When working with specific file types, the LLM MUST also consult these specializ
 ## Visual Identity System
 
 ### Design System Foundation (CRITICAL)
-**ABSOLUTE REQUIREMENT**: ALL UI components MUST use `@BRIUS/design-system`
+**ABSOLUTE REQUIREMENT**: ALL UI components MUST use `@etus/design-system`
 
 ### Color Architecture
 ```typescript
@@ -222,7 +222,7 @@ FRAMEWORK: 'Vue 3.4+ (Composition API ONLY)'
 LANGUAGE: 'TypeScript 5.4+ (Strict Mode)'
 STATE: 'Pinia 3.0+ (Composition API style)'
 ROUTING: 'Vue Router 4.3+'
-DESIGN: '@BRIUS/design-system 2.1+ (MANDATORY)'
+DESIGN: '@etus/design-system 2.1+ (MANDATORY)'
 STYLING: 'Tailwind CSS 4.1+ with design tokens'
 AUTH: 'Auth0 2.4+'
 HTTP: 'Axios 1.6+ with interceptors'
@@ -346,7 +346,7 @@ XSS_PREVENTION: 'Template escaping and content security'
 ## Architectural Decision Records
 
 ### Design System Mandate
-- **Decision**: Exclusive use of @BRIUS/design-system components
+- **Decision**: Exclusive use of @etus/design-system components
 - **Rationale**: Ensures visual consistency and reduces maintenance
 - **Implementation**: Import validation and component enforcement
 
@@ -368,7 +368,7 @@ XSS_PREVENTION: 'Template escaping and content security'
 ## Fail Conditions (CRITICAL)
 
 ### IMMEDIATE FAILURE
-- Using components outside @BRIUS/design-system
+- Using components outside @etus/design-system
 - API calls without account-id header
 - Missing TitleBar in [Entity]View.vue screens
 - Using Options API instead of Composition API

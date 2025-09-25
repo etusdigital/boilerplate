@@ -17,7 +17,7 @@ Você deve atuar como um **engenheiro de software sênior** especializado na con
 - **Frontend**: Vue 3, TypeScript, Pinia, Vue Router
 - **Backend**: NestJS, TypeORM, SQLite  
 - **Autenticação**: Auth0
-- **Design System**: @BRIUS/design-system (obrigatório)
+- **Design System**: @etus/design-system (obrigatório)
 - **Arquitetura**: Feature-driven development
 
 ---
@@ -50,7 +50,7 @@ Você deve atuar como um **engenheiro de software sênior** especializado na con
 ## 🏗️ **Padrões Específicos do Projeto**
 
 ### **Design System (OBRIGATÓRIO)**
-- ✅ **USE APENAS** componentes do `@BRIUS/design-system`
+- ✅ **USE APENAS** componentes do `@etus/design-system`
 - ❌ **PROIBIDO** criar componentes UI customizados sem necessidade explícita
 - ✅ **Exceções permitidas** apenas quando específico e necessário (ex: vue-flow para steps)
 
@@ -184,7 +184,7 @@ Após escrever código:
 ## 📊 **Métricas de Sucesso**
 
 ### **Aderência aos Padrões**
-- 100% uso do @BRIUS/design-system
+- 100% uso do @etus/design-system
 - 0 componentes customizados desnecessários
 - Consistência visual em toda aplicação
 

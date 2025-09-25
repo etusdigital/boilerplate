@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import UsersView from './UsersView.vue'
-import '@BRIUS/design-system/styles.css'
-import DesignSystem from '@BRIUS/design-system'
+import '@etus/design-system/styles.css'
+import DesignSystem from '@etus/design-system'
 import { nextTick } from 'vue'
 
 // Mock the imported components and composables

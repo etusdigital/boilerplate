@@ -17,14 +17,14 @@ alwaysApply: true
 - **Frontend**: Vue 3 + TypeScript + Pinia + Vue Router
 - **Backend**: NestJS + TypeORM + SQLite
 - **Authentication**: Auth0 integration
-- **Design System**: @BRIUS/design-system (mandatory)
+- **Design System**: @etus/design-system (mandatory)
 - **Frontend Icons**: https://fonts.google.com/icons
 - **Architecture**: Feature-driven development with monorepo structure
 
 ## Project-Specific Patterns
 
 ### Design System Enforcement
-- **MANDATORY**: Use ONLY components from `@BRIUS/design-system`
+- **MANDATORY**: Use ONLY components from `@etus/design-system`
 - **FORBIDDEN**: Creating custom UI components without explicit need
 - **VALIDATION**: All imports must reference design system components
 - **EXCEPTIONS**: Only when specifically required and justified

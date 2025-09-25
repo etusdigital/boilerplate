@@ -15,12 +15,12 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@BRIUS/design-system": "^3.0.0",
     "@auth0/auth0-vue": "^2.4.0",
+    "@etus/design-system": "^3.0.0",
+    "@tailwindcss/vite": "^4.1.12",
     "@vue/test-utils": "^2.4.6",
     "axios": "^1.6.8",
     "pinia": "^3.0.1",
-    "@tailwindcss/vite": "^4.1.12",
     "tailwindcss": "^4.1.12",
     "vitest": "^3.0.9",
     "vue": "^3.4.21",
