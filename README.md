@@ -1,3 +1,6 @@
+Projeto migrado para [https://github.com/etusdigital/boilerplate](https://github.com/etusdigital/boilerplate)
+
+
 # Projeto Monolítico Vue 3 + Express
 
 Este é um projeto monolítico que utiliza Vue 3 para o frontend e Express para o backend, ambos com TypeScript.
