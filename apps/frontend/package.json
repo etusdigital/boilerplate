@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@auth0/auth0-vue": "^2.4.0",
-    "@etus/design-system": "^3.0.0",
+    "@etus/design-system": "^1.0.0",
     "@tailwindcss/vite": "^4.1.12",
     "@vue/test-utils": "^2.4.6",
     "axios": "^1.6.8",
