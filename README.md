@@ -13,15 +13,49 @@ Este é um projeto monolítico que utiliza Vue 3 para o frontend e Express para 
 
 ## Requisitos
 
-- Node.js >= 18.13.0
-- npm >= 8.19.3
+- Node.js >= 18
+- pnpm >= 8.15.5
 
 ## Instalação
 
-1. Clone o repositório
+### Método 1: Instalação Rápida (Recomendado)
+
+Execute o seguinte comando em seu terminal:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/etusdigital/boilerplate/master/install.sh)"
+```
+
+Este comando irá:
+- Verificar e instalar pnpm se necessário
+- Baixar o boilerplate
+- Configurar os arquivos de ambiente
+- Instalar dependências
+- Executar migrations e seeds
+- Opcionalmente criar um usuário administrador
+
+### Método 2: Instalação Manual
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/etusdigital/boilerplate.git nome-do-projeto
+cd nome-do-projeto
+```
+
 2. Instale as dependências:
 ```bash
-npm run install:all
+pnpm install
+```
+
+3. Configure os arquivos de ambiente:
+```bash
+cp apps/backend/.env.example apps/backend/.env
+cp apps/frontend/.env.example apps/frontend/.env
+```
+
+4. Execute as migrations e seeds:
+```bash
+pnpm run migration
 ```
 
 ## Desenvolvimento
@@ -29,11 +63,11 @@ npm run install:all
 Para iniciar o ambiente de desenvolvimento:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Isso iniciará:
-- Frontend em http://localhost:5173
+- Frontend em http://localhost:3000
 - Backend em http://localhost:3001
 
 
@@ -54,7 +88,7 @@ Usuário de teste:
 Para criar builds de produção:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ## Banco de Dados
@@ -73,6 +107,6 @@ O projeto utiliza:
 
 ## Observações
 
-- Se clonou o projeto usando o nosso npx e já tinha um pnpm configurado, você não precisará fazer nada e apenas rodar o pnpm run dev.
-- Se clonou o projeto usando o npx e não tinha um pnpm configurado, você precisará rodar o pnpm install para instalar as dependências. Após isso você precisa instalar as migrations e seeds com o comando `pnpm run migration`.
+- O script de instalação automatiza todo o processo de configuração, incluindo a instalação do pnpm se necessário
+- Para projetos existentes, você pode usar o método de instalação manual
 - Consulte os documentos `docs/development_methodology_for_developers.md` e `docs/project_guidelines_for_developers.md` para entender melhor a estrutura das cursor-rules do projeto
