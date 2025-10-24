@@ -142,6 +142,19 @@ check_unzip() {
     fi
 }
 
+# Function to check if git is available
+check_git() {
+    if ! command_exists git; then
+        print_error "git is not installed."
+        echo "  On macOS: brew install git"
+        echo "  On Ubuntu/Debian: sudo apt-get install git"
+        echo "  On CentOS/RHEL: sudo yum install git"
+        exit 1
+    else
+        print_success "git $(git --version | cut -d' ' -f3) is installed"
+    fi
+}
+
 # Main installation function
 main() {
     echo ""
@@ -155,6 +168,7 @@ main() {
     check_node
     check_pnpm
     check_unzip
+    check_git
     detect_download_tool >/dev/null
 
     # Get project name
@@ -264,6 +278,27 @@ main() {
         fi
     fi
 
+    # Initialize git repository
+    print_info "Initializing git repository..."
+    
+    # Check if .git directory already exists
+    if [ -d ".git" ]; then
+        print_warning "Git repository already exists. Skipping git initialization."
+    else
+        git init
+        print_success "Git repository initialized"
+        
+        # Add all files to git
+        print_info "Adding files to git..."
+        git add .
+        
+        # Create initial commit
+        print_info "Creating initial commit..."
+        git commit -m "feat: initial commit - etus boilerplate setup"
+        
+        print_success "Initial commit created"
+    fi
+
     # Success message
     echo ""
     echo "======================================"
@@ -277,6 +312,9 @@ main() {
     echo "The application will be available at:"
     echo "  Frontend: http://localhost:3000"
     echo "  Backend:  http://localhost:3001"
+    echo ""
+    echo "Git repository has been initialized with an initial commit."
+    echo "You can now start developing and making commits!"
     echo ""
 }
 
