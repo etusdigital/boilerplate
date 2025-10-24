@@ -252,7 +252,10 @@ main() {
             USER_EMAIL_ESCAPED=$(echo "$USER_EMAIL" | sed "s/'/\\\'/g")
 
             cd apps/backend
-            npx typeorm query "INSERT INTO users (name, email, status, is_super_admin) VALUES ('$USER_NAME_ESCAPED', '$USER_EMAIL_ESCAPED', 'invited', true);" -d dist/database/ormconfig.js
+            # Generate UUID
+            USER_UUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+
+            npx typeorm query "INSERT INTO users (id, name, email, status, is_super_admin) VALUES ('$USER_UUID', '$USER_NAME_ESCAPED', '$USER_EMAIL_ESCAPED', 'invited', true);" -d dist/database/ormconfig.js
             cd ../..
 
             print_success "User created successfully"
