@@ -23,10 +23,11 @@ Este é um projeto monolítico que utiliza Vue 3 para o frontend e Express para 
 Execute o seguinte comando em seu terminal:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/etusdigital/boilerplate/master/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/etusdigital/boilerplate/HEAD/install.sh)"
 ```
 
 Este comando irá:
+
 - Verificar e instalar pnpm se necessário
 - Baixar o boilerplate
 - Configurar os arquivos de ambiente
@@ -37,23 +38,27 @@ Este comando irá:
 ### Método 2: Instalação Manual
 
 1. Clone o repositório:
+
 ```bash
 git clone https://github.com/etusdigital/boilerplate.git nome-do-projeto
 cd nome-do-projeto
 ```
 
 2. Instale as dependências:
+
 ```bash
 pnpm install
 ```
 
 3. Configure os arquivos de ambiente:
+
 ```bash
 cp apps/backend/.env.example apps/backend/.env
 cp apps/frontend/.env.example apps/frontend/.env
 ```
 
 4. Execute as migrations e seeds:
+
 ```bash
 pnpm run migration
 ```
@@ -67,9 +72,9 @@ pnpm dev
 ```
 
 Isso iniciará:
-- Frontend em http://localhost:3000
-- Backend em http://localhost:3001
 
+- Frontend em <http://localhost:3000>
+- Backend em <http://localhost:3001>
 
 ## Migrations e Seeds
 
@@ -78,10 +83,11 @@ Para rodar as migrations e seeds:
 ```bash
 pnpm run migration
 ```
-Usuário de teste:
-- Email: admin@etus.com
-- Senha: o9ac08ZBrSgv
 
+Usuário de teste:
+
+- Email: <admin@etus.com>
+- Senha: o9ac08ZBrSgv
 
 ## Build
 
@@ -94,6 +100,7 @@ pnpm build
 ## Banco de Dados
 
 O projeto utiliza:
+
 - SQLite para desenvolvimento
 - Configurável para outros bancos relacionais em produção
 
@@ -103,7 +110,6 @@ O projeto utiliza:
 - Criar nova aplicação de SPA no Auth0 liberando os acessos de URLs
 - Configurar o client id, audience e secret no arquivo `backend/.env`
 - Configurar o client id e secret no arquivo `frontend/.env`
-
 
 ## Observações
 
