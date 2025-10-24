@@ -1,0 +1,51 @@
+import { MigrationInterface, QueryRunner, Table, TableForeignKey, TableUnique } from "typeorm";
+
+export class CreateAccountsUsersTable1742921564029 implements MigrationInterface {
+    private table = new Table({
+        name: 'users_accounts',
+        columns: [
+            {
+                name: 'id',
+                type: 'integer',
+                isPrimary: true,
+                isGenerated: true,
+                generationStrategy: 'increment',
+            },
+            {
+                name: 'account_id',
+                type: 'integer',
+                isNullable: false,
+            },
+            {
+                name: 'user_id',
+                type: 'integer',
+                isNullable: false,
+            },
+        ],
+    });
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.createTable(this.table);
+        await queryRunner.createForeignKeys(
+            'users_accounts',
+            [
+                new TableForeignKey({
+                    columnNames: ['account_id'],
+                    referencedTableName: 'accounts',
+                    referencedColumnNames: ['id']
+                }),
+                new TableForeignKey({
+                    columnNames: ['user_id'],
+                    referencedTableName: 'users',
+                    referencedColumnNames: ['id']
+                })
+            ]
+        );
+        await queryRunner.createUniqueConstraint('users_accounts', new TableUnique({ columnNames: ['account_id', 'user_id'] }));
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.dropTable(this.table);
+    }
+
+}

@@ -1,0 +1,284 @@
+#!/bin/bash
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Configuration
+GITHUB_REPO="etusdigital/boilerplate"
+GITHUB_BRANCH="master"
+REQUIRED_NODE_VERSION=18
+
+# Function to print colored output
+print_error() {
+    echo -e "${RED}❌ $1${NC}" >&2
+}
+
+print_success() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+print_info() {
+    echo -e "${BLUE}ℹ️  $1${NC}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
+# Function to detect download tool
+detect_download_tool() {
+    if command -v curl >/dev/null 2>&1; then
+        echo "curl"
+    elif command -v wget >/dev/null 2>&1; then
+        echo "wget"
+    else
+        print_error "Neither curl nor wget found. Please install one of them."
+        echo "  On macOS: brew install curl"
+        echo "  On Ubuntu/Debian: sudo apt-get install curl"
+        echo "  On CentOS/RHEL: sudo yum install curl"
+        exit 1
+    fi
+}
+
+# Function to download file
+download_file() {
+    local url=$1
+    local output=$2
+    local tool=$(detect_download_tool)
+
+    if [ "$tool" = "curl" ]; then
+        curl -fsSL "$url" -o "$output"
+    else
+        wget -q "$url" -O "$output"
+    fi
+}
+
+# Function to check if command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Function to compare versions
+version_compare() {
+    local version1=$1
+    local version2=$2
+
+    if [ "$(printf '%s\n' "$version2" "$version1" | sort -V | head -n1)" = "$version2" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to check Node.js installation and version
+check_node() {
+    if ! command_exists node; then
+        print_error "Node.js is not installed."
+        print_info "Please install Node.js version $REQUIRED_NODE_VERSION or higher."
+
+        if command_exists brew; then
+            echo "  You can install it using Homebrew:"
+            echo "    brew install node"
+        else
+            echo "  We recommend using nvm (Node Version Manager):"
+            echo "    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
+            echo "    nvm install $REQUIRED_NODE_VERSION"
+            echo ""
+            echo "  Or visit https://nodejs.org for other installation methods."
+        fi
+        exit 1
+    fi
+
+    local node_version=$(node -v | sed 's/v//')
+    if ! version_compare "$node_version" "$REQUIRED_NODE_VERSION"; then
+        print_error "Node.js version $node_version is installed, but version $REQUIRED_NODE_VERSION or higher is required."
+        echo "  Please upgrade Node.js to continue."
+        exit 1
+    fi
+
+    print_success "Node.js $(node -v) is installed"
+}
+
+# Function to check and install pnpm
+check_pnpm() {
+    if ! command_exists pnpm; then
+        print_warning "pnpm is not installed. Installing it now..."
+
+        if command_exists npm; then
+            npm install -g pnpm
+            if command_exists pnpm; then
+                print_success "pnpm has been installed successfully"
+            else
+                print_error "Failed to install pnpm. Please install it manually:"
+                echo "  npm install -g pnpm"
+                exit 1
+            fi
+        else
+            print_error "npm is not available. Cannot install pnpm automatically."
+            echo "  Please install pnpm manually:"
+            echo "    curl -fsSL https://get.pnpm.io/install.sh | sh -"
+            echo "  Or visit https://pnpm.io/installation for other methods."
+            exit 1
+        fi
+    else
+        print_success "pnpm $(pnpm -v) is installed"
+    fi
+}
+
+# Function to check if unzip is available
+check_unzip() {
+    if ! command_exists unzip; then
+        print_error "unzip is not installed."
+        echo "  On macOS: should be pre-installed"
+        echo "  On Ubuntu/Debian: sudo apt-get install unzip"
+        echo "  On CentOS/RHEL: sudo yum install unzip"
+        exit 1
+    fi
+}
+
+# Main installation function
+main() {
+    echo ""
+    echo "======================================"
+    echo "   Etus Boilerplate Installer"
+    echo "======================================"
+    echo ""
+
+    # Check prerequisites
+    print_info "Checking prerequisites..."
+    check_node
+    check_pnpm
+    check_unzip
+    detect_download_tool >/dev/null
+
+    # Get project name
+    echo ""
+    read -p "Enter project name: " PROJECT_NAME
+
+    if [ -z "$PROJECT_NAME" ]; then
+        print_error "Project name cannot be empty"
+        exit 1
+    fi
+
+    if [ -d "$PROJECT_NAME" ]; then
+        print_error "Directory '$PROJECT_NAME' already exists"
+        exit 1
+    fi
+
+    # Download repository
+    print_info "Downloading boilerplate from GitHub..."
+
+    TEMP_DIR=$(mktemp -d)
+    ZIP_FILE="$TEMP_DIR/boilerplate.zip"
+    DOWNLOAD_URL="https://github.com/$GITHUB_REPO/archive/refs/heads/$GITHUB_BRANCH.zip"
+
+    if ! download_file "$DOWNLOAD_URL" "$ZIP_FILE"; then
+        print_error "Failed to download repository"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+
+    # Extract files
+    print_info "Extracting files..."
+
+    unzip -q "$ZIP_FILE" -d "$TEMP_DIR"
+
+    # Move to project directory
+    EXTRACTED_DIR="$TEMP_DIR/boilerplate-$GITHUB_BRANCH"
+    if [ ! -d "$EXTRACTED_DIR" ]; then
+        # Try alternative naming pattern
+        EXTRACTED_DIR=$(find "$TEMP_DIR" -maxdepth 1 -type d -name "boilerplate*" | head -1)
+        if [ -z "$EXTRACTED_DIR" ]; then
+            print_error "Failed to find extracted directory"
+            rm -rf "$TEMP_DIR"
+            exit 1
+        fi
+    fi
+
+    mv "$EXTRACTED_DIR" "$PROJECT_NAME"
+    rm -rf "$TEMP_DIR"
+
+    cd "$PROJECT_NAME"
+
+    # Setup environment files
+    print_info "Setting up environment files..."
+
+    if [ -f "apps/backend/.env.example" ]; then
+        cp "apps/backend/.env.example" "apps/backend/.env"
+        print_success "Created backend .env file"
+    else
+        print_warning "Backend .env.example not found"
+    fi
+
+    if [ -f "apps/frontend/.env.example" ]; then
+        cp "apps/frontend/.env.example" "apps/frontend/.env"
+        print_success "Created frontend .env file"
+    else
+        print_warning "Frontend .env.example not found"
+    fi
+
+    # Install dependencies
+    print_info "Installing dependencies with pnpm..."
+    pnpm install
+
+    # Build backend
+    print_info "Building backend..."
+    cd apps/backend && pnpm run build
+    cd ../..
+
+    # Run migrations and seeds
+    print_info "Running database migrations and seeds..."
+    pnpm run migration
+
+    # Ask about creating user
+    echo ""
+    read -p "Would you like to create a super admin user? (y/N): " CREATE_USER
+
+    if [[ "$CREATE_USER" =~ ^[Yy]$ ]]; then
+        read -p "Enter name: " USER_NAME
+        read -p "Enter email: " USER_EMAIL
+
+        if [ -n "$USER_NAME" ] && [ -n "$USER_EMAIL" ]; then
+            print_info "Creating super admin user..."
+
+            # Escape single quotes in user input
+            USER_NAME_ESCAPED=$(echo "$USER_NAME" | sed "s/'/\\\'/g")
+            USER_EMAIL_ESCAPED=$(echo "$USER_EMAIL" | sed "s/'/\\\'/g")
+
+            cd apps/backend
+            # Generate UUID
+            USER_UUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+
+            npx typeorm query "INSERT INTO users (id, name, email, status, is_super_admin) VALUES ('$USER_UUID', '$USER_NAME_ESCAPED', '$USER_EMAIL_ESCAPED', 'invited', true);" -d dist/database/ormconfig.js
+            cd ../..
+
+            print_success "User created successfully"
+        else
+            print_warning "Name and email are required. Skipping user creation."
+        fi
+    fi
+
+    # Success message
+    echo ""
+    echo "======================================"
+    print_success "Project '$PROJECT_NAME' created successfully!"
+    echo "======================================"
+    echo ""
+    echo "To get started:"
+    echo "  cd $PROJECT_NAME"
+    echo "  pnpm dev"
+    echo ""
+    echo "The application will be available at:"
+    echo "  Frontend: http://localhost:3000"
+    echo "  Backend:  http://localhost:3001"
+    echo ""
+}
+
+# Run main function
+main "$@"

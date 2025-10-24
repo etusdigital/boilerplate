@@ -1,0 +1,1030 @@
+journeys:
+  - name: "User Registration and First Login"
+    category: "Authentication"
+    journeyId: "JOUR-01"
+    description: "New user registers for an account, receives credentials, and logs in for the first time"
+    participants: "New User, System Administrator"
+    preconditions: "System administrator has created an account for the user or user has self-registered"
+    postconditions: "User is successfully logged in and has completed initial profile setup"
+    steps:
+      - intent: "Access the login page"
+        userInteraction: "User navigates to the AssetVault login page via URL"
+        featuresIds: []
+        expectedResponse: "System displays login form with username/email and password fields, 'Remember Me' checkbox, and 'Forgot Password' link"
+      - intent: "Enter credentials and login"
+        userInteraction: "User enters username/email and password, then clicks 'Login' button"
+        featuresIds: []
+        expectedResponse: "System validates credentials and grants access to the application dashboard"
+      - intent: "Complete first-time login flow"
+        userInteraction: "User views and interacts with the onboarding tutorial"
+        featuresIds: []
+        expectedResponse: "System displays key features of the application through a guided walkthrough with the option to skip"
+      - intent: "Change temporary password (if applicable)"
+        userInteraction: "User navigates to profile settings and updates password"
+        featuresIds: []
+        expectedResponse: "System accepts new password, validates it meets requirements, and confirms the change"
+      - intent: "Personalize profile"
+        userInteraction: "User updates personal information and optionally uploads a profile picture"
+        featuresIds: []
+        expectedResponse: "System saves the updated profile information and confirms changes"
+    edgeCases: "Failed login attempts due to incorrect credentials, system unavailability during login, password reset required if user forgets password"
+
+  - name: "Password Recovery"
+    category: "Authentication"
+    journeyId: "JOUR-02"
+    description: "User forgets password and needs to reset it to regain account access"
+    participants: "Existing User"
+    preconditions: "User has a valid account in the system but has forgotten their password"
+    postconditions: "User has successfully reset their password and can log in to the system"
+    steps:
+      - intent: "Request password reset"
+        userInteraction: "User clicks 'Forgot Password' link on login page"
+        featuresIds: []
+        expectedResponse: "System displays password reset request form asking for email address"
+      - intent: "Submit email for reset"
+        userInteraction: "User enters their registered email address and submits the form"
+        featuresIds: []
+        expectedResponse: "System validates email exists in database and sends password reset instructions to the provided email, confirms instructions have been sent on screen"
+      - intent: "Access reset link"
+        userInteraction: "User opens email and clicks on the password reset link"
+        featuresIds: []
+        expectedResponse: "System validates the reset token and displays a new password creation form"
+      - intent: "Set new password"
+        userInteraction: "User enters a new password, confirms it, and submits the form"
+        featuresIds: []
+        expectedResponse: "System validates password meets requirements, updates the user's credentials, and displays a success message with a link to the login page"
+      - intent: "Login with new password"
+        userInteraction: "User navigates to login page and enters credentials with new password"
+        featuresIds: []
+        expectedResponse: "System authenticates user and grants access to the application"
+    edgeCases: "Invalid email address provided, expired reset link, password doesn't meet complexity requirements, multiple reset requests in short timeframe"
+
+  - name: "Single Asset Upload"
+    category: "Asset Management"
+    journeyId: "JOUR-03"
+    description: "User uploads a single file to the system and adds appropriate metadata"
+    participants: "Content Creator/Editor, Content Manager"
+    preconditions: "User is logged in and has permission to upload assets to at least one folder"
+    postconditions: "New asset is successfully uploaded, cataloged with metadata, and available in the system"
+    steps:
+      - intent: "Navigate to upload destination"
+        userInteraction: "User browses the folder structure and navigates to the desired destination folder"
+        featuresIds: []
+        expectedResponse: "System displays the contents of the selected folder with an 'Upload' button visible"
+      - intent: "Initiate upload"
+        userInteraction: "User clicks 'Upload' button in the toolbar"
+        featuresIds: []
+        expectedResponse: "System displays file selection dialog or drag-and-drop zone"
+      - intent: "Select file"
+        userInteraction: "User selects a file from their local system or drags it into the upload zone"
+        featuresIds: []
+        expectedResponse: "System begins uploading the file with a progress indicator"
+      - intent: "Monitor upload progress"
+        userInteraction: "User views upload progress bar"
+        featuresIds: []
+        expectedResponse: "System shows real-time upload progress and completion status"
+      - intent: "Add metadata"
+        userInteraction: "User completes the metadata form with title, description, and other relevant information"
+        featuresIds: []
+        expectedResponse: "System provides form with pre-filled filename as title and empty fields for other metadata"
+      - intent: "Add tags"
+        userInteraction: "User enters relevant tags for the asset"
+        featuresIds: []
+        expectedResponse: "System provides tag input field with autocomplete suggestions based on existing tags"
+      - intent: "Complete upload"
+        userInteraction: "User clicks 'Save' or 'Complete' button"
+        featuresIds: []
+        expectedResponse: "System processes metadata, completes the asset registration, and returns to folder view showing the new asset"
+    edgeCases: "Upload interrupted due to network issues, file exceeds size limit, unsupported file type, duplicate file detection, required metadata fields not completed"
+
+  - name: "Bulk Asset Upload"
+    category: "Asset Management"
+    journeyId: "JOUR-04"
+    description: "User uploads multiple files simultaneously and manages their metadata"
+    participants: "Content Creator/Editor, Content Manager"
+    preconditions: "User is logged in and has permission to upload assets to the destination folder"
+    postconditions: "Multiple assets are uploaded with appropriate metadata and available in the system"
+    steps:
+      - intent: "Navigate to upload destination"
+        userInteraction: "User browses to the desired destination folder"
+        featuresIds: []
+        expectedResponse: "System displays folder contents with upload options"
+      - intent: "Initiate bulk upload"
+        userInteraction: "User clicks 'Upload' button or drags multiple files into the upload zone"
+        featuresIds: []
+        expectedResponse: "System displays file selection dialog or accepts the dropped files"
+      - intent: "Select multiple files"
+        userInteraction: "User selects multiple files from their local system"
+        featuresIds: []
+        expectedResponse: "System begins uploading files with individual and overall progress indicators"
+      - intent: "Choose metadata approach"
+        userInteraction: "User selects whether to apply metadata individually, in batch, or skip for now"
+        featuresIds: []
+        expectedResponse: "System presents options for metadata application strategy"
+      - intent: "Add individual metadata"
+        userInteraction: "If chosen, user completes metadata forms for each file sequentially"
+        featuresIds: []
+        expectedResponse: "System displays individual metadata forms for each file with navigation between files"
+      - intent: "Apply batch metadata"
+        userInteraction: "If chosen, user completes a single metadata form to apply to all files"
+        featuresIds: []
+        expectedResponse: "System provides a form for common metadata with indication it will apply to all selected files"
+      - intent: "Add common tags"
+        userInteraction: "User enters tags to apply to all uploaded files"
+        featuresIds: []
+        expectedResponse: "System provides tag input with autocomplete and applies tags to all selected files"
+      - intent: "Complete bulk upload"
+        userInteraction: "User confirms completion of metadata entry"
+        featuresIds: []
+        expectedResponse: "System processes all files, applies metadata, and displays a summary of the uploaded assets"
+    edgeCases: "Partial upload failures, varying file types requiring different metadata, size limit exceeded for some files, duplicate file handling, network interruption during large upload"
+
+  - name: "Basic Asset Search"
+    category: "Search and Discovery"
+    journeyId: "JOUR-05"
+    description: "User searches for assets using basic search functionality"
+    participants: "Any User"
+    preconditions: "User is logged in and the system contains searchable assets"
+    postconditions: "User finds and accesses the desired asset(s)"
+    steps:
+      - intent: "Initiate search"
+        userInteraction: "User clicks on the global search bar and enters search terms"
+        featuresIds: []
+        expectedResponse: "System displays type-ahead suggestions as user types"
+      - intent: "Execute search"
+        userInteraction: "User completes search term entry and presses Enter or clicks search icon"
+        featuresIds: []
+        expectedResponse: "System processes search and displays results in the default view with count indication"
+      - intent: "Review search results"
+        userInteraction: "User scrolls through the results list/grid"
+        featuresIds: []
+        expectedResponse: "System displays visual previews (thumbnails) of assets with basic metadata"
+      - intent: "Refine results view"
+        userInteraction: "User toggles between grid and list view as preferred"
+        featuresIds: []
+        expectedResponse: "System switches display mode while maintaining the same result set"
+      - intent: "Sort results"
+        userInteraction: "User selects a sorting option (relevance, date, name, etc.)"
+        featuresIds: []
+        expectedResponse: "System reorders results according to selected sort criteria"
+      - intent: "Preview an asset"
+        userInteraction: "User hovers over or clicks on an asset for preview"
+        featuresIds: []
+        expectedResponse: "System displays enlarged preview or detailed view of the selected asset"
+      - intent: "Select asset"
+        userInteraction: "User clicks on the desired asset from results"
+        featuresIds: []
+        expectedResponse: "System opens the full asset detail view or preview"
+    edgeCases: "No results found, too many results, search terms with special characters, search timeout due to complex query, permission-filtered results"
+
+  - name: "Advanced Asset Search"
+    category: "Search and Discovery"
+    journeyId: "JOUR-06"
+    description: "User conducts a targeted search using multiple criteria and filters"
+    participants: "Any User"
+    preconditions: "User is logged in and requires specific assets matching multiple criteria"
+    postconditions: "User locates precise assets meeting their specific requirements"
+    steps:
+      - intent: "Access advanced search"
+        userInteraction: "User clicks 'Advanced Search' option near the search bar"
+        featuresIds: []
+        expectedResponse: "System displays the advanced search form with multiple filter and criteria options"
+      - intent: "Enter search keywords"
+        userInteraction: "User enters primary search terms in the keyword field"
+        featuresIds: []
+        expectedResponse: "System registers keywords for search"
+      - intent: "Apply file type filters"
+        userInteraction: "User selects specific file types to include in results"
+        featuresIds: []
+        expectedResponse: "System updates filter selections visually"
+      - intent: "Set date range"
+        userInteraction: "User specifies date range for when assets were created or modified"
+        featuresIds: []
+        expectedResponse: "System provides date picker interface and registers selections"
+      - intent: "Add tag filters"
+        userInteraction: "User selects tags to filter results by"
+        featuresIds: []
+        expectedResponse: "System provides tag selection interface with existing tag suggestions"
+      - intent: "Filter by additional metadata"
+        userInteraction: "User adds criteria for custom metadata fields"
+        featuresIds: []
+        expectedResponse: "System displays available metadata fields with appropriate input methods for each type"
+      - intent: "Execute advanced search"
+        userInteraction: "User clicks 'Search' button after setting all desired criteria"
+        featuresIds: []
+        expectedResponse: "System processes the complex query and returns filtered results matching all criteria"
+      - intent: "Save search query"
+        userInteraction: "User clicks 'Save this Search' option and provides a name"
+        featuresIds: []
+        expectedResponse: "System saves the search criteria with the provided name for future use"
+      - intent: "Select from results"
+        userInteraction: "User reviews and selects desired asset(s) from filtered results"
+        featuresIds: []
+        expectedResponse: "System opens detailed view of selected asset"
+    edgeCases: "Overly restrictive criteria resulting in no matches, conflicting criteria, performance issues with complex queries, saved search becoming invalid due to system changes"
+
+  - name: "Folder Creation and Organization"
+    category: "Folder Management"
+    journeyId: "JOUR-07"
+    description: "User creates and organizes a folder structure to house assets"
+    participants: "Content Manager"
+    preconditions: "User has permissions to create and manage folders"
+    postconditions: "New folder structure is created with appropriate permissions and ready for asset storage"
+    steps:
+      - intent: "Navigate to parent location"
+        userInteraction: "User browses to the location where the new folder should be created"
+        featuresIds: []
+        expectedResponse: "System displays current folder contents and folder creation options"
+      - intent: "Create new folder"
+        userInteraction: "User clicks 'New Folder' button in the toolbar"
+        featuresIds: []
+        expectedResponse: "System displays folder creation dialog with name field and options"
+      - intent: "Name folder"
+        userInteraction: "User enters a name for the new folder"
+        featuresIds: []
+        expectedResponse: "System validates the folder name for uniqueness and allowed characters"
+      - intent: "Add folder description"
+        userInteraction: "User enters an optional description for the folder"
+        featuresIds: []
+        expectedResponse: "System registers the description text"
+      - intent: "Set folder permissions"
+        userInteraction: "User configures access permissions for the folder"
+        featuresIds: []
+        expectedResponse: "System provides permissions interface with role and user selection options"
+      - intent: "Create additional subfolders"
+        userInteraction: "User navigates into the new folder and creates additional subfolders as needed"
+        featuresIds: []
+        expectedResponse: "System creates each subfolder and maintains the hierarchical structure"
+      - intent: "Organize existing assets"
+        userInteraction: "User moves relevant existing assets into the new folder structure"
+        featuresIds: []
+        expectedResponse: "System processes move operations and updates asset locations"
+      - intent: "Verify folder structure"
+        userInteraction: "User navigates through the created structure to verify organization"
+        featuresIds: []
+        expectedResponse: "System displays the complete folder hierarchy with correct nesting and contents"
+    edgeCases: "Folder name already exists, permission inheritance conflicts, moving assets with insufficient permissions, folder depth limits, special characters in folder names"
+
+  - name: "Folder Permission Management"
+    category: "Access Control"
+    journeyId: "JOUR-08"
+    description: "Content Manager sets up and manages access permissions for folders and their contents"
+    participants: "Content Manager, System Administrator"
+    preconditions: "User has permission management capabilities and folders exist in the system"
+    postconditions: "Folder permissions are properly configured according to organizational requirements"
+    steps:
+      - intent: "Access folder permissions"
+        userInteraction: "User right-clicks on a folder and selects 'Permissions' or uses the folder action menu"
+        featuresIds: []
+        expectedResponse: "System displays the permissions management interface for the selected folder"
+      - intent: "View current permissions"
+        userInteraction: "User reviews the current permission settings"
+        featuresIds: []
+        expectedResponse: "System shows existing permissions by user and role with their access levels"
+      - intent: "Add new permission"
+        userInteraction: "User clicks 'Add Permission' button"
+        featuresIds: []
+        expectedResponse: "System displays user/role search interface and permission level selection"
+      - intent: "Search for users or roles"
+        userInteraction: "User enters search terms to find specific users or roles"
+        featuresIds: []
+        expectedResponse: "System displays matching users and roles from the directory"
+      - intent: "Select permission level"
+        userInteraction: "User assigns appropriate permission level to selected users/roles"
+        featuresIds: []
+        expectedResponse: "System provides options: No Access, View Only, Download, Edit, Full Control"
+      - intent: "Configure inheritance"
+        userInteraction: "User toggles whether permissions should apply to subfolders and contents"
+        featuresIds: []
+        expectedResponse: "System provides inheritance toggle with explanation of implications"
+      - intent: "Remove permissions"
+        userInteraction: "User selects existing permissions and clicks remove button"
+        featuresIds: []
+        expectedResponse: "System asks for confirmation and then removes the selected permissions"
+      - intent: "Save permission changes"
+        userInteraction: "User confirms all permission changes by clicking 'Save'"
+        featuresIds: []
+        expectedResponse: "System applies all permission changes and confirms successful update"
+    edgeCases: "Permission conflicts between inherited and explicit permissions, removing own access accidentally, bulk permission changes across many folders, permission changes affecting shared links"
+
+  - name: "Adding Assets to Favorites"
+    category: "Personal Organization"
+    journeyId: "JOUR-09"
+    description: "User marks assets and folders as favorites for quick access"
+    participants: "Any User"
+    preconditions: "User is logged in and has access to assets they wish to mark as favorites"
+    postconditions: "Selected assets and folders are marked as favorites and accessible from the Favorites section"
+    steps:
+      - intent: "Mark single asset as favorite"
+        userInteraction: "User hovers over an asset and clicks the star/favorite icon"
+        featuresIds: []
+        expectedResponse: "System toggles favorite status and confirms with visual feedback"
+      - intent: "Mark folder as favorite"
+        userInteraction: "User selects a folder and clicks the favorite icon or uses context menu"
+        featuresIds: []
+        expectedResponse: "System marks the folder as a favorite and confirms action"
+      - intent: "Mark multiple assets as favorites"
+        userInteraction: "User selects multiple assets, then uses bulk actions to add all to favorites"
+        featuresIds: []
+        expectedResponse: "System marks all selected assets as favorites and confirms with notification"
+      - intent: "Access favorites collection"
+        userInteraction: "User clicks on 'Favorites' in the navigation menu"
+        featuresIds: []
+        expectedResponse: "System displays all favorited assets and folders in a dedicated view"
+      - intent: "Filter favorites by type"
+        userInteraction: "User selects filter options within the Favorites view"
+        featuresIds: []
+        expectedResponse: "System filters favorite items according to selected criteria"
+      - intent: "Remove item from favorites"
+        userInteraction: "User clicks the favorite icon again to toggle off favorite status"
+        featuresIds: []
+        expectedResponse: "System removes the item from favorites with visual confirmation"
+      - intent: "Organize favorites"
+        userInteraction: "User rearranges favorites or creates favorite groups"
+        featuresIds: []
+        expectedResponse: "System allows for organization of favorites for better accessibility"
+    edgeCases: "Favoriting assets that later become inaccessible due to permission changes, maximum favorites limit, favoriting already-favorited items, favorites synchronization across devices"
+
+  - name: "Internal Asset Sharing"
+    category: "Sharing and Collaboration"
+    journeyId: "JOUR-10"
+    description: "User shares assets directly with other system users"
+    participants: "Any User with sharing permissions, Recipients"
+    preconditions: "User has access to assets and permission to share them internally"
+    postconditions: "Selected users receive access to the shared assets with appropriate permissions"
+    steps:
+      - intent: "Select asset to share"
+        userInteraction: "User locates and selects the asset(s) to be shared"
+        featuresIds: []
+        expectedResponse: "System highlights selected assets and shows share option"
+      - intent: "Initiate sharing"
+        userInteraction: "User clicks 'Share' button or option from the action menu"
+        featuresIds: []
+        expectedResponse: "System displays the sharing panel with internal and external sharing options"
+      - intent: "Choose internal sharing"
+        userInteraction: "User selects 'Share with Users' option"
+        featuresIds: []
+        expectedResponse: "System displays user search interface and permission options"
+      - intent: "Search for recipients"
+        userInteraction: "User enters names or emails to search for internal users"
+        featuresIds: []
+        expectedResponse: "System displays matching users from the directory"
+      - intent: "Select recipients"
+        userInteraction: "User selects individuals or groups as recipients"
+        featuresIds: []
+        expectedResponse: "System adds selected recipients to the sharing list"
+      - intent: "Set permission level"
+        userInteraction: "User assigns appropriate permission levels to recipients"
+        featuresIds: []
+        expectedResponse: "System provides options: View, Download, Edit, etc."
+      - intent: "Add optional message"
+        userInteraction: "User enters an optional message to accompany the share"
+        featuresIds: []
+        expectedResponse: "System provides text field for custom message"
+      - intent: "Confirm sharing"
+        userInteraction: "User clicks 'Share' button to complete the action"
+        featuresIds: []
+        expectedResponse: "System processes the share, grants permissions, and sends notifications to recipients"
+      - intent: "View sharing status"
+        userInteraction: "User checks sharing status of the asset"
+        featuresIds: []
+        expectedResponse: "System displays current shares and permissions for the asset"
+    edgeCases: "Sharing with users who already have different access levels, sharing with unavailable users, permission conflicts, revoking shared access, shared assets being moved or deleted"
+
+  - name: "External Asset Sharing via Links"
+    category: "Sharing and Collaboration"
+    journeyId: "JOUR-11"
+    description: "User creates and manages shareable links for external users"
+    participants: "Any User with sharing permissions, External Recipients"
+    preconditions: "User has access to assets and permission to share them externally"
+    postconditions: "Shareable links are created with appropriate security settings and distributed to recipients"
+    steps:
+      - intent: "Select asset to share"
+        userInteraction: "User locates and selects the asset to be shared externally"
+        featuresIds: []
+        expectedResponse: "System highlights selected asset and shows share options"
+      - intent: "Initiate link sharing"
+        userInteraction: "User clicks 'Share' and selects 'Create Link' option"
+        featuresIds: []
+        expectedResponse: "System displays link creation interface with security options"
+      - intent: "Configure link permissions"
+        userInteraction: "User selects whether recipients can view only or download the asset"
+        featuresIds: []
+        expectedResponse: "System provides toggle or radio buttons for permission levels"
+      - intent: "Set link expiration"
+        userInteraction: "User specifies an expiration date/time for the link"
+        featuresIds: []
+        expectedResponse: "System provides date/time picker for expiration setting"
+      - intent: "Enable password protection"
+        userInteraction: "User toggles password protection and sets a password if desired"
+        featuresIds: []
+        expectedResponse: "System provides password field and generation options"
+      - intent: "Generate link"
+        userInteraction: "User clicks 'Create Link' button"
+        featuresIds: []
+        expectedResponse: "System generates a unique sharing link with selected security settings"
+      - intent: "Copy or distribute link"
+        userInteraction: "User copies link to clipboard or uses direct email option"
+        featuresIds: []
+        expectedResponse: "System provides copy button and email distribution form"
+      - intent: "Manage active links"
+        userInteraction: "User navigates to 'Shared Links' section to view all active links"
+        featuresIds: []
+        expectedResponse: "System displays list of all created share links with status and options"
+      - intent: "Revoke link access"
+        userInteraction: "User selects an active link and clicks 'Revoke'"
+        featuresIds: []
+        expectedResponse: "System deactivates the link and confirms revocation"
+    edgeCases: "Link accessed after expiration, excessive access attempts with wrong password, link sharing for assets with usage restrictions, tracking link usage, links to assets that are modified or deleted after sharing"
+
+  - name: "Downloading Assets"
+    category: "Asset Management"
+    journeyId: "JOUR-12"
+    description: "User downloads individual or multiple assets from the system"
+    participants: "Any User with download permissions"
+    preconditions: "User has access to assets and permission to download them"
+    postconditions: "Assets are successfully downloaded to the user's local device"
+    steps:
+      - intent: "Locate asset to download"
+        userInteraction: "User browses or searches for desired asset(s)"
+        featuresIds: []
+        expectedResponse: "System displays matching assets with download options"
+      - intent: "Download single asset"
+        userInteraction: "User selects an asset and clicks 'Download' button or option"
+        featuresIds: []
+        expectedResponse: "System initiates download process for the original file"
+      - intent: "Select multiple assets"
+        userInteraction: "User selects multiple assets using checkboxes or multi-select"
+        featuresIds: []
+        expectedResponse: "System highlights selected assets and shows batch action options"
+      - intent: "Initiate batch download"
+        userInteraction: "User clicks 'Download' in the batch actions menu"
+        featuresIds: []
+        expectedResponse: "System begins preparing selected assets for download as ZIP archive"
+      - intent: "Monitor download progress"
+        userInteraction: "User views download progress indicator"
+        featuresIds: []
+        expectedResponse: "System shows download preparation and transfer progress"
+      - intent: "Access downloaded files"
+        userInteraction: "User opens downloaded files or navigates to download location"
+        featuresIds: []
+        expectedResponse: "Downloaded files are accessible on user's local system according to browser download settings"
+    edgeCases: "Download interruption due to network issues, very large file downloads, download permission changes during process, file format incompatibilities, browser download restrictions, partial batch download failures"
+
+  - name: "Asset Version Management"
+    category: "Asset Management"
+    journeyId: "JOUR-13"
+    description: "User uploads a new version of an existing asset and manages version history"
+    participants: "Content Creator/Editor, Content Manager"
+    preconditions: "User has access to an existing asset and permission to update it"
+    postconditions: "New version is uploaded and properly tracked in version history"
+    steps:
+      - intent: "Locate asset to update"
+        userInteraction: "User browses or searches for the asset requiring an update"
+        featuresIds: []
+        expectedResponse: "System displays the asset with version management options"
+      - intent: "Access version control"
+        userInteraction: "User selects 'Versions' or 'Upload New Version' from asset actions"
+        featuresIds: []
+        expectedResponse: "System displays version history and new version upload option"
+      - intent: "Upload new version"
+        userInteraction: "User selects the new file from their local system"
+        featuresIds: []
+        expectedResponse: "System begins uploading the file with progress indicator"
+      - intent: "Add version comments"
+        userInteraction: "User enters description of changes in the new version"
+        featuresIds: []
+        expectedResponse: "System provides field for version comments/notes"
+      - intent: "Complete version upload"
+        userInteraction: "User confirms the new version upload"
+        featuresIds: []
+        expectedResponse: "System processes the file, marks it as the current version, and updates version history"
+      - intent: "View version history"
+        userInteraction: "User views the complete version history of the asset"
+        featuresIds: []
+        expectedResponse: "System displays chronological list of all versions with metadata and download options"
+      - intent: "Compare versions"
+        userInteraction: "User selects two versions to compare"
+        featuresIds: []
+        expectedResponse: "System provides comparison view for supported file types"
+      - intent: "Restore previous version"
+        userInteraction: "User selects an older version and clicks 'Restore this Version'"
+        featuresIds: []
+        expectedResponse: "System promotes the selected version to current status with confirmation"
+    edgeCases: "Version compatibility issues, version restore conflicts, large version history management, automatic version creation from edits, metadata differences between versions"
+
+  - name: "Asset Metadata Editing"
+    category: "Asset Management"
+    journeyId: "JOUR-14"
+    description: "User updates metadata and tags for existing assets"
+    participants: "Content Creator/Editor, Content Manager"
+    preconditions: "User has access to assets and permission to edit their metadata"
+    postconditions: "Asset metadata is updated and immediately searchable"
+    steps:
+      - intent: "Select asset for metadata editing"
+        userInteraction: "User locates and selects the asset requiring metadata updates"
+        featuresIds: []
+        expectedResponse: "System displays asset with metadata editing options"
+      - intent: "Access metadata editor"
+        userInteraction: "User clicks 'Edit Metadata' or similar option"
+        featuresIds: []
+        expectedResponse: "System displays metadata editing form with current values"
+      - intent: "Update basic information"
+        userInteraction: "User modifies title, description or other basic fields"
+        featuresIds: []
+        expectedResponse: "System registers changes in the form fields"
+      - intent: "Edit tags"
+        userInteraction: "User adds, removes, or modifies tags associated with the asset"
+        featuresIds: []
+        expectedResponse: "System provides tag editing interface with autocomplete and current tags displayed"
+      - intent: "Edit custom metadata"
+        userInteraction: "User updates values in custom metadata fields"
+        featuresIds: []
+        expectedResponse: "System provides appropriate input methods for each metadata type"
+      - intent: "Save metadata changes"
+        userInteraction: "User clicks 'Save' or 'Update' button"
+        featuresIds: []
+        expectedResponse: "System validates inputs, saves changes, and confirms update"
+      - intent: "Verify metadata updates"
+        userInteraction: "User views the asset details to confirm changes"
+        featuresIds: []
+        expectedResponse: "System displays asset with updated metadata reflected"
+      - intent: "Perform batch metadata editing"
+        userInteraction: "User selects multiple assets and chooses 'Edit Metadata' from batch actions"
+        featuresIds: []
+        expectedResponse: "System provides batch metadata editing form indicating changes will apply to all selected assets"
+    edgeCases: "Required fields left empty, metadata format validation, conflicts in batch editing, reverting metadata changes, metadata changes affecting search results, version control for metadata changes"
+
+  - name: "Moving Assets Between Folders"
+    category: "Asset Management"
+    journeyId: "JOUR-15"
+    description: "User reorganizes assets by moving them between folders"
+    participants: "Content Creator/Editor, Content Manager"
+    preconditions: "User has access to both source and destination folders with appropriate permissions"
+    postconditions: "Assets are successfully moved to the destination folder with all metadata preserved"
+    steps:
+      - intent: "Select assets to move"
+        userInteraction: "User selects one or more assets to be moved"
+        featuresIds: []
+        expectedResponse: "System highlights selected assets and shows move option"
+      - intent: "Initiate move operation"
+        userInteraction: "User clicks 'Move' button or selects from context menu"
+        featuresIds: []
+        expectedResponse: "System displays folder browser dialog for selecting destination"
+      - intent: "Browse folder structure"
+        userInteraction: "User navigates through folder hierarchy to find destination"
+        featuresIds: []
+        expectedResponse: "System displays navigable folder tree structure"
+      - intent: "Select destination folder"
+        userInteraction: "User selects the target folder for the assets"
+        featuresIds: []
+        expectedResponse: "System highlights selected destination folder"
+      - intent: "Confirm move operation"
+        userInteraction: "User clicks 'Move Here' or 'Confirm' button"
+        featuresIds: []
+        expectedResponse: "System processes move operation with progress indicator for multiple assets"
+      - intent: "Handle permission changes"
+        userInteraction: "User reviews any permission change notifications"
+        featuresIds: []
+        expectedResponse: "System warns if move will change asset permissions due to folder permission differences"
+      - intent: "Verify asset relocation"
+        userInteraction: "User navigates to destination folder to confirm move"
+        featuresIds: []
+        expectedResponse: "System displays moved assets in the destination folder"
+    edgeCases: "Permission changes affecting accessibility, moving assets with active shares, destination folder already contains same-named assets, move operation interrupted, moving between folders with different metadata requirements, moving large numbers of assets"
+
+  - name: "Asset Preview and Inspection"
+    category: "Asset Management"
+    journeyId: "JOUR-16"
+    description: "User previews and inspects assets before downloading or using them"
+    participants: "Any User"
+    preconditions: "User has access to view assets in the system"
+    postconditions: "User has inspected asset content and details without downloading"
+    steps:
+      - intent: "Select asset for preview"
+        userInteraction: "User clicks on asset thumbnail or preview icon"
+        featuresIds: []
+        expectedResponse: "System opens preview panel or modal with asset displayed"
+      - intent: "View image preview"
+        userInteraction: "User interacts with image preview"
+        featuresIds: []
+        expectedResponse: "System displays high-quality image with zoom and pan capabilities"
+      - intent: "Preview document content"
+        userInteraction: "User previews document files (PDF, DOCX, etc.)"
+        featuresIds: []
+        expectedResponse: "System renders document preview with page navigation"
+      - intent: "Play video/audio preview"
+        userInteraction: "User plays video or audio files"
+        featuresIds: []
+        expectedResponse: "System provides media player with playback controls"
+      - intent: "Examine metadata"
+        userInteraction: "User reviews asset metadata alongside preview"
+        featuresIds: []
+        expectedResponse: "System displays complete metadata panel with all asset information"
+      - intent: "Check version information"
+        userInteraction: "User views version details if multiple versions exist"
+        featuresIds: []
+        expectedResponse: "System shows version information and option to view other versions"
+      - intent: "Take action from preview"
+        userInteraction: "User selects actions such as download, share, or edit from preview"
+        featuresIds: []
+        expectedResponse: "System provides action buttons within the preview interface"
+      - intent: "Navigate between multiple assets"
+        userInteraction: "User moves to next/previous assets in a collection"
+        featuresIds: []
+        expectedResponse: "System provides navigation controls to browse through multiple assets"
+    edgeCases: "Unsupported file types without preview capability, very large files with slow preview generation, preview timeouts, corrupted file previews, restricted content warnings, preview of password-protected documents"
+
+  - name: "System Administration - User Management"
+    category: "Administration"
+    journeyId: "JOUR-17"
+    description: "Administrator creates, modifies, and manages user accounts and permissions"
+    participants: "System Administrator"
+    preconditions: "Administrator is logged in with full system access"
+    postconditions: "User accounts are properly configured with appropriate roles and permissions"
+    steps:
+      - intent: "Access administration panel"
+        userInteraction: "Administrator navigates to Administration or User Management section"
+        featuresIds: []
+        expectedResponse: "System displays administrative interface with user management options"
+      - intent: "View existing users"
+        userInteraction: "Administrator reviews list of current system users"
+        featuresIds: []
+        expectedResponse: "System displays user list with key information and status indicators"
+      - intent: "Create new user"
+        userInteraction: "Administrator clicks 'Add User' or 'Create Account' button"
+        featuresIds: []
+        expectedResponse: "System displays user creation form with required fields"
+      - intent: "Enter user details"
+        userInteraction: "Administrator enters name, email, and other required information"
+        featuresIds: []
+        expectedResponse: "System validates input formatting as administrator types"
+      - intent: "Assign user role"
+        userInteraction: "Administrator selects appropriate role(s) for the new user"
+        featuresIds: []
+        expectedResponse: "System displays available roles with description of associated permissions"
+      - intent: "Set initial password options"
+        userInteraction: "Administrator chooses password setup method (system-generated or admin-set)"
+        featuresIds: []
+        expectedResponse: "System provides password options and security guidelines"
+      - intent: "Save new user account"
+        userInteraction: "Administrator confirms account creation"
+        featuresIds: []
+        expectedResponse: "System creates account, sends welcome email if configured, and confirms creation"
+      - intent: "Modify existing user"
+        userInteraction: "Administrator selects a user and clicks 'Edit' or 'Modify'"
+        featuresIds: []
+        expectedResponse: "System displays user edit form with current values"
+      - intent: "Change user permissions"
+        userInteraction: "Administrator updates role assignments or specific permissions"
+        featuresIds: []
+        expectedResponse: "System shows permission changes and potential impacts"
+      - intent: "Deactivate user account"
+        userInteraction: "Administrator changes user status to inactive or suspended"
+        featuresIds: []
+        expectedResponse: "System confirms deactivation and explains consequences"
+    edgeCases: "Deactivating administrator accounts, role conflicts, email address already in use, bulk user import, password policy enforcement, handling of assets owned by deactivated users"
+
+  - name: "System Administration - Role Management"
+    category: "Administration"
+    journeyId: "JOUR-18"
+    description: "Administrator creates and configures user roles with specific permission sets"
+    participants: "System Administrator"
+    preconditions: "Administrator is logged in with role management permissions"
+    postconditions: "Roles are properly configured with appropriate permissions for organizational needs"
+    steps:
+      - intent: "Access role management"
+        userInteraction: "Administrator navigates to Role Management section"
+        featuresIds: []
+        expectedResponse: "System displays list of existing roles with descriptions and counts of assigned users"
+      - intent: "Create new role"
+        userInteraction: "Administrator clicks 'Add Role' or 'Create Role' button"
+        featuresIds: []
+        expectedResponse: "System displays role creation form with name, description, and permission options"
+      - intent: "Name and describe role"
+        userInteraction: "Administrator enters role name and description"
+        featuresIds: []
+        expectedResponse: "System validates role name for uniqueness"
+      - intent: "Configure general permissions"
+        userInteraction: "Administrator selects general system access permissions"
+        featuresIds: []
+        expectedResponse: "System provides checkboxes for general capabilities (upload, download, share, etc.)"
+      - intent: "Set folder access defaults"
+        userInteraction: "Administrator configures default folder access levels"
+        featuresIds: []
+        expectedResponse: "System shows folder permission inheritance options"
+      - intent: "Configure administrative capabilities"
+        userInteraction: "Administrator sets administrative function access"
+        featuresIds: []
+        expectedResponse: "System provides options for admin functions with appropriate warnings"
+      - intent: "Save new role"
+        userInteraction: "Administrator confirms role creation"
+        featuresIds: []
+        expectedResponse: "System creates role and makes it available for assignment to users"
+      - intent: "Edit existing role"
+        userInteraction: "Administrator selects a role and clicks 'Edit'"
+        featuresIds: []
+        expectedResponse: "System displays role edit form with current settings"
+      - intent: "Modify role permissions"
+        userInteraction: "Administrator changes permission settings for the role"
+        featuresIds: []
+        expectedResponse: "System highlights changes being made with impact information"
+      - intent: "View users with role"
+        userInteraction: "Administrator clicks 'View Assigned Users' for a role"
+        featuresIds: []
+        expectedResponse: "System displays list of all users currently assigned the selected role"
+    edgeCases: "Modifying roles with many assigned users, permission conflicts between multiple assigned roles, removing critical permissions from administrator roles, deleting roles in use, cloning existing roles"
+
+  - name: "Deleting Assets"
+    category: "Asset Management"
+    journeyId: "JOUR-19"
+    description: "User permanently removes assets or sends them to trash/archive"
+    participants: "Content Creator/Editor, Content Manager"
+    preconditions: "User has delete permissions for the target assets"
+    postconditions: "Assets are either moved to trash or permanently deleted according to user choice"
+    steps:
+      - intent: "Select assets to delete"
+        userInteraction: "User selects one or more assets for deletion"
+        featuresIds: []
+        expectedResponse: "System highlights selected assets and shows delete option"
+      - intent: "Initiate deletion"
+        userInteraction: "User clicks 'Delete' button or selects from context menu"
+        featuresIds: []
+        expectedResponse: "System displays confirmation dialog with options"
+      - intent: "Choose deletion method"
+        userInteraction: "User selects between 'Move to Trash' or 'Delete Permanently'"
+        featuresIds: []
+        expectedResponse: "System provides clear explanation of each option and its consequences"
+      - intent: "Confirm deletion"
+        userInteraction: "User confirms deletion action"
+        featuresIds: []
+        expectedResponse: "System processes deletion with progress indicator for multiple assets"
+      - intent: "View deleted items"
+        userInteraction: "User navigates to Trash/Recycle Bin section"
+        featuresIds: []
+        expectedResponse: "System displays items in trash with restoration options"
+      - intent: "Restore from trash"
+        userInteraction: "User selects trashed items and clicks 'Restore'"
+        featuresIds: []
+        expectedResponse: "System restores items to their original location or alternate location if original no longer exists"
+      - intent: "Empty trash"
+        userInteraction: "User clicks 'Empty Trash' button"
+        featuresIds: []
+        expectedResponse: "System requests confirmation and permanently removes all items in trash"
+    edgeCases: "Deleting assets with active shares, deletion of assets in use elsewhere, partial deletion failures in batch operations, trash storage limits, automatic trash emptying policies, deletion of assets with multiple versions"
+
+  - name: "Recently Accessed Assets"
+    category: "Personal Organization"
+    journeyId: "JOUR-20"
+    description: "User views and accesses recently viewed or modified assets"
+    participants: "Any User"
+    preconditions: "User has previously interacted with assets in the system"
+    postconditions: "User can quickly access their recently used assets"
+    steps:
+      - intent: "Access recent items section"
+        userInteraction: "User clicks on 'Recent' or 'Recently Viewed' in navigation"
+        featuresIds: []
+        expectedResponse: "System displays chronological list of recently accessed assets"
+      - intent: "View recently modified assets"
+        userInteraction: "User selects 'Recently Modified' filter or tab"
+        featuresIds: []
+        expectedResponse: "System shows assets modified by the user in chronological order"
+      - intent: "Filter recent items"
+        userInteraction: "User applies filters by time period or asset type"
+        featuresIds: []
+        expectedResponse: "System filters the recent items list according to criteria"
+      - intent: "Access asset from recents"
+        userInteraction: "User clicks on an asset in the recent items list"
+        featuresIds: []
+        expectedResponse: "System opens the selected asset in preview or detail view"
+      - intent: "Take actions on recent items"
+        userInteraction: "User performs actions like download or share directly from recents list"
+        featuresIds: []
+        expectedResponse: "System provides quick action buttons for common operations"
+      - intent: "Clear recent items history"
+        userInteraction: "User clicks 'Clear History' or similar option"
+        featuresIds: []
+        expectedResponse: "System asks for confirmation and clears the recent items history"
+    edgeCases: "Recently viewed items that have been deleted or made inaccessible, access history privacy concerns, very active users with extensive history, determining what constitutes a 'view' for history tracking"
+
+  - name: "Bulk Tag Management"
+    category: "Asset Management"
+    journeyId: "JOUR-21"
+    description: "User adds, removes, or updates tags for multiple assets simultaneously"
+    participants: "Content Creator/Editor, Content Manager"
+    preconditions: "User has access to multiple assets and permission to modify their metadata"
+    postconditions: "Selected assets have consistent, updated tags applied"
+    steps:
+      - intent: "Select multiple assets"
+        userInteraction: "User selects multiple assets using checkboxes or multi-select tools"
+        featuresIds: []
+        expectedResponse: "System highlights selected assets and shows batch action options"
+      - intent: "Access batch tag editor"
+        userInteraction: "User selects 'Edit Tags' from batch actions menu"
+        featuresIds: []
+        expectedResponse: "System displays batch tag editing interface showing common and unique tags"
+      - intent: "View existing tags"
+        userInteraction: "User reviews current tag status across selected assets"
+        featuresIds: []
+        expectedResponse: "System shows which tags are on all selected items, some items, or no items"
+      - intent: "Add new tags"
+        userInteraction: "User enters new tags to apply to all selected assets"
+        featuresIds: []
+        expectedResponse: "System provides tag input with autocomplete and validation"
+      - intent: "Remove existing tags"
+        userInteraction: "User clicks remove icon next to tags to remove them from all assets"
+        featuresIds: []
+        expectedResponse: "System marks tags for removal with visual indicator"
+      - intent: "Choose tag operation mode"
+        userInteraction: "User selects whether to replace all tags or merge with existing tags"
+        featuresIds: []
+        expectedResponse: "System provides options for how to handle existing tags not mentioned in current operation"
+      - intent: "Apply tag changes"
+        userInteraction: "User confirms tag updates by clicking 'Apply' or 'Save'"
+        featuresIds: []
+        expectedResponse: "System processes tag changes across all selected assets and confirms completion"
+      - intent: "Verify tag updates"
+        userInteraction: "User checks assets to confirm tag changes were applied"
+        featuresIds: []
+        expectedResponse: "System displays updated tag information for all affected assets"
+    edgeCases: "Very large numbers of selected assets, permission variations across selected assets, conflicting tag policies by folder, tag character or quantity limitations, performance considerations for bulk operations"
+
+  - name: "Tag-Based Asset Discovery"
+    category: "Search and Discovery"
+    journeyId: "JOUR-22"
+    description: "User finds assets by browsing and selecting tags"
+    participants: "Any User"
+    preconditions: "Assets in the system have tags applied"
+    postconditions: "User discovers relevant assets through tag-based navigation"
+    steps:
+      - intent: "Access tag browser"
+        userInteraction: "User navigates to Tags section or tag cloud visualization"
+        featuresIds: []
+        expectedResponse: "System displays available tags with visual weighting by usage frequency"
+      - intent: "Browse popular tags"
+        userInteraction: "User views most frequently used tags"
+        featuresIds: []
+        expectedResponse: "System highlights popular tags or provides sorting by frequency"
+      - intent: "Select tag for filtering"
+        userInteraction: "User clicks on a tag of interest"
+        featuresIds: []
+        expectedResponse: "System filters asset view to show only assets with the selected tag"
+      - intent: "Add additional tag filters"
+        userInteraction: "User selects additional tags to narrow results"
+        featuresIds: []
+        expectedResponse: "System applies multi-tag filtering (AND logic) to show assets with all selected tags"
+      - intent: "Toggle tag filter logic"
+        userInteraction: "User switches between AND/OR logic for multi-tag filtering"
+        featuresIds: []
+        expectedResponse: "System adjusts results based on selected logic and explains the difference"
+      - intent: "Remove tag filters"
+        userInteraction: "User clicks to remove specific tag filters"
+        featuresIds: []
+        expectedResponse: "System updates results immediately as filters are removed"
+      - intent: "Save tag combination"
+        userInteraction: "User saves the current tag filter combination for future use"
+        featuresIds: []
+        expectedResponse: "System provides option to name and save the tag combination as a saved search"
+      - intent: "Discover related tags"
+        userInteraction: "User views tags frequently used alongside current selection"
+        featuresIds: []
+        expectedResponse: "System suggests related tags based on co-occurrence patterns"
+    edgeCases: "Tags with no matching assets, extremely common tags with too many results, handling of special characters in tags, tag synonyms and variations, hierarchical tag relationships, tags in different languages"
+
+  - name: "System Administration - Storage Management"
+    category: "Administration"
+    journeyId: "JOUR-23"
+    description: "Administrator monitors and manages system storage usage"
+    participants: "System Administrator"
+    preconditions: "Administrator has access to system management functions"
+    postconditions: "Storage is optimized and usage is within acceptable limits"
+    steps:
+      - intent: "Access storage dashboard"
+        userInteraction: "Administrator navigates to Storage Management section"
+        featuresIds: []
+        expectedResponse: "System displays storage dashboard with usage statistics and charts"
+      - intent: "View overall storage metrics"
+        userInteraction: "Administrator reviews total storage usage and allocation"
+        featuresIds: []
+        expectedResponse: "System shows current usage, available space, and usage trends over time"
+      - intent: "Analyze usage by file type"
+        userInteraction: "Administrator views breakdown of storage by file type"
+        featuresIds: []
+        expectedResponse: "System displays chart or table of storage allocation by file format"
+      - intent: "Check user storage utilization"
+        userInteraction: "Administrator reviews storage usage by user"
+        featuresIds: []
+        expectedResponse: "System provides sortable list of users and their storage consumption"
+      - intent: "Identify large assets"
+        userInteraction: "Administrator searches for unusually large files"
+        featuresIds: []
+        expectedResponse: "System lists largest files in the system with size, owner, and location information"
+      - intent: "Set storage quotas"
+        userInteraction: "Administrator configures storage limits by user role"
+        featuresIds: []
+        expectedResponse: "System provides quota management interface with current and proposed limits"
+      - intent: "Implement retention policies"
+        userInteraction: "Administrator configures automatic archiving or deletion rules"
+        featuresIds: []
+        expectedResponse: "System offers policy creation tools with conditions and actions"
+      - intent: "Initiate storage optimization"
+        userInteraction: "Administrator runs storage optimization process"
+        featuresIds: []
+        expectedResponse: "System identifies optimization opportunities and allows administrator to select actions"
+      - intent: "Export storage reports"
+        userInteraction: "Administrator generates detailed storage reports"
+        featuresIds: []
+        expectedResponse: "System generates downloadable reports in requested format with comprehensive statistics"
+    edgeCases: "Critical storage shortages, rapid growth in usage, orphaned assets taking space, temporary files not being cleaned up, storage metrics discrepancies, backup storage management"
+
+  - name: "System Administration - Activity Monitoring"
+    category: "Administration"
+    journeyId: "JOUR-24"
+    description: "Administrator reviews system activity and user actions"
+    participants: "System Administrator"
+    preconditions: "System is logging user activities and administrator has access to logs"
+    postconditions: "Administrator has insight into system usage patterns and specific user actions"
+    steps:
+      - intent: "Access activity logs"
+        userInteraction: "Administrator navigates to Activity Logs or Audit section"
+        featuresIds: []
+        expectedResponse: "System displays activity log interface with filtering options"
+      - intent: "View recent system activity"
+        userInteraction: "Administrator reviews chronological list of system events"
+        featuresIds: []
+        expectedResponse: "System shows timestamped list of activities with user, action, and asset information"
+      - intent: "Filter by activity type"
+        userInteraction: "Administrator selects specific activity types to view"
+        featuresIds: []
+        expectedResponse: "System filters log to show only selected activity types (uploads, downloads, shares, etc.)"
+      - intent: "Filter by user"
+        userInteraction: "Administrator filters activities for a specific user"
+        featuresIds: []
+        expectedResponse: "System shows all actions performed by the selected user"
+      - intent: "Filter by time period"
+        userInteraction: "Administrator sets date/time range for log view"
+        featuresIds: []
+        expectedResponse: "System restricts displayed activities to the specified timeframe"
+      - intent: "View asset access history"
+        userInteraction: "Administrator searches for all activities related to a specific asset"
+        featuresIds: []
+        expectedResponse: "System displays chronological history of all interactions with the selected asset"
+      - intent: "Review security events"
+        userInteraction: "Administrator filters for security-related activities"
+        featuresIds: []
+        expectedResponse: "System shows login attempts, permission changes, and other security-relevant events"
+      - intent: "Export activity reports"
+        userInteraction: "Administrator generates reports of selected activity data"
+        featuresIds: []
+        expectedResponse: "System creates downloadable reports in requested format"
+      - intent: "Configure activity retention"
+        userInteraction: "Administrator sets log retention policies"
+        featuresIds: []
+        expectedResponse: "System provides options for how long different types of activity data should be retained"
+    edgeCases: "Extremely high activity volume, reconstructing sequences of events, identifying unusual patterns or potential security issues, performance impact of extensive logging, privacy considerations in activity tracking"
+
+  - name: "Activity Feeds and Notifications"
+    category: "User Interface"
+    journeyId: "JOUR-25"
+    description: "User receives and manages notifications about relevant system activities"
+    participants: "Any User"
+    preconditions: "User has active account and relevant activities have occurred"
+    postconditions: "User is informed of important activities and can manage notification preferences"
+    steps:
+      - intent: "View notifications"
+        userInteraction: "User clicks notification icon in header"
+        featuresIds: []
+        expectedResponse: "System displays dropdown of recent notifications with unread indicators"
+      - intent: "Review incoming activities"
+        userInteraction: "User scans notification list"
+        featuresIds: []
+        expectedResponse: "System shows personalized notifications about shares, comments, uploads affecting the user"
+      - intent: "Open notification detail"
+        userInteraction: "User clicks on a specific notification"
+        featuresIds: []
+        expectedResponse: "System navigates to the relevant content and marks notification as read"
+      - intent: "Mark all as read"
+        userInteraction: "User clicks 'Mark All as Read' option"
+        featuresIds: []
+        expectedResponse: "System updates all notifications to read status"
+      - intent: "Filter notifications"
+        userInteraction: "User selects notification type filters"
+        featuresIds: []
+        expectedResponse: "System filters notification list by selected categories"
+      - intent: "Access notification settings"
+        userInteraction: "User navigates to notification preferences"
+        featuresIds: []
+        expectedResponse: "System displays configurable notification settings by type and delivery method"
+      - intent: "Configure email notifications"
+        userInteraction: "User toggles which notifications should be sent via email"
+        featuresIds: []
+        expectedResponse: "System saves preferences for email delivery of different notification types"
+      - intent: "Set notification frequency"
+        userInteraction: "User selects preference for notification bundling or immediate delivery"
+        featuresIds: []
+        expectedResponse: "System provides options for real-time, daily digest, or other frequency options"
+      - intent: "View activity feed"
+        userInteraction: "User accesses activity feed or dashboard"
+        featuresIds: []
+        expectedResponse: "System displays chronological feed of relevant system activity in the user's scope"
+    edgeCases: "High volume of notifications causing overload, notifications for deleted content, delivery failures for email notifications, notification preferences reset during system updates, proper handling of sensitive information in notifications"

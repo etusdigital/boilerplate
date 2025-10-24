@@ -1,0 +1,595 @@
+---
+description: Vue 3 component standards with design system enforcement
+globs: **/*.vue
+alwaysApply: false
+---
+
+# Component Rules
+
+## Mandatory Component Structure
+
+### Script Setup Pattern
+
+All Vue components MUST use Composition API with script setup:
+
+```vue
+<template>
+  <div class="main-container">
+    <Button @click="handleClick">{{ t('buttons.save') }}</Button>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+interface Props {
+  modelValue: string;
+  disabled?: boolean;
+}
+
+interface Emits {
+  (e: 'update:modelValue', value: string): void;
+  (e: 'submit'): void;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  disabled: false,
+});
+
+const emit = defineEmits<Emits>();
+const { t } = useI18n();
+</script>
+```
+
+## CRUD Screen Patterns (DUAL ARCHITECTURE)
+
+### Pattern 1: Grid-Based Layout (Card-Based Features)
+
+For features with card-based interfaces:
+
+```vue
+<template>
+  <div class="main-container">
+    <!-- TitleBar com título e botão de ação -->
+    <TitleBar :title="t('usersPage.users')" :actions="titleBarActions" />
+
+    <!-- Campo de busca -->
+    <Input
+      type="search"
+      :placeholder="t('search')"
+      v-model="searchQuery"
+      @input="handleSearchChange"
+    />
+
+    <div class="flex flex-col gap-base mt-base">
+      <!-- Grid de Cards - GENERIC PATTERN -->
+      <div class="entities-grid">
+        <!-- Skeleton Loading Cards - 10 items standard -->
+        <template v-if="isLoading">
+          <EntityCard
+            v-for="index in 10"
+            :key="`skeleton-${index}`"
+            :loading="true"
+          />
+        </template>
+
+        <!-- Actual Cards with granular loading -->
+        <template v-else>
+          <EntityCard
+            v-for="entity in entities"
+            :key="entity.id"
+            :entity="entity"
+            :loading="isEntityLoading(entity.id || 0)"
+            @configure="handleConfigure(entity)"
+            @edit="handleEdit(entity)"
+            @delete="onDelete(entity)"
+            @activate="handleActivate(entity)"
+            @deactivate="handleDeactivate(entity)"
+          />
+        </template>
+      </div>
+
+      <!-- Empty State -->
+      <div
+        v-if="!isLoading && users.length === 0"
+        class="flex flex-col items-center justify-center p-xl text-neutral-foreground-low"
+      >
+        <p
+          v-if="paginationMeta.totalItems === 0"
+        >
+          {{ t('messages.noItemFound') }}
+        </p>
+        <p v-else>
+          {{ t('messages.noResultsFound') }}
+        </p>
+      </div>
+
+      <!-- Paginação -->
+      <Pagination
+        v-if="!isLoading && users.length > 0"
+        class="mt-base"
+        v-model="paginationMeta.currentPage"
+        :length="paginationMeta.totalPages"
+        @update:model-value="handlePageChange"
+      />
+    </div>
+
+    <!-- Form Component -->
+    <UserForm
+      v-model="showForm"
+      :user="currentUser"
+      @save="handleSave"
+      @close="handleCloseForm"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useUsers } from '../composables/useUsers';
+import type { TitleBarAction } from '@/shared/components/TitleBar.vue';
+import { TitleBar } from '@/shared/components/TitleBar.vue';
+import UserCard from '../components/UserCard.vue';
+import UserForm from '../components/UserForm.vue';
+
+const confirm = inject('confirm') as Function;
+const { t } = useI18n();
+const {
+  users,
+  isLoading,
+  showForm,
+  showDelete,
+  currentUser,
+  deletingUser,
+  paginationMeta,
+  searchQuery,
+  fetchUsers,
+  handleConfigure,
+  handleEdit,
+  handleDeleteAction,
+  handleSave,
+  handleCloseForm,
+  handleCloseDeleteModal,
+  handleSearchChange,
+  handlePageChange,
+  isUserLoading,
+} = useUsers(t);
+
+const titleBarActions = computed<TitleBarAction[]>(() => [
+  { label: t('addUser'), action: () => handleEdit({}), variant: 'primary' },
+]);
+
+onMounted(async () => await fetchEntities());
+
+function onDelete(entity: any) {
+  const result = await confirm({
+    title: t('deleteItem'),
+    message: `${t('deleteItemConfirm')}: ${entity.name}?`,
+    acceptLabel: t('delete'),
+    cancelLabel: t('cancel'),
+  });
+
+  if (!result) return;
+
+  handleDeleteAction(entity);
+}
+</script>
+
+<style scoped>
+@reference "@/app/assets/main.css";
+
+/* Grid responsivo padrão do projeto */
+.entities-grid {
+  @apply grid gap-base w-full;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+/* Breakpoints padrão do projeto */
+@media (min-width: 1600px) {
+  .entities-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+@media (max-width: 1599px) and (min-width: 1280px) {
+  .entities-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 1279px) and (min-width: 960px) {
+  .entities-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 959px) and (min-width: 640px) {
+  .entities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 639px) {
+  .entities-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+```
+
+### Pattern 2: Table-Based Layout (Tabular Features)
+
+For features with tabular data:
+
+```vue
+<template>
+  <div class="main-container">
+    <TitleBar :title="t('entityPage.entities')" :actions="titleBarActions" />
+
+    <!-- Table pattern -->
+    <Table
+      :columns="tcolumns"
+      :items="tdata"
+      :loading="isLoading"
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+    >
+      <!-- Custom columns -->
+      <template
+        v-for="(metric, index) in tcolumns"
+        v-slot:[metric.value]="{ item }"
+      >
+        <td v-if="item && metric.value" :key="`child-${index}-${item.value}`">
+          <!-- Custom column content -->
+        </td>
+      </template>
+
+      <!-- Actions column -->
+      <template #actions="{ item, index }">
+        <td>
+          <div class="flex justify-center gap-xxs">
+            <Button
+              icon="edit"
+              size="small"
+              variant="plain"
+              color="neutral"
+              round
+              @click="onEdit(item, index)"
+            />
+            <Button
+              icon="delete"
+              size="small"
+              variant="plain"
+              color="danger"
+              round
+              @click="onDelete(item)"
+            />
+          </div>
+        </td>
+      </template>
+    </Table>
+  </div>
+</template>
+```
+
+### Form Screens - Sidebar vs Modal Patterns
+
+#### Sidebar Form Pattern (Complex Forms)
+
+For complex multi-step forms:
+
+```vue
+<template>
+  <Drawer v-model="model" size="40%" @update:model-value="updateModelValue">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>{{ getFormTitle() }}</h2>
+        <Button
+          icon="close"
+          size="small"
+          variant="plain"
+          color="neutral"
+          round
+          @click="closeForm"
+        />
+      </div>
+
+      <div class="form-content">
+        <!-- Multi-step content -->
+        <FormGenerator v-model="entityData" :keys="currentFields" />
+      </div>
+      <div class="form-actions">
+        <Button variant="secondary" @click="closeForm">
+          {{ t('cancel') }}
+        </Button>
+        <Button :disabled="!isFormValid" @click="handleSave">
+          {{ t('save') }}
+        </Button>
+      </div>
+    </div>
+  </Drawer>
+</template>
+
+<style scoped>
+@reference "@/app/assets/main.css";
+
+.form-wrapper {
+  @apply flex flex-col gap-sm h-screen p-lg;
+}
+
+.form-header {
+  @apply flex justify-between items-center gap-sm;
+}
+
+.form-content {
+  @apply flex flex-col gap-xl flex-1;
+}
+
+.form-actions {
+  @apply flex justify-end gap-sm;
+}
+</style>
+```
+
+#### Modal/Dialog Form Pattern (Simple Forms)
+
+For simple CRUD forms:
+
+```vue
+<template>
+  <div class="form-wrapper">
+    <Input v-model="formData.name" :label-value="t('name')" />
+    <Input v-model="formData.email" :label-value="t('email')" />
+
+    <div class="form-actions">
+      <Button variant="secondary" @click="handleCancel">{{
+        t('cancel')
+      }}</Button>
+      <Button @click="handleSave">{{ t('save') }}</Button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+interface Props {
+  initialData?: User;
+}
+
+interface Emits {
+  (e: 'save', data: User): void;
+  (e: 'cancel'): void;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
+
+const { t } = useI18n();
+
+const formData = reactive({
+  name: props.initialData?.name || '',
+  email: props.initialData?.email || '',
+});
+</script>
+```
+
+## Design System Enforcement (CRITICAL)
+
+### MANDATORY Classes (REAL PROJECT)
+
+```vue
+<template>
+  <!-- DUAL ARCHITECTURE PATTERNS -->
+
+  <!-- Pattern 1: Grid-based layouts (Card-based features) -->
+  <div class="main-container">
+    <div class="entities-grid">
+      <!-- Generic grid class -->
+      <div class="entity-card">
+
+        <!-- Pattern 2: Table-based layouts (Tabular features) -->
+        <div class="main-container">
+          <Table class="entities-table" :loading="isLoading">
+            <!-- Table instead of grid -->
+            <template #actions>
+              <!-- Table actions -->
+              <Button
+                icon="edit"
+                size="small"
+                variant="plain"
+                color="neutral"
+                round
+              />
+              <!-- Table's edit action -->
+              <Button
+                icon="delete"
+                size="small"
+                variant="plain"
+                color="danger"
+                round
+              />
+              <!-- Table's delete action -->
+            </template>
+            <template #empty-state> <!-- Empty states --> </template>
+          </Table>
+
+          <!-- Common classes -->
+          <div class="loading-spinner" />
+          <!-- Custom spinner -->
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+```
+
+## State Management Patterns (REAL PROJECT)
+
+### Multi-Level Loading States
+
+```typescript
+// Global loading
+const isLoading = ref(false);
+const isSaving = ref(false);
+
+// Complex operation states
+const isCheckingUsage = ref(false);
+const isDeletingIntegration = ref(false);
+const isDeactivatingIntegration = ref(false);
+
+// Granular loading per item (REAL PROJECT PATTERN)
+const loadingIntegrations = ref<Set<number>>(new Set());
+
+// Functions
+function isIntegrationLoading(integrationId: number) {
+  return loadingIntegrations.value.has(integrationId);
+};
+```
+
+### Complex Dialog States (REAL PROJECT)
+
+```vue
+<template>
+  <Dialog v-model="showDelete">
+    <!-- Loading state for checking usage -->
+    <div
+      v-if="isCheckingUsage"
+      class="flex flex-col gap-sm items-center justify-center"
+    >
+      <Skeleton v-for="i in 4" :key="i" />
+    </div>
+
+    <!-- Warning with affected items -->
+    <div v-else-if="usageCheckResult && usageCheckResult.isUsedInRelations">
+      <h3>{{ t('deleteEntityWithName', { name: deletingEntity?.name }) }}</h3>
+      <p>
+        {{
+          t('entityUsedInCount', {
+            count: usageCheckResult.affectedItems.length,
+          })
+        }}
+      </p>
+
+      <!-- Grey container with affected items -->
+      <Card class="related-items-container">
+        <h4 class="related-items-title">{{ t('relatedItemsTitle') }}</h4>
+        <ul class="related-items-list">
+          <li v-for="item in usageCheckResult.affectedItems" :key="item.id">
+            • {{ item.name }}
+          </li>
+        </ul>
+      </Card>
+    </div>
+
+    <!-- Simple confirmation -->
+    <div v-else-if="usageCheckResult && !usageCheckResult.isUsedInRelations">
+      <h3>{{ t('deleteEntity') }}</h3>
+      <p>{{ t('deleteEntityMessage', { name: deletingEntity?.name }) }}</p>
+    </div>
+  </Dialog>
+</template>
+
+<style scoped>
+@reference "@/app/assets/main.css";
+
+.related-items-container {
+  @apply p-base;
+}
+</style>
+```
+
+### CRUD State Pattern (REAL PROJECT)
+
+```typescript
+// Multiple composables pattern
+const { entities, isLoading, paginationMeta, fetchEntitiesPaginated } =
+  useCreateTable();
+const {
+  createEntity,
+  updateEntity,
+  deleteEntity,
+  checkEntityUsage, // Complex validation
+} = useEntityManager(t);
+
+// Form states
+const showForm = ref(false);
+const showDelete = ref(false);
+const showDeactivate = ref(false); // Additional states
+const currentEntity = ref<Entity>({});
+const deletingEntity = ref<Entity | null>(null);
+const usageCheckResult = ref<any>(null); // Complex validation results
+```
+
+## Internationalization (MANDATORY)
+
+### Text Pattern
+
+```vue
+<template>
+  <!-- CORRECT -->
+  <Button>{{ t('buttons.save') }}</Button>
+  <p>{{ t('messages.welcome', { name: userName }) }}</p>
+
+  <!-- FORBIDDEN -->
+  <!-- <BButton>Save</Button>           ❌ -->
+  <!-- <p>Welcome, {{ userName }}!</p>   ❌ -->
+</template>
+```
+
+## Props and Emits Typing
+
+### Standard Pattern
+
+```typescript
+interface Props {
+  modelValue?: string;
+  disabled?: boolean;
+  required?: boolean;
+}
+
+interface Emits {
+  (e: 'update:modelValue', value: string): void;
+  (e: 'change', value: string): void;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  disabled: false,
+  required: false,
+});
+
+const emit = defineEmits<Emits>();
+```
+
+## Validation Rules
+
+### FAIL CONDITIONS (REAL PROJECT)
+
+- Missing TitleBar in [Entity]View.vue screens
+- Using components outside @etus/design-system
+- Hardcoded text without t() function
+- Missing .main-container in list screens
+- Wrong architecture: Grid for tabular data or Table for card data
+- Using Options API instead of Composition API
+- Missing Material Design icons (edit, delete, more_vert)
+- Dialog buttons not right-aligned
+- Delete button not using color="danger"
+
+### QUALITY REQUIREMENTS (REAL PROJECT)
+
+- Dual architecture: Grid-based OR Table-based patterns
+- Granular loading states per item when applicable
+- Complex dialog states with usage validation
+- Responsive grid with project-specific breakpoints
+- Material Design icons with project-specific classes
+- Fixed card dimensions: 266x237px for entity cards
+- Custom spinner with project-specific animation
+- Usage checking before destructive operations
+
+### CRITICAL PROJECT PATTERNS
+
+- TitleBar actions use color="primary" not variant="primary"
+- Delete confirmations always check usage first
+- Loading states: global + granular + operation-specific
+- Grid layouts: auto-fit minmax(350px, 1fr) with 5-4-3-2-1 responsive
+- Sidebar forms: 40% width for complex multi-step forms
+- Dialog sizes: min-w-[515px] min-h-[200px] for confirmations

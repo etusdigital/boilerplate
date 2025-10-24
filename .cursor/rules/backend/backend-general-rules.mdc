@@ -1,0 +1,145 @@
+---
+description: Backend general orchestration rules and architectural guidelines
+globs: apps/backend/**/*.ts
+alwaysApply: false
+---
+
+# Backend General Rules
+
+## Specialized Rules Context
+
+### File-Specific Rule References
+- **Entity files**: @specialized-rules/entity-rules.mdc
+- **Service files**: @specialized-rules/service-rules.mdc  
+- **Controller files**: @specialized-rules/controller-rules.mdc
+- **DTO files**: @specialized-rules/dto-rules.mdc
+- **Module files**: @specialized-rules/module-rules.mdc
+
+## Architecture Guidelines
+
+### Directory Structure Enforcement
+```
+/backend/src/
+├── entities/
+│   └── [entity-name].entity.ts
+├── modules/
+│   └── [entity-name]/
+│       ├── [entity-name].module.ts
+│       ├── [entity-name].controller.ts
+│       ├── [entity-name].service.ts
+│       ├── [entity-name].spec.ts
+│       └── dto/
+│           ├── [entity-name].dto.ts
+└── app.module.ts
+```
+
+### File Naming Conventions
+- **Database columns**: snake_case (account_id, created_at)
+- **Entity properties**: camelCase (accountId, createdAt)
+- **File names**: kebab-case (user-profile.entity.ts)
+- **Class names**: PascalCase (UserProfile, CreateUserDto)
+
+## Project-Specific Standards
+
+### Account Isolation Pattern
+All database operations must include account context filtering:
+- Use `accountId` from CLS context in all operations
+- Always filter queries by `accountId` automatically
+- Validate account ownership before any CRUD operation
+- Pattern: `where: { accountId: this.cls.get('accountId'), deletedAt: IsNull() }`
+
+### Audit System Integration
+- Automatic audit logging via AuditSubscriber
+- Include user context in all operations
+- Track all soft deletes, updates, and creations
+- Use `save()` instead of `update()` for audit compatibility
+
+### Migration Safety Rules
+- Always ask user before generating/executing migrations
+- Never execute `typeorm migration:*` automatically
+- MANDATORY: Pause execution after entity creation/modification
+- Display exact migration commands to user for manual execution
+- Wait for user confirmation before proceeding
+
+### Migration Process Commands
+When entity is created or modified, display these exact commands to user:
+
+```bash
+⚠️  Entity created/modified. Please run these migration commands manually:
+
+🔧 Generate Migration:
+npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/ormconfig.ts migration:generate src/database/migrations/%migrationName%
+
+🚀 Execute Migration:
+npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/ormconfig.ts migration:run
+
+Please run these commands and confirm completion before I proceed to next phase.
+```
+
+### Soft Delete Pattern
+- Use `@DeleteDateColumn()` in all entities
+- Always filter by `deletedAt: IsNull()` in queries
+- Use `softDelete()` or set `deletedAt` manually for deletions
+- Soft deletes trigger audit logs automatically
+
+### Custom Properties (JSONB)
+- Structure: Array of objects with `key`, `value`, `type` properties
+- Validate structure before saving
+- Use JSONB operators for filtering and searching
+- Pattern: `@> :property` for contains operations
+
+## Implementation Standards
+
+### Authentication and Security
+- Protected endpoints: Use `@UseGuards(JwtAuthGuard)` on all controllers
+- Account isolation: Validate account ownership in all operations
+- Input validation: Sanitize all user inputs with DTOs
+- JWT context: Use ClsService to get accountId from token
+
+### Performance and Pagination
+- Pagination: Mandatory for list endpoints using findAndCount()
+- Account filtering: Include accountId in all pagination queries
+- Soft delete: Filter `deletedAt: IsNull()` in all queries
+- Optimization: Load only required fields and relations
+
+### Module Integration Requirements
+- Import: TypeOrmModule.forFeature([Entity]) in module
+- Register: Add module to AppModule imports array
+- Dependency: Use constructor injection with @InjectRepository()
+- Export: Export service if used by other modules
+
+## Quality Gates
+
+### Fail Conditions
+- Missing account isolation in queries
+- Using update() instead of save() for entity modifications
+- Missing soft delete implementation
+- Executing migrations without user approval
+- Auto-executing migration commands
+- Missing API documentation
+- Missing error handling in services
+- Missing validation in DTOs
+- Hard delete operations
+- Proceeding without migration confirmation
+
+### Quality Requirements
+- Account isolation implemented in all operations
+- Soft delete pattern used consistently
+- Audit system integrated properly
+- Migration safety rules followed
+- Complete API documentation
+- Proper error handling implemented
+- Input validation complete
+- Security measures implemented
+
+## Common Anti-Patterns to Avoid
+- Mixing feature logic in shared modules
+- Missing account isolation in database queries
+- Using update() instead of save() for audit compatibility
+- Executing migrations without user approval
+- Missing API documentation decorators
+- Incomplete error handling in services
+- Missing validation decorators in DTOs
+- Hard delete operations
+- Circular dependencies between modules
+- Missing authentication guards on protected endpoints

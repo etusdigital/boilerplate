@@ -1,0 +1,214 @@
+---
+description: Specialized rules for NestJS service files
+globs: **/*.service.ts
+alwaysApply: false
+---
+
+# Service Rules
+
+## Mandatory Service Structure
+
+### Required Dependencies
+All services must include these mandatory dependencies:
+
+```typescript
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository, IsNull } from 'typeorm'
+import { ClsService } from 'nestjs-cls'
+import { EntityName } from '../../entities/entity-name.entity'
+import { CreateEntityDto } from './dto/create-entity-name.dto'
+import { UpdateEntityDto } from './dto/update-entity-name.dto'
+import { PaginationDto } from '../../common/dto/pagination.dto'
+
+@Injectable()
+export class EntityNameService {
+  constructor(
+    @InjectRepository(EntityName)
+    private readonly entityRepository: Repository<EntityName>,
+    private readonly cls: ClsService,
+  ) {}
+}
+```
+
+## Account Isolation Pattern
+
+### Mandatory Query Filtering
+All database queries must include account isolation:
+
+```typescript
+// Find operations
+async findAll(paginationDto: PaginationDto = {}) {
+  const { page = 1, limit = 10 } = paginationDto
+  const skip = (page - 1) * limit
+  
+  const [entities, total] = await this.entityRepository.findAndCount({
+    take: limit,
+    skip: skip,
+    where: { 
+      accountId: this.cls.get('accountId'),
+      deletedAt: IsNull() 
+    },
+    order: { createdAt: 'DESC' },
+  })
+
+  return {
+    data: entities,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    }
+  }
+}
+
+// Find one operation
+async findOne(id: number) {
+  const entity = await this.entityRepository.findOne({
+    where: { 
+      id, 
+      accountId: this.cls.get('accountId'),
+      deletedAt: IsNull() 
+    },
+  })
+  
+  if (!entity) {
+    throw new NotFoundException(`Entity with ID ${id} not found`)
+  }
+  
+  return entity
+}
+```
+
+## Audit System Integration
+
+### Create Operations
+```typescript
+async create(createEntityDto: CreateEntityDto) {
+  try {
+    const entity = this.entityRepository.create({
+      ...createEntityDto,
+      accountId: this.cls.get('accountId'), // MANDATORY: Account isolation
+    })
+    
+    // MANDATORY: Use save() for audit system compatibility
+    return await this.entityRepository.save(entity)
+  } catch (error) {
+    throw new InternalServerErrorException('Failed to create entity')
+  }
+}
+```
+
+### Update Operations
+```typescript
+async update(id: number, updateEntityDto: UpdateEntityDto) {
+  try {
+    const entity = await this.findOne(id) // Validates account ownership
+    
+    Object.assign(entity, updateEntityDto)
+    
+    // MANDATORY: Use save() for audit system compatibility - NEVER use update()
+    return await this.entityRepository.save(entity)
+  } catch (error) {
+    if (error instanceof NotFoundException) {
+      throw error
+    }
+    throw new InternalServerErrorException('Failed to update entity')
+  }
+}
+```
+
+### Delete Operations
+```typescript
+async remove(id: number) {
+  try {
+    const entity = await this.findOne(id) // Validates account ownership
+    
+    // MANDATORY: Soft delete for audit trail
+    await this.entityRepository.softDelete(id)
+    
+    return { message: 'Entity deleted successfully' }
+  } catch (error) {
+    if (error instanceof NotFoundException) {
+      throw error
+    }
+    throw new InternalServerErrorException('Failed to delete entity')
+  }
+}
+```
+
+## Error Handling Pattern
+
+### Standard Error Handling
+```typescript
+async serviceMethod() {
+  try {
+    // Business logic here
+    return result
+  } catch (error) {
+    // Re-throw known exceptions
+    if (error instanceof NotFoundException) {
+      throw error
+    }
+    
+    // Convert unknown errors to internal server error
+    throw new InternalServerErrorException('Operation failed')
+  }
+}
+```
+
+## Query Patterns
+
+### JSONB Queries
+```typescript
+async findByCustomProperty(key: string, value: any) {
+  return await this.entityRepository
+    .createQueryBuilder('entity')
+    .where('entity.accountId = :accountId', { accountId: this.cls.get('accountId') })
+    .andWhere('entity.customProperties @> :property', { 
+      property: JSON.stringify([{ key, value }]) 
+    })
+    .andWhere('entity.deletedAt IS NULL')
+    .getMany()
+}
+```
+
+### Complex Queries with Relations
+```typescript
+async findWithRelations(id: number) {
+  return await this.entityRepository.findOne({
+    where: { 
+      id, 
+      accountId: this.cls.get('accountId'),
+      deletedAt: IsNull() 
+    },
+    relations: ['relatedEntity', 'account'],
+  })
+}
+```
+
+## Validation Rules
+
+### Service File Structure
+- File location: `/backend/src/modules/[entity-name]/[entity-name].service.ts`
+- Class name: PascalCase with 'Service' suffix
+- Constructor injection for Repository and ClsService
+- All methods use try-catch error handling
+
+### Required Constructor Injection
+```typescript
+constructor(
+  @InjectRepository(EntityName)
+  private readonly entityRepository: Repository<EntityName>,
+  private readonly cls: ClsService,
+) {}
+```
+
+### Fail Conditions
+- Missing account isolation in queries (accountId filter)
+- Using update() instead of save() for entity modifications
+- Missing soft delete implementation (using delete() instead of softDelete())
+- Missing error handling in service methods
+- Hard delete operations
+- Queries without deletedAt: IsNull() filter

@@ -1,0 +1,241 @@
+---
+description: Design system component documentation reference for development context
+globs: **/*.vue,**/*.ts
+alwaysApply: false
+---
+
+# Design System Documentation Reference
+
+## Documentation Access Pattern
+
+### Component Documentation Location
+
+All design system components are documented in:
+
+```
+docs/design-system-components/[ComponentName].md
+```
+
+### Usage Pattern for LLM Agents
+
+When implementing components from @etus/design-system, agents MUST:
+
+1. **Locate Component Documentation**: Use the path provided in the Component Documentation Index below
+
+   - Format: `docs/design-system-components/[ComponentName].md`
+   - Example: For Button → `docs/design-system-components/Button.md`
+
+2. **Read Documentation Before Implementation**:
+
+   ```bash
+   # Agent workflow:
+   read_file("docs/design-system-components/Button.md")
+   # Then implement using documented Props API, Events API, and Slots API
+   ```
+
+3. **Follow Documentation Standards**: Use exact prop names, types, and patterns from docs
+
+   - Props API: Complete prop definitions with types and defaults
+   - Events API: Available events and their signatures
+   - Slots API: Slot definitions with usage examples
+   - Usage patterns and best practices
+
+4. **Leverage Examples**: Copy implementation patterns from documented examples
+
+### Component Documentation Index
+
+Complete list of documented @etus/design-system components:
+
+#### Core UI Components
+
+- **Alert** → `docs/design-system-components/Alert.md`
+  - Alert messages with different types and expandable content
+- **Button** → `docs/design-system-components/Button.md`
+  - Customizable buttons with loading states and progress indicators
+- **Card** → `docs/design-system-components/Card.md`
+  - Simple container component with card-like appearance
+- **Dialog** → `docs/design-system-components/Dialog.md`
+  - Modal dialogs for confirmations and forms
+- **Icon** → `docs/design-system-components/Icon.md`
+  - Material Design icon component
+- **Spinner** → `docs/design-system-components/Spinner.md`
+  - Loading indicator component
+
+#### Form Components
+
+- **Input** → `docs/design-system-components/Input.md`
+  - Form inputs with validation and different types
+- **Textarea** → `docs/design-system-components/Textarea.md`
+  - A versatile textarea with validation and customization
+- **FileUpload** → `docs/design-system-components/FileUpload.md`
+  - Component for files upload
+- **Select** → `docs/design-system-components/Select.md`
+  - Dropdown selection with search and multi-select
+- **Checkbox** → `docs/design-system-components/Checkbox.md`
+  - Checkbox input with custom styling
+- **Radio** → `docs/design-system-components/Radio.md`
+  - Radio button input component
+- **Toggle** → `docs/design-system-components/Toggle.md`
+  - Radio button with enhanced styling
+- **Switch** → `docs/design-system-components/Switch.md`
+  - Switch/toggle input component
+- **AutoComplete** → `docs/design-system-components/AutoComplete.md`
+  - Autocomplete input with filtered suggestions
+- **ColorPicker** → `docs/design-system-components/ColorPicker.md`
+  - Advanced color picker with multiple format support
+- **Slider** → `docs/design-system-components/Slider.md`
+  - Range slide input component
+- **PINInput** → `docs/design-system-components/PINInput.md`
+  - A specialized input component that allows users to enter a sequence of one-character alphanumeric inputs, commonly used for verification codes, PINs, and OTP entries
+- **RichTextEditor** → `docs/design-system-components/RichTextEditor.md`
+  - A comprehensive WYSIWYG (What You See Is What You Get) rich text editor component with a full-featured toolbar for creating and editing formatted content
+
+#### Data Display Components
+
+- **Table** → `docs/design-system-components/Table.md`
+  - Data tables with sorting, pagination, and custom columns
+- **Pagination** → `docs/design-system-components/Pagination.md`
+  - Page navigation component
+- **StatusBadge** → `docs/design-system-components/StatusBadge.md`
+  - Label and badge components (use instead of just Badge)
+- **Badge** → `docs/design-system-components/Badge.md`
+  - Label and badge components with custom colors
+- **TagInput** → `docs/design-system-components/TagInput.md`
+  - Input component for creating and managing tags
+- **TagSelect** → `docs/design-system-components/TagSelect.md`
+  - Tag-based selection component
+- **Avatar** → `docs/design-system-components/Avatar.md`
+  - Circular avatar component for user profiles
+- **ProgressBar** → `docs/design-system-components/ProgressBar.md`
+  - Progress indicator bar component
+- **Image** → `docs/design-system-components/Image.md`
+  - A responsive image component with built-in preview functionality, featuring zoom, rotation controls, and customizable overlays for enhanced user experience
+
+#### Layout & Navigation Components
+
+- **Drawer** → `docs/design-system-components/Drawer.md`
+  - Slide-out panels for forms and navigation
+- **Navbar** → `docs/design-system-components/Navbar.md`
+  - Top navigation bar component
+- **Breadcrumb** → `docs/design-system-components/Breadcrumb.md`
+  - Breadcrumb navigation component
+- **Tab** → `docs/design-system-components/Tab.md`
+  - Tabbed interface component
+- **Separator** → `docs/design-system-components/Separator.md`
+  - Visual separator component
+- **Carousel** → `docs/design-system-components/Carousel.md`
+  - A carousel component that displays a collection of options with navigation controls and pagination indicators
+
+#### Card Components
+
+- **ActionCard** → `docs/design-system-components/ActionCard.md`
+  - Interactive card with drag-and-drop and delete actions
+- **FloatCard** → `docs/design-system-components/FloatCard.md`
+  - Floating card with smart positioning and triggers
+- **IconCard** → `docs/design-system-components/IconCard.md`
+  - Card component with integrated icon display
+- **MetricCard** → `docs/design-system-components/MetricCard.md`
+  - Card for displaying metrics and statistics
+
+#### Interactive Components
+
+- **Dropdown** → `docs/design-system-components/Dropdown.md`
+  - Dropdown menu component
+- **Sidebar** → `docs/design-system-components/Sidebar.md`
+  - Menu component for navigation
+- **Tree** → `docs/design-system-components/Tree.md`
+  - A hierarchical tree component with advanced selection management
+- **RoundMenu** → `docs/design-system-components/RoundMenu.md`
+  - Circular menu component
+- **Tooltip** → `docs/design-system-components/Tooltip.md`
+  - Hover tooltip component
+
+#### Specialized Components
+
+- **RadioGroup** → `docs/design-system-components/RadioGroup.md`
+  - Component for grouping related radio elements
+- **ToggleGroup** → `docs/design-system-components/ToggleGroup.md`
+  - Component for grouping related toggle elements
+- **Connector** → `docs/design-system-components/Connector.md`
+  - Component used to connect diferent elements
+- **Skeleton** → `docs/design-system-components/Skeleton.md`
+  - Loading skeleton component
+- **Profile** → `docs/design-system-components/Profile.md`
+  - User profile display component
+- **History** → `docs/design-system-components/History.md`
+  - History/timeline component
+
+#### Date & Time Components
+
+- **Calendar** → `docs/design-system-components/Calendar.md`
+  - Date display component
+- **DatePicker** → `docs/design-system-components/DatePicker.md`
+  - Date picker, filtering and comparison input component
+
+#### Content & Media Components
+
+- **Crop** → `docs/design-system-components/BCrop.md`
+  - Image cropping component
+- **Filter** → `docs/design-system-components/BFilter.md`
+  - Content filtering component
+
+#### Step & Process Components
+
+- **Stepper** → `docs/design-system-components/Stepper.md`
+  - Step-by-step process component
+
+#### Function-Based Components
+
+- **Toast** → `docs/design-system-components/Toast.md`
+  - Notification toast messages function (use with inject('toast') as Function)
+- **Confirm** → `docs/design-system-components/Confirm.md`
+  - Programmatic confirmation dialog function (use with inject('confirm') as Function)
+- **Accordion** → `docs/design-system-components/Accordion.md`
+  - Collapsible content component
+
+### Implementation Validation
+
+Before implementing any @etus/design-system component:
+
+1. Read the corresponding .md file in docs/design-system-components/
+2. Follow the documented API exactly
+3. Use provided examples as implementation templates
+4. Respect documented constraints and best practices
+
+### Documentation Format Standard
+
+Each component documentation includes:
+
+- **Component Overview**: Purpose and basic usage
+- **Props API**: Complete prop definitions with types and defaults
+- **Events API**: Available events and their signatures
+- **Slots API**: Slot definitions with usage examples
+- **Important Notes**: Accessibility and implementation guidance
+
+## Integration with Existing Rules
+
+This documentation reference integrates with:
+
+- **Component Rules**: Follow component-rules.mdc for structural patterns
+- **Frontend Rules**: Follow frontend-general-rules.mdc for design system enforcement
+- **CRUD Patterns**: Use documented components in standard CRUD implementations
+
+## Fail Conditions
+
+### CRITICAL FAILURES
+
+- Using @etus/design-system components without consulting documentation
+- Implementing component props that don't exist in documentation
+- Missing required props as defined in documentation
+- Using deprecated patterns not reflected in current docs
+
+### QUALITY VIOLATIONS
+
+- Not following documented best practices
+- Ignoring accessibility notes from component docs
+- Using components outside their documented intended use cases
+- Missing event handlers for documented interactive components
+
+---
+
+**This rule ensures agents have direct access to accurate, up-to-date component documentation for consistent implementation.**

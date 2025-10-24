@@ -1,0 +1,349 @@
+---
+description: Pinia store patterns and state management
+globs: **/stores/*.ts
+alwaysApply: false
+---
+
+# Store Rules
+
+## Mandatory Store Structure
+
+### Composition API Pattern (REQUIRED)
+```typescript
+// features/[feature]/stores/[feature]Store.ts
+import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'
+import type { Entity } from '../types/entity.type'
+
+export const useEntityStore = defineStore('entities', () => {
+  // State
+  const entities = ref<Entity[]>([])
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
+
+  // Getters
+  const activeEntities = computed(() => 
+    entities.value.filter(entity => !entity.deletedAt)
+  )
+
+  const entityCount = computed(() => entities.value.length)
+
+  // Actions
+  const setEntities = (newEntities: Entity[]) => {
+    entities.value = newEntities
+  }
+
+  const addEntity = (entity: Entity) => {
+    entities.value.push(entity)
+  }
+
+  const updateEntity = (id: number, entityData: Partial<Entity>) => {
+    const index = entities.value.findIndex(e => e.id === id)
+    if (index !== -1) {
+      entities.value[index] = { ...entities.value[index], ...entityData }
+    }
+  }
+
+  const removeEntity = (id: number) => {
+    entities.value = entities.value.filter(e => e.id !== id)
+  }
+
+  const clearStore = () => {
+    entities.value = []
+    error.value = null
+    isLoading.value = false
+  }
+
+  return {
+    // State
+    entities,
+    isLoading,
+    error,
+    // Getters
+    activeEntities,
+    entityCount,
+    // Actions
+    setEntities,
+    addEntity,
+    updateEntity,
+    removeEntity,
+    clearStore
+  }
+})
+```
+
+## Global Store Pattern
+
+### Main Store (App-Level)
+```typescript
+// app/stores/index.ts
+import { defineStore } from 'pinia' 
+import { ref, computed } from 'vue'
+import type { Account, User } from '@/shared/types'
+
+export const useMainStore = defineStore('main', () => {
+  // Auth state
+  const user = ref<User | null>(null)
+  const selectedAccount = ref<Account>({} as Account)
+  const accounts = ref<Account[]>([])
+  
+  // UI state
+  const isLoading = ref(false)
+  const sidebarCollapsed = ref(false)
+
+  // Getters
+  const isAuthenticated = computed(() => !!user.value)
+  const hasSelectedAccount = computed(() => !!selectedAccount.value.id)
+
+  // Actions
+  function setUser(userData: User) {
+    user.value = userData
+  }
+
+  function setSelectedAccount(account: Account) {
+    selectedAccount.value = account
+  }
+
+  function setAccounts(accountList: Account[]) {
+    accounts.value = accountList
+  }
+
+  function logout() {
+    user.value = null
+    selectedAccount.value = {} as Account
+    accounts.value = []
+  }
+
+  return {
+    // State
+    user,
+    selectedAccount,
+    accounts,
+    isLoading,
+    sidebarCollapsed,
+    // Getters
+    isAuthenticated,
+    hasSelectedAccount,
+    // Actions
+    setUser,
+    setSelectedAccount,
+    setAccounts,
+    logout
+  }
+})
+```
+
+## API Integration Pattern
+
+### Store with API Calls
+```typescript
+export const useEntityStore = defineStore('entities', () => {
+  const entities = ref<Entity[]>([])
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
+
+  // API integration
+  async function fetchEntities() {
+    isLoading.value = true
+    error.value = null
+    
+    try {
+      const response = await api.get('/entities')
+      entities.value = response.data
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Fetch failed'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function saveEntity(entity: Entity) {
+    try {
+      if (entity.id) {
+        const response = await api.put(`/entities/${entity.id}`, entity)
+        updateEntity(entity.id, response.data)
+      } else {
+        const response = await api.post('/entities', entity)
+        addEntity(response.data)
+      }
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Save failed'
+      throw err
+    }
+  }
+
+  return {
+    entities,
+    isLoading,
+    error,
+    fetchEntities,
+    saveEntity
+  }
+})
+```
+
+## State Persistence
+
+### Local Storage Integration
+```typescript
+export const useSettingsStore = defineStore('settings', () => {
+  const theme = ref<'light' | 'dark'>('light')
+  const language = ref<'pt' | 'en'>('pt')
+  
+  // Load from localStorage on init
+  function loadSettings() {
+    const saved = localStorage.getItem('app-settings')
+    if (saved) {
+      const settings = JSON.parse(saved)
+      theme.value = settings.theme || 'light'
+      language.value = settings.language || 'pt'
+    }
+  }
+
+  // Save to localStorage
+  function saveSettings() {
+    const settings = {
+      theme: theme.value,
+      language: language.value
+    }
+    localStorage.setItem('app-settings', JSON.stringify(settings))
+  }
+
+  function setTheme(newTheme: 'light' | 'dark') {
+    theme.value = newTheme
+    saveSettings()
+  }
+
+  function setLanguage(newLanguage: 'pt' | 'en') {
+    language.value = newLanguage
+    saveSettings()
+  }
+
+  // Auto-load on creation
+  loadSettings()
+
+  return {
+    theme,
+    language,
+    setTheme,
+    setLanguage,
+    loadSettings
+  }
+}, {
+  persist: true // Using pinia-plugin-persistedstate
+})
+```
+
+## Store Composition
+
+### Multi-Store Integration
+```typescript
+export function useEntityManagement() {
+  const entityStore = useEntityStore()
+  const userStore = useUserStore()
+  const mainStore = useMainStore()
+
+  async function createEntityWithUser(entityData: Entity) {
+    // Use multiple stores in coordination
+    const entity = await entityStore.createEntity(entityData)
+    
+    if (entity) {
+      // Update user's entity count
+      userStore.incrementEntityCount(mainStore.user.id)
+    }
+    
+    return entity
+  }
+
+  return {
+    createEntityWithUser
+  }
+}
+```
+
+## Account Context Pattern (CRITICAL)
+
+### Account-Scoped State
+```typescript
+export const useAccountScopedStore = defineStore('accountScoped', () => {
+  const mainStore = useMainStore()
+  const data = ref<Record<number, any[]>>({})
+
+  // Get data for current account
+  const currentAccountData = computed(() => {
+    const accountId = mainStore.selectedAccount.id
+    return data.value[accountId] || []
+  })
+
+  function setDataForAccount(accountId: number, accountData: any[]) {
+    data.value[accountId] = accountData
+  }
+
+  function setCurrentAccountData(accountData: any[]) {
+    const accountId = mainStore.selectedAccount.id
+    if (accountId) {
+      data.value[accountId] = accountData
+    }
+  }
+
+  function clearAccountData(accountId: number) {
+    delete data.value[accountId]
+  }
+
+  return {
+    data,
+    currentAccountData,
+    setDataForAccount,
+    setCurrentAccountData,
+    clearAccountData
+  }
+})
+```
+
+## Validation Rules
+
+### Store Organization
+- **Global stores**: `/app/stores/` (auth, settings, app state)
+- **Feature stores**: `/features/[feature]/stores/` (feature-specific state)
+- **Naming**: `use[Entity]Store` (e.g., `useEntityStore`, `useItemStore`)
+
+### Return Pattern
+```typescript
+// MANDATORY - Organized return object
+return {
+  // State first
+  entities,
+  isLoading,
+  error,
+  
+  // Getters second
+  activeEntities,
+  entityCount,
+  
+  // Actions last
+  fetchEntities,
+  addEntity,
+  updateEntity,
+  deleteEntity,
+  clearStore
+}
+```
+
+### FAIL CONDITIONS
+- Using Options API instead of Composition API
+- Not organizing return object (state, getters, actions)
+- Missing account context for multi-tenant features
+- Direct state mutation outside actions
+- Missing error handling in async actions
+
+### QUALITY REQUIREMENTS
+- All stores use Composition API pattern
+- Clear separation of state, getters, and actions
+- Account context where applicable
+- Proper error handling and loading states
+- TypeScript typing for all state and actions
+
+- Stores larger than 300 lines
+- Using any type instead of proper typing
+- Not handling async operations with proper loading states
+- Missing error handling in API calls

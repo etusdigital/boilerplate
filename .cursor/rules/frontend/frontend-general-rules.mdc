@@ -1,0 +1,393 @@
+---
+description: Frontend general orchestration rules and architectural guidelines
+globs: **/components/*.vue,apps/frontend/src/**/*.ts,apps/frontend/src/features/**/components/*.vue
+alwaysApply: false
+---
+
+# Frontend General Rules
+
+## Specialized Rules Integration
+
+### Cross-Reference Architecture
+When working with specific file types, the LLM MUST also consult these specialized rules:
+
+- **Component Rules**: `@.cursor/rules/frontend/specialized-rules/component-rules.mdc` - Vue component patterns and CRUD screen layouts
+- **Design System Docs**: `@.cursor/rules/frontend/specialized-rules/design-system-docs.mdc` - Component documentation reference and API details
+- **Composable Rules**: `@.cursor/rules/frontend/specialized-rules/composable-rules.mdc` - Business logic and API integration patterns
+- **Store Rules**: `@.cursor/rules/frontend/specialized-rules/store-rules.mdc` - State management with account context
+- **Route Rules**: `@.cursor/rules/frontend/specialized-rules/route-rules.mdc` - Navigation and Canvas.vue integration
+- **Types Rules**: `@.cursor/rules/frontend/specialized-rules/types-rules.mdc` - TypeScript definitions and enum patterns
+- **Feature Rules**: `@.cursor/rules/frontend/specialized-rules/feature-rules.mdc` - Module organization and isolation
+
+## Visual Identity System
+
+### Design System Foundation (CRITICAL)
+**ABSOLUTE REQUIREMENT**: ALL UI components MUST use `@etus/design-system`
+
+### Color Architecture
+```typescript
+// Project Color Scheme (BRIUS Design System Integration)
+PRIMARY: 'Custom Green' // Project's signature color for save actions
+INFO: 'Blue' // Edit/configure actions 
+SUCCESS: 'Green' // Success states
+WARNING: 'Amber' // Warning states
+DANGER: 'Red' // Delete/destructive actions
+NEUTRAL: 'Gray variants' // Cancel/secondary actions
+```
+
+### Component Sizing Standards
+```typescript
+// Button Standards
+Button: {
+  default: 'Standard form actions',
+  lg: 'Search inputs and primary CTAs'
+}
+
+// Input Standards  
+Input: {
+  lg: 'Search fields (mandatory)',
+  default: 'Form fields'
+}
+
+// Modal Standards
+Dialog: {
+  minWidth: '515px', // Standard dialog width
+  minHeight: '200px', // Minimum dialog height
+  padding: 'p-base' // Standard internal padding
+}
+```
+
+### Layout Architecture Patterns
+
+#### Page Layout Template (UNIVERSAL)
+```vue
+<template>
+  <div class="main-container">
+    <!-- 1. MANDATORY: TitleBar for all list screens -->
+    <TitleBar :title="t('entity.title')" :actions="titleBarActions" />
+    
+    <!-- 2. Search Section -->
+    <Input type="search" :placeholder="t('search')" />
+    
+    <!-- 3. Content Grid/Cards -->
+    <div class="entity-grid">
+      <!-- Skeleton + Real Content Pattern -->
+    </div>
+    
+    <!-- 4. Empty State -->
+    <div class="empty-state"><!-- Standard empty messaging --></div>
+    
+    <!-- 5. Pagination -->
+    <BPagination />
+    
+    <!-- 6. Modals (Form + Delete Confirmation) -->
+    <EntityForm />
+  </div>
+</template>
+```
+
+#### Canvas.vue Navigation Architecture (CRITICAL)
+```typescript
+// MANDATORY: All user-accessible features MUST be registered
+type MenuItem = {
+  label: string    // i18n key: t('menu.users')
+  value: string    // Route identifier
+  icon: string     // Material Design icon: 'mdi-account-group'
+  path: string     // Vue Router path: '/users'
+  bottom?: boolean // Settings section: true
+  show?: boolean   // Conditional visibility
+}
+
+// Navigation Hierarchy
+MAIN_SECTION: 'Primary features (users, accounts)'
+SETTINGS_SECTION: 'System configuration (bottom: true)'
+```
+
+#### TitleBar Component Architecture (MANDATORY)
+```typescript
+// UNIVERSAL Pattern for all [Entity]View.vue screens
+interface TitleBarAction {
+  label: string     // i18n: t('buttons.addEntity')
+  action: () => void // Handler: () => handleEdit({})
+  variant: 'primary' | 'secondary' // Primary for create actions
+}
+
+// Standard Implementation
+const titleBarActions = computed<TitleBarAction[]>(() => [
+  { 
+    label: t('buttons.addEntity'), 
+    action: () => handleEdit({}), 
+    variant: 'primary' 
+  }
+])
+```
+
+### CSS Class Architecture
+
+#### Project-Specific Classes (MANDATORY)
+```css
+/* Page Layout */
+.main-container: 'Standard page wrapper with consistent padding'
+.entity-grid: 'Card grid layouts for list screens'
+
+/* Form Layouts */
+.form-wrapper: 'Form container with standard spacing'
+.form-actions: 'Button groups with proper alignment'
+
+/* State Presentations */
+.loading-container: 'Centered loading states with spinner'
+.empty-state: 'Centered empty state messaging'
+
+/* Interactive Elements */
+.search-container: 'Search input wrapper with proper spacing'
+.pagination-wrapper: 'Pagination container with centering'
+```
+
+#### Tailwind Integration Standards
+```typescript
+// Spacing System (Design System Aligned)
+GAP_BASE: 'gap-base' // Standard element spacing
+PADDING_BASE: 'p-base' // Standard container padding
+MARGIN_BASE: 'm-base' // Standard element margins
+
+// Layout Utilities
+FLEX_PATTERNS: 'flex flex-col gap-base' // Standard column layouts
+GRID_PATTERNS: 'entity-grid' // Feature-specific grid classes
+CENTER_PATTERNS: 'flex justify-center items-center' // Centering utilities
+```
+
+## UX Interaction Patterns
+
+### Button Behavior Standards (CRITICAL)
+```typescript
+// Action Button Color Mapping (ENFORCED)
+SAVE_ACTIONS: 'Primary variant (custom green)'
+EDIT_ACTIONS: 'Secondary variant (gray)' 
+DELETE_ACTIONS: 'Danger variant (red)'
+CANCEL_ACTIONS: 'Secondary variant (gray)'
+
+// Button Placement Patterns
+TITLEBAR_ACTIONS: 'Primary actions (Create/Add)'
+CARD_ACTIONS: 'Secondary actions (Edit/Configure/Delete)'
+DIALOG_ACTIONS: 'Right-aligned (Cancel + Confirm)'
+```
+
+### Loading State Architecture
+```typescript
+// Universal Loading Patterns
+SKELETON_LOADING: 'Card-based skeleton states (10 items)'
+SPINNER_LOADING: 'Centered spinner with message'
+BUTTON_LOADING: 'In-button loading states for actions'
+
+// Loading State Hierarchy
+PAGE_LEVEL: 'Full page loading (initial data fetch)'
+COMPONENT_LEVEL: 'Individual card loading (specific actions)'
+ACTION_LEVEL: 'Button-specific loading (save/delete)'
+```
+
+### Empty State Guidelines
+```typescript
+// Empty State Messaging
+NO_ITEMS: 'paginationMeta.totalItems === 0'
+  // Message: t('messages.noItemFound')
+NO_RESULTS: 'paginationMeta.totalItems > 0 && items.length === 0'
+  // Message: t('messages.noResultsFound')
+
+// Visual Standards
+EMPTY_CONTAINER: 'flex flex-col items-center justify-center py-xl'
+TEXT_STYLE: 'text-neutral-foreground-low'
+```
+
+### Error Handling UX Patterns
+```typescript
+// Toast Notification Architecture
+ERROR_PATTERN: {
+  method: 'inject("toast")',
+  message: 't("errors.specificError")',
+  options: 'mainStore.toastOptions',
+  fallback: 'tFunction || ((key: string) => key)'
+}
+
+// Error State Presentation
+API_ERRORS: 'Toast notifications with specific messaging'
+VALIDATION_ERRORS: 'Form field-level error display'
+NETWORK_ERRORS: 'Graceful degradation with retry options'
+```
+
+## Application Architecture Standards
+
+### Technology Stack (ENFORCED)
+```typescript
+FRAMEWORK: 'Vue 3.4+ (Composition API ONLY)'
+LANGUAGE: 'TypeScript 5.4+ (Strict Mode)'
+STATE: 'Pinia 3.0+ (Composition API style)'
+ROUTING: 'Vue Router 4.3+'
+DESIGN: '@etus/design-system 2.1+ (MANDATORY)'
+STYLING: 'Tailwind CSS 4.1+ with design tokens'
+AUTH: 'Auth0 2.4+'
+HTTP: 'Axios 1.6+ with interceptors'
+I18N: 'Vue i18n 11'
+```
+
+### Feature Architecture Principles
+
+#### Isolation and Boundaries
+```typescript
+// Feature Isolation (CRITICAL)
+FEATURE_IMPORTS: 'NO direct imports between features'
+SHARED_LOGIC: 'Use shared/ or global stores only'
+COMMUNICATION: 'Events, router navigation, or global state'
+
+// Directory Structure Enforcement
+FEATURE_STRUCTURE: {
+  components: 'Feature-specific UI components',
+  composables: 'Business logic and API integration',
+  views: 'Route-level page components',
+  types: 'TypeScript definitions',
+  utils: 'Feature-specific utilities',
+  routes: 'Route definitions for export'
+}
+```
+
+#### Account Context Architecture (SECURITY CRITICAL)
+```typescript
+// Multi-Tenant Security Pattern
+API_HEADERS: {
+  'Authorization': 'Bearer ${accessToken}',
+  'account-id': 'mainStore.selectedAccount.id', // MANDATORY
+  'Content-Type': 'application/json'
+}
+
+// Context Enforcement
+ALL_API_CALLS: 'MUST include account-id header'
+DATA_FILTERING: 'Automatic account-scoped filtering'
+ISOLATION: 'Complete data separation between accounts'
+```
+
+### Development Workflow Integration
+
+#### Component Creation Workflow (MANDATORY)
+```typescript
+// ENFORCED SEQUENCE for new features:
+STEP_1: 'Create route in feature/routes.ts'
+STEP_2: 'Register menu item in Canvas.vue'
+STEP_3: 'Implement view component with TitleBar'
+STEP_4: 'Create composable for business logic'
+STEP_5: 'Add form components if needed'
+```
+
+#### CRUD Implementation Standards
+```typescript
+// Standard CRUD Naming (REAL PROJECT PATTERNS)
+COMPOSABLE_METHODS: {
+  fetch: 'fetchEntities()',
+  configure: 'handleConfigure(entity)',
+  edit: 'handleEdit(entity)', 
+  delete: 'handleDeleteAction(entity)',
+  save: 'handleSave(entityData)',
+  closeForm: 'handleCloseForm()',
+  closeDelete: 'handleCloseDeleteModal()'
+}
+
+// State Management Pattern
+CRUD_STATE: {
+  data: 'entities: ref<Entity[]>([])',
+  loading: 'isLoading: ref(false)',
+  forms: 'showForm: ref(false), showDelete: ref(false)',
+  editing: 'editingEntity: ref<Entity>({} as Entity)',
+  deleting: 'deletingEntity: ref<Entity>({} as Entity)'
+}
+```
+
+## Quality Standards and Enforcement
+
+### Internationalization Requirements (UX CRITICAL)
+```typescript
+// Bilingual Support (PT-BR/EN)
+ALL_TEXT: 'MUST use t() function'
+MESSAGE_PATTERNS: {
+  entities: 'Entity names (Users | Usuários)',
+  actions: 'Action labels (Edit | Editar)', 
+  messages: 'System messages (Success | Sucesso)',
+  errors: 'Error messages (Failed | Falhou)'
+}
+
+// Implementation Standard
+I18N_USAGE: 'const { t } = useI18n()'
+FALLBACK: 'tFunction || ((key: string) => key)'
+```
+
+### Performance Architecture
+```typescript
+// Loading Optimization
+ROUTE_LOADING: 'Lazy loading for all route components'
+CODE_SPLITTING: 'Feature-level code splitting'
+BUNDLE_SIZE: 'Initial bundle < 500KB'
+
+// Reactivity Optimization  
+REF_USAGE: 'ref() for primitive values'
+REACTIVE_USAGE: 'reactive() for complex objects'
+COMPUTED_EFFICIENCY: 'Memoized computed properties'
+```
+
+### Security Standards
+```typescript
+// Authentication Architecture
+ROUTE_GUARDS: 'requiresAuth: true for protected routes'
+ROLE_BASED: 'adminOnly: true for admin routes'
+TOKEN_HANDLING: 'Automatic refresh and validation'
+
+// Data Security
+ACCOUNT_ISOLATION: 'All data operations account-scoped'
+INPUT_VALIDATION: 'Client-side validation with sanitization'
+XSS_PREVENTION: 'Template escaping and content security'
+```
+
+## Architectural Decision Records
+
+### Design System Mandate
+- **Decision**: Exclusive use of @etus/design-system components
+- **Rationale**: Ensures visual consistency and reduces maintenance
+- **Implementation**: Import validation and component enforcement
+
+### Account-First Architecture  
+- **Decision**: All operations require account context
+- **Rationale**: Multi-tenant security and data isolation
+- **Implementation**: HTTP interceptors and automatic header injection
+
+### Vue 3 Composition Standard
+- **Decision**: Composition API with script setup only
+- **Rationale**: Better TypeScript integration and modern patterns
+- **Implementation**: Template validation and pattern enforcement
+
+### Feature Isolation Model
+- **Decision**: Self-contained features with clear boundaries
+- **Rationale**: Scalability and independent development
+- **Implementation**: Import restrictions and communication patterns
+
+## Fail Conditions (CRITICAL)
+
+### IMMEDIATE FAILURE
+- Using components outside @etus/design-system
+- API calls without account-id header
+- Missing TitleBar in [Entity]View.vue screens
+- Using Options API instead of Composition API
+- Hardcoded text without i18n translation
+
+### QUALITY VIOLATIONS
+- Missing Canvas.vue menu registration for user features
+- Non-standard CRUD naming conventions
+- Missing loading states for async operations
+- Inconsistent button color usage (save vs edit vs delete)
+- Missing empty state handling in list screens
+
+### ARCHITECTURAL VIOLATIONS
+- Direct imports between feature modules  
+- Missing TypeScript interfaces for props/emits
+- Using 'any' type instead of proper typing
+- Not following standard layout patterns
+- Missing responsive design considerations
+
+---
+
+**This rule provides conceptual, visual, and architectural guidance for the LLM to create consistent, scalable, and user-friendly frontend interfaces that respect the project's identity and standards.**

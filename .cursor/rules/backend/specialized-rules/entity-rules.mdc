@@ -1,0 +1,165 @@
+---
+description: Specialized rules for TypeORM entity files
+globs: **/*.entity.ts
+alwaysApply: false
+---
+
+# Entity Rules
+
+## Mandatory Entity Structure
+
+### Required Fields
+All entities must include these mandatory fields:
+
+```typescript
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn } from 'typeorm'
+import { Account } from './account.entity'
+
+@Entity('table_name')
+export class EntityName {
+  @PrimaryGeneratedColumn()
+  id: number
+
+  // MANDATORY: Account isolation for multi-tenant architecture
+  @Column({ name: 'account_id' })
+  accountId: number
+
+  @ManyToOne(() => Account)
+  @JoinColumn({ name: 'account_id' })
+  account: Account
+
+  // MANDATORY: Soft delete support
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
+  deletedAt: Date
+
+  // MANDATORY: Audit fields
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
+  updatedAt: Date
+
+  // RECOMMENDED: Custom properties for extensibility
+  @Column({ type: 'jsonb', nullable: true })
+  customProperties: CustomProperty[]
+}
+
+interface CustomProperty {
+  key: string
+  value: any
+  type: 'string' | 'number' | 'boolean' | 'array' | 'object'
+}
+```
+
+## Column Naming Rules
+
+### Database to Code Mapping
+- Database columns: snake_case (account_id, created_at, deleted_at)
+- Entity properties: camelCase (accountId, createdAt, deletedAt)
+- Use @Column({ name: 'snake_case' }) for mapping
+
+### Standard Column Types
+```typescript
+// String fields
+@Column({ type: 'varchar', length: 255 })
+name: string
+
+// Text fields
+@Column({ type: 'text', nullable: true })
+description: string
+
+// Boolean fields
+@Column({ type: 'boolean', default: true })
+isActive: boolean
+
+// JSONB fields for flexible data
+@Column({ type: 'jsonb', nullable: true })
+customProperties: CustomProperty[]
+
+// JSONB with default
+@Column({ type: 'jsonb', default: '{}' })
+metadata: Record<string, any>
+```
+
+## Entity Relationships
+
+### Account Relationship (Mandatory)
+```typescript
+@Column({ name: 'account_id' })
+accountId: number
+
+@ManyToOne(() => Account)
+@JoinColumn({ name: 'account_id' })
+account: Account
+```
+
+### Standard Relationships
+```typescript
+// One-to-Many
+@OneToMany(() => RelatedEntity, related => related.parentEntity)
+relatedEntities: RelatedEntity[]
+
+// Many-to-One
+@ManyToOne(() => ParentEntity, parent => parent.children)
+@JoinColumn({ name: 'parent_id' })
+parentEntity: ParentEntity
+
+// Many-to-Many
+@ManyToMany(() => RelatedEntity)
+@JoinTable({
+  name: 'entity_related_junction',
+  joinColumn: { name: 'entity_id' },
+  inverseJoinColumn: { name: 'related_id' }
+})
+relatedEntities: RelatedEntity[]
+```
+
+## Table Configuration
+
+### Entity Decorator
+```typescript
+@Entity('snake_case_table_name')
+export class PascalCaseClassName {
+  // entity implementation
+}
+```
+
+### Index Definitions
+```typescript
+@Entity('users', {
+  indices: [
+    { name: 'idx_users_account_id', columns: ['account_id'] },
+    { name: 'idx_users_email_account', columns: ['email', 'account_id'], unique: true }
+  ]
+})
+```
+
+## Validation Rules
+
+### Entity File Structure
+- File location: `/backend/src/entities/[entity-name].entity.ts`
+- Class name: PascalCase matching file name
+- Table name: snake_case in @Entity decorator
+- All imports at top of file
+
+### Required Imports
+```typescript
+import { 
+  Entity, 
+  PrimaryGeneratedColumn, 
+  Column, 
+  CreateDateColumn, 
+  UpdateDateColumn, 
+  DeleteDateColumn,
+  ManyToOne,
+  JoinColumn
+} from 'typeorm'
+import { Account } from './account.entity'
+```
+
+### Fail Conditions
+- Missing accountId field and relationship
+- Missing audit fields (createdAt, updatedAt, deletedAt)
+- Using camelCase for @Entity table name
+- Missing @DeleteDateColumn for soft delete
+- Hard delete implementation

@@ -1,0 +1,27 @@
+{
+  "name": "etus-boilerplate",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Etus Boilerplate",
+  "author": "Etus",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "migration": "cd apps/backend && npx typeorm migration:run -d dist/database/ormconfig.js && npx typeorm-extension seed:run -d dist/database/ormconfig.js"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "prettier": "^3.2.5",
+    "turbo": "^2.4.4"
+  },
+  "packageManager": "pnpm@8.15.5",
+  "engines": {
+    "node": ">=18"
+  }
+}
