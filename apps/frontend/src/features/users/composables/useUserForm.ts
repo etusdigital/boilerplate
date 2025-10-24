@@ -99,12 +99,12 @@ export function useUserForm(props: any, emit: any) {
 
   function updateModelValue(value: boolean) {
     model.value = value
-    if (!value) closeForm()
     emit('update:modelValue', value)
   }
 
   function closeForm() {
-    updateModelValue(false)
+    model.value = false
+    emit('update:modelValue', false)
     emit('close')
   }
 

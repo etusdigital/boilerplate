@@ -12,7 +12,7 @@ export function useAccounts() {
   async function getAllAccounts(): Promise<Account[]> {
     try {
       const response = await api.get(`/accounts`)
-      return response.data
+      return response.data.data // Fix: Access the actual array from paginated response
     } catch (error: any) {
       toast({
         message: t('accountsPage.messages.fetchAccountsError', [error.response.data.message]),
@@ -25,10 +25,10 @@ export function useAccounts() {
   async function saveAccount(editingAccount: Account, isEditing: boolean): Promise<Account> {
     const method = isEditing ? api.put : api.post
     const saveUrl = isEditing ? `/accounts/${editingAccount.id}` : `/accounts`
-    
+
     const { name, description, domain } = editingAccount
     const accountData = { name, description, domain }
-    
+
     try {
       const response = await method(saveUrl, accountData)
 

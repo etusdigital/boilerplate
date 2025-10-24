@@ -36,6 +36,14 @@ export class UsersController {
     return await this.usersService.findWithPagination(paginationQuery);
   }
 
+  @Get('/:id')
+  @MinRole(Role.MANAGER)
+  @ApiResponse({ status: 200, description: 'User found by id.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async findById(@Param('id') id: string) {
+    return await this.usersService.findById(id);
+  }
+
   @Post('/login')
   @UsePipes(new ValidationPipe())
   @ApiResponse({ status: 201, description: 'User login.' })
@@ -45,7 +53,10 @@ export class UsersController {
     isArray: true,
     description: 'Login of auth0 user',
   })
-  async login(@Body() userLogin: LoginDto, @Req() request: { user: { userId: string; [key: string]: any } }) {
+  async login(
+    @Body() userLogin: LoginDto,
+    @Req() request: { user: { userId: string; [key: string]: any } },
+  ) {
     return await this.usersService.login(userLogin, request.user);
   }
 

@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, Min, IsIn } from 'class-validator';
 import * as crypto from 'crypto';
 
 // DTO for pagination metadata
@@ -58,9 +58,31 @@ export class PaginationQueryDto {
   @Min(1)
   @Max(100)
   limit?: number = 50;
+
+  @ApiPropertyOptional({
+    description: 'Field to sort by',
+    example: 'createdAt',
+  })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
+  @ApiPropertyOptional({
+    description: 'Sort order (ASC or DESC)',
+    example: 'DESC',
+    enum: ['ASC', 'DESC'],
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['ASC', 'DESC'])
+  sortOrder?: 'ASC' | 'DESC' = 'DESC';
 }
 
-export const createPaginationMeta = (totalItems: number, page: number, limit: number): PaginationMetaDto => {
+export const createPaginationMeta = (
+  totalItems: number,
+  page: number,
+  limit: number,
+): PaginationMetaDto => {
   const totalPages = Math.ceil(totalItems / limit);
   const currentPage = page;
   const hasPreviousPage = currentPage > 1;

@@ -165,7 +165,7 @@ async function fetchUsers() {
   forceResetForm()
   await debouncedFetchUsers({}, 0)
   const accounts = await getAllAccounts()
-  allAccounts.value = accounts.map((account) => ({
+  allAccounts.value = accounts.map((account: any) => ({
     label: account.name,
     value: account.id,
   }))
@@ -245,7 +245,6 @@ async function onSave(editingUser: any, isEditing: boolean) {
 }
 
 async function onEdit(val: any, index: number) {
-  showFormControl.value = false
   editingIndex.value = index
   isLoadingUserData.value = true
 

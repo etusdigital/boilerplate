@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClsService } from 'nestjs-cls';
 import { UserAccount } from '../../entities/user-accounts.entity';
@@ -29,16 +33,49 @@ export class UsersService {
     return await this.userRepository.find();
   }
 
-  async findWithPagination(paginationQuery: PaginationQueryDto): Promise<{ data: User[]; meta: any }> {
+  async findWithPagination(
+    paginationQuery: PaginationQueryDto,
+  ): Promise<{ data: User[]; meta: any }> {
     const user = this.cls.get<User>('user');
-    const { page = 1, limit = 50 } = paginationQuery;
+    const {
+      page = 1,
+      limit = 50,
+      sortBy = 'createdAt',
+      sortOrder = 'DESC',
+    } = paginationQuery;
     const skip = (page - 1) * limit;
+
+    // Validate sortBy field to prevent SQL injection
+    const allowedSortFields = [
+      'createdAt',
+      'updatedAt',
+      'name',
+      'email',
+      'status',
+    ] as const;
+
+    type AllowedSortField = (typeof allowedSortFields)[number];
+
+    const isValidSortField = (field: string): field is AllowedSortField => {
+      return allowedSortFields.includes(field as AllowedSortField);
+    };
+
+    const isValidSortOrder = (order: string): order is 'ASC' | 'DESC' => {
+      return order === 'ASC' || order === 'DESC';
+    };
+
+    const validSortBy: AllowedSortField = isValidSortField(sortBy)
+      ? sortBy
+      : 'createdAt';
+    const validSortOrder: 'ASC' | 'DESC' = isValidSortOrder(sortOrder)
+      ? sortOrder
+      : 'DESC';
 
     if (user?.isSuperAdmin) {
       const [users, totalItems] = await this.userRepository.findAndCount({
         skip,
         take: limit,
-        order: { createdAt: 'DESC' },
+        order: { [validSortBy]: validSortOrder },
         relations: ['userAccounts'],
       });
 
@@ -65,7 +102,7 @@ export class UsersService {
       .where('userAccount.accountId IN (:...accountIds)', { accountIds })
       .skip(skip)
       .take(limit)
-      .orderBy('user.createdAt', 'DESC')
+      .orderBy(`user.${validSortBy}`, validSortOrder)
       .getManyAndCount();
 
     const meta = createPaginationMeta(totalItems, page, limit);
@@ -76,21 +113,42 @@ export class UsersService {
     };
   }
 
-  async findById() {
-    return await this.userRepository.find({
-      where: { id: this.cls.get<User>('user').id },
+  async findById(id: string) {
+    return await this.userRepository.findOne({
+      where: { id },
     });
   }
 
   async findByProviderId(providerId: string | string[]): Promise<User | null> {
     const providerIds = Array.isArray(providerId) ? providerId : [providerId];
-
-    // Use array overlap operator (&&) to leverage GIN index for optimal performance
-    return await this.userRepository
+    const queryBuilder = this.userRepository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.userAccounts', 'userAccount')
-      .where('user.provider_ids && :providerIds', { providerIds })
-      .getOne();
+      .leftJoinAndSelect('user.userAccounts', 'userAccount');
+
+    // Detect database type and adapt query accordingly
+    const databaseType = this.userRepository.manager.connection.options.type;
+
+    if (databaseType === 'postgres') {
+      // Use array overlap operator (&&) for PostgreSQL to leverage GIN index for optimal performance
+      queryBuilder.where('user.provider_ids && :providerIds', { providerIds });
+    } else {
+      // For SQLite and other databases, use string-based matching since simple-array becomes comma-separated
+      const conditions = providerIds
+        .map((_, index) => `user.provider_ids LIKE :providerId${index}`)
+        .join(' OR ');
+
+      const parameters = providerIds.reduce(
+        (acc, id, index) => {
+          acc[`providerId${index}`] = `%${id}%`;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
+      queryBuilder.where(`(${conditions})`, parameters);
+    }
+
+    return await queryBuilder.getOne();
   }
 
   async create(user: UserDto) {
@@ -103,11 +161,16 @@ export class UsersService {
 
     let existingUsers = await this.auth0Provider.getUserByEmail(user.email);
     if (existingUsers.length === 0) {
-      const { user: auth0User } = await this.auth0Provider.sendInvitation(user.email, user.name);
+      const { user: auth0User } = await this.auth0Provider.sendInvitation(
+        user.email,
+        user.name,
+      );
       existingUsers = [auth0User];
     }
 
-    const auth0User = existingUsers.find((user) => user.user_id.includes('google-oauth2')) || existingUsers[0];
+    const auth0User =
+      existingUsers.find((user) => user.user_id.includes('google-oauth2')) ||
+      existingUsers[0];
 
     const newUser = this.userRepository.create({
       name: user.name,
@@ -144,15 +207,23 @@ export class UsersService {
       const uaDel: UserAccountDto[] = [];
 
       receivedAccounts.forEach((account) => {
-        if (!user.userAccounts?.some((a) => a.accountId === account.accountId)) {
+        if (
+          !user.userAccounts?.some((a) => a.accountId === account.accountId)
+        ) {
           uaAdd.push({
             ...account,
             userId: id,
           });
         }
 
-        if (user.userAccounts?.some((a) => a.accountId === account.accountId && a.role !== account.role)) {
-          const matched = user.userAccounts?.find((a) => a.accountId === account.accountId);
+        if (
+          user.userAccounts?.some(
+            (a) => a.accountId === account.accountId && a.role !== account.role,
+          )
+        ) {
+          const matched = user.userAccounts?.find(
+            (a) => a.accountId === account.accountId,
+          );
           uaAdd.push({
             ...matched,
             role: account.role,
@@ -188,7 +259,10 @@ export class UsersService {
     return await this.userRepository.softDelete(id);
   }
 
-  async login(userLogin: LoginDto, jwtUser: { userId: string; [key: string]: any }) {
+  async login(
+    userLogin: LoginDto,
+    jwtUser: { userId: string; [key: string]: any },
+  ) {
     // Set these manually since this route is excluded from the middleware that does it.
     this.cls.set('transactionId', uuidv7());
 
