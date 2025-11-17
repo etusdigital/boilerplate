@@ -1,19 +1,8 @@
+import { RouterProvider } from 'react-router-dom'
+import router from './router'
+
 function App() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Etus Boilerplate - React
-        </h1>
-        <p className="text-xl text-gray-600">
-          React + Vite + TypeScript + TailwindCSS
-        </p>
-        <p className="text-sm text-gray-500 mt-4">
-          Running on port 3002
-        </p>
-      </div>
-    </div>
-  )
+  return <RouterProvider router={router} />
 }
 
 export default App
