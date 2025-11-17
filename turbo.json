@@ -12,7 +12,8 @@
       ],
       "outputs": [
         ".next/**",
-        "!.next/cache/**"
+        "!.next/cache/**",
+        "dist/**"
       ]
     },
     "lint": {
@@ -22,6 +23,12 @@
       "outputs": []
     },
     "format": {
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": []
     },
     "dev": {
