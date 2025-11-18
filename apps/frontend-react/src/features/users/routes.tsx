@@ -1,6 +1,5 @@
 import { RouteObject } from 'react-router-dom'
-
-const UsersPage = () => <div>Users Page - Coming in Phase 8</div>
+import UsersPage from './pages/UsersPage'
 
 const userRoutes: RouteObject[] = [
   {

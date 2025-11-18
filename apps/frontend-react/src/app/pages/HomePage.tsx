@@ -15,7 +15,13 @@ function HomePage() {
         try {
           setIsLoading(true)
           const userData = await api.post('/users/login', { email: auth0User.email })
-          setUser(userData)
+
+          const transformedUser = {
+            ...userData,
+            accounts: userData.userAccounts?.map((ua: any) => ua.account) || [],
+          }
+
+          setUser(transformedUser)
         } catch (error) {
           console.error('Error logging in user:', error)
         } finally {

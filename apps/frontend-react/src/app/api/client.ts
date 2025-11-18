@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios'
+import { useMainStore } from '../stores/mainStore'
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -26,6 +27,12 @@ apiClient.interceptors.request.use(
         console.error('Failed to get access token:', error)
       }
     }
+
+    const selectedAccount = useMainStore.getState().selectedAccount
+    if (selectedAccount) {
+      config.headers['account-id'] = selectedAccount.id.toString()
+    }
+
     return config
   },
   (error) => Promise.reject(error)
