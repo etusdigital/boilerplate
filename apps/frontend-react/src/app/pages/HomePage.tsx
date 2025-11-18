@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useMainStore } from '../stores/mainStore'
+import { api } from '../api'
 
 function HomePage() {
-  const { isAuthenticated, isLoading: authLoading, getAccessTokenSilently, user: auth0User } = useAuth0()
+  const { isAuthenticated, isLoading: authLoading, user: auth0User } = useAuth0()
   const { user, isLoading, setUser, setIsLoading } = useMainStore()
 
   useEffect(() => {
@@ -11,22 +12,7 @@ function HomePage() {
       if (isAuthenticated && !user && !authLoading && auth0User?.email) {
         try {
           setIsLoading(true)
-          const token = await getAccessTokenSilently()
-
-          const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/login`, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email: auth0User.email }),
-          })
-
-          if (!response.ok) {
-            throw new Error('Failed to login user')
-          }
-
-          const userData = await response.json()
+          const userData = await api.post('/users/login', { email: auth0User.email })
           setUser(userData)
         } catch (error) {
           console.error('Error logging in user:', error)
@@ -37,7 +23,7 @@ function HomePage() {
     }
 
     fetchUserData()
-  }, [isAuthenticated, user, authLoading, auth0User, getAccessTokenSilently, setUser, setIsLoading])
+  }, [isAuthenticated, user, authLoading, auth0User, setUser, setIsLoading])
 
   if (authLoading || isLoading) {
     return (
