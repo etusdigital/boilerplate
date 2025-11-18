@@ -4,25 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a monorepo boilerplate project combining Vue 3 (frontend) and NestJS (backend) with TypeScript, designed for multi-tenant SaaS applications with strict account isolation and feature-driven development.
+This is a monorepo boilerplate project offering dual frontend options (Vue 3 or React 18) with a shared NestJS backend, designed for multi-tenant SaaS applications with strict account isolation and feature-driven development.
 
 **Technology Stack:**
-- **Frontend**: Vue 3, Pinia, Vue Router, Vite, TailwindCSS, @etus/design-system
+- **Frontend Vue**: Vue 3, Pinia, Vue Router, Vite, TailwindCSS, @etus/design-system
+- **Frontend React**: React 18, Zustand, React Router v6, Vite, TailwindCSS v4
 - **Backend**: NestJS, TypeORM, SQLite (dev), Auth0 integration
 - **Monorepo**: Turborepo with pnpm workspaces
-- **Testing**: Vitest (frontend), Jest (backend)
+- **Testing**: Vitest (Vue), React Testing Library (React), Jest (backend)
 
 ## Common Commands
 
 ### Development
 
 ```bash
-# Start both frontend and backend in development mode
+# Start all services in development mode
 pnpm dev
 
-# Start specific app
-cd apps/frontend && pnpm dev  # Frontend on http://localhost:3000
-cd apps/backend && pnpm dev   # Backend on http://localhost:3001
+# Start specific frontend
+pnpm dev:vue                     # Vue frontend on http://localhost:3000
+pnpm dev:react                   # React frontend on http://localhost:3000
+pnpm dev:backend                 # Backend on http://localhost:3001
+
+# Or navigate to specific app
+cd apps/frontend-vue && pnpm dev
+cd apps/frontend-react && pnpm dev
+cd apps/backend && pnpm dev
 ```
 
 ### Testing
@@ -32,13 +39,16 @@ cd apps/backend && pnpm dev   # Backend on http://localhost:3001
 pnpm test
 
 # Run tests for specific app
-cd apps/frontend && pnpm test           # Unit tests with Vitest
-cd apps/frontend && pnpm test:coverage  # Coverage report
-cd apps/backend && pnpm test            # Unit tests with Jest
-cd apps/backend && pnpm test:e2e        # E2E tests
+cd apps/frontend-vue && pnpm test           # Vue unit tests with Vitest
+cd apps/frontend-vue && pnpm test:coverage  # Vue coverage report
+cd apps/frontend-react && pnpm test         # React unit tests
+cd apps/frontend-react && pnpm test:coverage # React coverage report
+cd apps/backend && pnpm test                # Backend unit tests with Jest
+cd apps/backend && pnpm test:e2e            # E2E tests
 
 # Watch mode
-cd apps/frontend && vitest --watch
+cd apps/frontend-vue && vitest --watch
+cd apps/frontend-react && pnpm test --watch
 cd apps/backend && jest --watch
 ```
 
@@ -49,9 +59,10 @@ cd apps/backend && jest --watch
 pnpm build
 
 # Lint and format
-pnpm lint                                  # Run ESLint across all apps
-pnpm format                                # Format with Prettier
-cd apps/frontend && pnpm type-check        # TypeScript type checking
+pnpm lint                                   # Run ESLint across all apps
+pnpm format                                 # Format with Prettier
+cd apps/frontend-vue && pnpm type-check     # Vue TypeScript type checking
+cd apps/frontend-react && pnpm type-check   # React TypeScript type checking
 ```
 
 ### Database Migrations
@@ -85,12 +96,6 @@ pnpm run migration
 ```
 /
 ├── apps/
-│   ├── frontend/          # Vue 3 application
-│   │   ├── src/
-│   │   │   ├── features/  # Feature modules (accounts, users, settings)
-│   │   │   ├── app/       # Core app config (router, stores, i18n)
-│   │   │   └── shared/    # Shared utilities and components
-│   │   └── package.json
 │   └── backend/           # NestJS application
 │       ├── src/
 │       │   ├── modules/   # Feature modules (accounts, users, audit)
@@ -103,10 +108,24 @@ pnpm run migration
 │   ├── eslint-config/
 │   ├── typescript-config/
 │   └── jest-config/
+├── templates/             # Frontend templates (source of truth)
+│   ├── react/             # Complete React template (284K)
+│   └── vue/               # Complete Vue template (276K)
+├── scripts/               # Management scripts
+│   ├── add-react.sh       # Add React frontend to apps/
+│   ├── add-vue.sh         # Add Vue frontend to apps/
+│   └── remove-frontend.sh # Remove frontend from apps/
 └── docs/                  # Project documentation
     ├── implementation_plans/  # Feature implementation plans
     └── lessons_learned/       # Architectural learnings
 ```
+
+**IMPORTANT - Frontend Management:**
+- Frontends are NOT included by default in `apps/` directory
+- Templates in `templates/` are the single source of truth
+- Users must run `bash scripts/add-react.sh` or `bash scripts/add-vue.sh` to add their chosen frontend
+- This approach keeps the repository clean (~560KB vs ~150MB with node_modules)
+- Frontends are gitignored once added (apps/frontend-react/ and apps/frontend-vue/)
 
 ### Account Isolation Pattern (CRITICAL)
 
@@ -138,8 +157,8 @@ async findAll() {
 ```
 
 **Frontend Implementation:**
-- Account context stored in Pinia store from Auth0 token
-- All API calls include account filtering automatically
+- Account context stored in Pinia (Vue) or Zustand (React) store from Auth0 token
+- All API calls include account-id header automatically via interceptors
 - Features are account-scoped by default
 
 ### Soft Delete Pattern
@@ -164,17 +183,19 @@ Automatic audit logging via `AuditSubscriber`:
 - Use `save()` instead of `update()` for audit compatibility
 - Audit logs stored in `audit` table with entity snapshots
 
-### Design System Enforcement (MANDATORY)
+### Design System
 
-**ABSOLUTE REQUIREMENT**: ALL UI components MUST use `@etus/design-system`
-
-- NEVER create custom UI components without explicit justification
-- Use only design system components from `@etus/design-system`
+**Vue Frontend**: Uses `@etus/design-system` component library
+- Use design system components from `@etus/design-system`
 - Reference Google Fonts icons: https://fonts.google.com/icons
 - Validate all imports reference design system components
-- Exceptions only when specifically required and justified
 
-**Color Standards:**
+**React Frontend**: Uses TailwindCSS v4 for styling
+- Custom components with TailwindCSS utility classes
+- Google Material Icons for icons (loaded via CDN)
+- Consistent styling patterns across components
+
+**Color Standards (Both Frontends):**
 - PRIMARY: Custom green for save actions
 - INFO: Blue for edit/configure actions
 - SUCCESS: Green for success states
@@ -186,23 +207,43 @@ Automatic audit logging via `AuditSubscriber`:
 
 **MANDATORY**: All user-facing strings must be translated
 
-- Create translations in `apps/frontend/src/app/languages/locales/en.ts` and `pt.ts`
-- All labels, messages, alerts, strings in views must use i18n
+**Vue Frontend:**
+- Translations in `apps/frontend-vue/src/app/languages/locales/en.ts` and `pt.ts`
 - Use `$t('key')` in templates, `t('key')` in scripts
-- Bilingual support: Portuguese and English
+
+**React Frontend:**
+- Translations in `apps/frontend-react/src/app/i18n/locales/en.ts` and `pt.ts`
+- Use `t('key')` from `useTranslation()` hook
+
+**Both Frontends:**
+- All labels, messages, alerts, strings must use i18n
+- Bilingual support: Portuguese (default) and English
 
 ### Feature-Driven Development
 
-Both frontend and backend follow feature-driven architecture:
+Both frontends and backend follow feature-driven architecture:
 
-**Frontend Features** (`apps/frontend/src/features/[feature]/`):
+**Vue Features** (`apps/frontend-vue/src/features/[feature]/`):
 ```
 feature/
 ├── components/        # Feature-specific Vue components
 ├── composables/       # Business logic and API integration
-├── stores/           # Feature state management (Pinia)
-├── types/            # TypeScript interfaces and types
-└── index.ts          # Feature exports
+├── stores/            # Feature state management (Pinia)
+├── types/             # TypeScript interfaces and types
+├── views/             # Feature pages
+└── index.ts           # Feature exports
+```
+
+**React Features** (`apps/frontend-react/src/features/[feature]/`):
+```
+feature/
+├── components/        # Feature-specific React components
+├── hooks/             # Custom hooks for business logic
+├── api/               # API integration
+├── types/             # TypeScript interfaces and types
+├── pages/             # Feature pages
+├── routes.tsx         # Feature routes
+└── index.ts           # Feature exports
 ```
 
 **Backend Modules** (`apps/backend/src/modules/[module]/`):
@@ -220,8 +261,13 @@ module/
 
 1. **Auth0 Integration**: JWT-based authentication with Auth0
 2. **Backend**: JWT validation via `JwtAuthGuard` on all protected endpoints
-3. **Frontend**: `@auth0/auth0-vue` for login/logout and token management
-4. **Context**: User and account context extracted from JWT and stored in CLS (backend) and Pinia stores (frontend)
+3. **Frontend**:
+   - Vue: `@auth0/auth0-vue` for login/logout and token management
+   - React: `@auth0/auth0-react` for login/logout and token management
+4. **Context**: User and account context extracted from JWT and stored in:
+   - Backend: CLS (Continuation Local Storage)
+   - Vue: Pinia stores
+   - React: Zustand stores
 
 **All controllers must use:**
 ```typescript
@@ -301,9 +347,17 @@ When user reports issues:
 - **Class names**: PascalCase (`UserProfile`, `CreateUserDto`)
 
 ### Frontend
+
+**Vue:**
 - **Component files**: PascalCase (`UserList.vue`, `AccountSettings.vue`)
 - **Composables**: camelCase with `use` prefix (`useUserData.ts`, `useAccountApi.ts`)
 - **Stores**: camelCase with `Store` suffix (`userStore.ts`, `accountStore.ts`)
+- **Types**: PascalCase for interfaces/types (`User`, `Account`, `ApiResponse`)
+
+**React:**
+- **Component files**: PascalCase (`UserList.tsx`, `AccountSettings.tsx`)
+- **Hooks**: camelCase with `use` prefix (`useUserData.ts`, `useAuth.ts`)
+- **Stores**: camelCase with `Store` suffix (`mainStore.ts`)
 - **Types**: PascalCase for interfaces/types (`User`, `Account`, `ApiResponse`)
 
 ## Code Quality Standards
@@ -316,13 +370,14 @@ When user reports issues:
 - Account isolation in ALL database queries
 - Soft delete pattern consistently applied
 
-### Frontend
-- Use design system components exclusively
+### Frontend (Both Vue and React)
 - Implement loading, error, and empty states for all data displays
 - Mobile-first responsive design
 - Comprehensive i18n for all user-facing strings
 - Feature isolation with minimal cross-feature coupling
 - TypeScript strict mode enabled
+- Consistent error handling and user feedback
+- Route guards for protected pages
 
 ### General
 - DRY principle: Check for existing functionality before implementing
@@ -343,7 +398,8 @@ pnpm install
 
 # Configure environment
 cp apps/backend/.env.example apps/backend/.env
-cp apps/frontend/.env.example apps/frontend/.env
+cp apps/frontend-vue/.env.example apps/frontend-vue/.env
+cp apps/frontend-react/.env.example apps/frontend-react/.env
 
 # Run migrations and seeds
 pnpm run migration
@@ -359,9 +415,19 @@ pnpm run migration
 - `PORT`: Backend port (default: 3001)
 - `NODE_ENV`: Environment (development/production)
 
-**Frontend** (`apps/frontend/.env`):
-- Auth0 configuration for SPA application
-- API base URL
+**Frontend Vue** (`apps/frontend-vue/.env`):
+- `VITE_AUTH0_DOMAIN`: Auth0 domain
+- `VITE_AUTH0_CLIENT_ID`: SPA Client ID
+- `VITE_AUTH0_REDIRECT_URI`: Callback URL
+- `VITE_AUTH0_AUDIENCE`: API audience
+- `VITE_BACKEND_URL`: Backend API URL
+
+**Frontend React** (`apps/frontend-react/.env`):
+- `VITE_AUTH0_DOMAIN`: Auth0 domain
+- `VITE_AUTH0_CLIENT_ID`: SPA Client ID
+- `VITE_AUTH0_REDIRECT_URI`: Callback URL
+- `VITE_AUTH0_AUDIENCE`: API audience
+- `VITE_BACKEND_URL`: Backend API URL
 
 **CRITICAL**: Never overwrite `.env` files without explicit user confirmation
 

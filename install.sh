@@ -221,7 +221,7 @@ main() {
     cd "$PROJECT_NAME"
 
     # Setup environment files
-    print_info "Setting up environment files..."
+    print_info "Setting up backend environment files..."
 
     if [ -f "apps/backend/.env.example" ]; then
         cp "apps/backend/.env.example" "apps/backend/.env"
@@ -230,16 +230,11 @@ main() {
         print_warning "Backend .env.example not found"
     fi
 
-    if [ -f "apps/frontend/.env.example" ]; then
-        cp "apps/frontend/.env.example" "apps/frontend/.env"
-        print_success "Created frontend .env file"
-    else
-        print_warning "Frontend .env.example not found"
-    fi
-
-    # Install dependencies
-    print_info "Installing dependencies with pnpm..."
+    # Install backend dependencies only
+    print_info "Installing backend dependencies with pnpm..."
+    cd apps/backend
     pnpm install
+    cd ../..
 
     # Build backend
     print_info "Building backend..."
@@ -278,6 +273,58 @@ main() {
         fi
     fi
 
+    # Ask about frontend choice
+    echo ""
+    echo "======================================"
+    echo "   Frontend Selection"
+    echo "======================================"
+    echo ""
+    echo "Which frontend would you like to install?"
+    echo "1) React (React 18 + Zustand + TailwindCSS)"
+    echo "2) Vue (Vue 3 + Pinia + Design System)"
+    echo "3) Both (React + Vue)"
+    echo "4) Skip (install frontend later)"
+    echo ""
+    read -p "Choose (1/2/3/4): " FRONTEND_CHOICE
+
+    FRONTEND_INSTALLED=""
+
+    case $FRONTEND_CHOICE in
+        1)
+            print_info "Installing React frontend..."
+            if bash scripts/add-react.sh; then
+                FRONTEND_INSTALLED="React"
+            fi
+            ;;
+        2)
+            print_info "Installing Vue frontend..."
+            if bash scripts/add-vue.sh; then
+                FRONTEND_INSTALLED="Vue"
+            fi
+            ;;
+        3)
+            print_info "Installing React frontend..."
+            if bash scripts/add-react.sh; then
+                print_info "Installing Vue frontend..."
+                if bash scripts/add-vue.sh; then
+                    FRONTEND_INSTALLED="React and Vue"
+                fi
+            fi
+            ;;
+        4)
+            print_info "Skipping frontend installation"
+            print_info "You can install a frontend later with:"
+            echo "  bash scripts/add-react.sh"
+            echo "  bash scripts/add-vue.sh"
+            ;;
+        *)
+            print_warning "Invalid choice. Skipping frontend installation."
+            print_info "You can install a frontend later with:"
+            echo "  bash scripts/add-react.sh"
+            echo "  bash scripts/add-vue.sh"
+            ;;
+    esac
+
     # Initialize git repository
     print_info "Initializing git repository..."
     
@@ -305,13 +352,37 @@ main() {
     print_success "Project '$PROJECT_NAME' created successfully!"
     echo "======================================"
     echo ""
-    echo "To get started:"
-    echo "  cd $PROJECT_NAME"
-    echo "  pnpm dev"
-    echo ""
-    echo "The application will be available at:"
-    echo "  Frontend: http://localhost:3000"
-    echo "  Backend:  http://localhost:3001"
+
+    if [ -n "$FRONTEND_INSTALLED" ]; then
+        echo "Installed components:"
+        echo "  ✅ Backend (NestJS)"
+        echo "  ✅ Frontend ($FRONTEND_INSTALLED)"
+        echo ""
+        echo "To get started:"
+        echo "  cd $PROJECT_NAME"
+        echo "  pnpm dev"
+        echo ""
+        echo "The application will be available at:"
+        echo "  Frontend: http://localhost:3000"
+        echo "  Backend:  http://localhost:3001"
+    else
+        echo "Installed components:"
+        echo "  ✅ Backend (NestJS)"
+        echo "  ⚠️  No frontend installed"
+        echo ""
+        echo "To add a frontend, run:"
+        echo "  cd $PROJECT_NAME"
+        echo "  bash scripts/add-react.sh   # For React"
+        echo "  bash scripts/add-vue.sh      # For Vue"
+        echo ""
+        echo "To start the backend only:"
+        echo "  cd $PROJECT_NAME"
+        echo "  cd apps/backend && pnpm dev"
+        echo ""
+        echo "Backend will be available at:"
+        echo "  http://localhost:3001"
+    fi
+
     echo ""
     echo "Git repository has been initialized with an initial commit."
     echo "You can now start developing and making commits!"
