@@ -11,7 +11,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 GITHUB_REPO="etusdigital/boilerplate"
-GITHUB_BRANCH="master"
+GITHUB_BRANCH="add-react-into-the-stack"  # Testing branch (change to 'master' for production)
 REQUIRED_NODE_VERSION=18
 
 # Function to print colored output
