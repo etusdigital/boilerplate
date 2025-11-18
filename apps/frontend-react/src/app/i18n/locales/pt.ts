@@ -42,4 +42,14 @@ export default {
     message: 'Página não encontrada',
     backHome: 'Voltar para início',
   },
+  users: {
+    description: 'Gerencie usuários, suas permissões e acesso ao sistema.',
+  },
+  accounts: {
+    description: 'Gerencie contas, seus nomes, organizações e mais.',
+  },
+  settings: {
+    title: 'Configurações',
+    description: 'Configure e gerencie as configurações do sistema',
+  },
 }

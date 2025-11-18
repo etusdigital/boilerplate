@@ -42,4 +42,14 @@ export default {
     message: 'Page not found',
     backHome: 'Go back home',
   },
+  users: {
+    description: 'Manage users, their permissions and access to the system.',
+  },
+  accounts: {
+    description: 'Manage accounts, their names, organizations and more.',
+  },
+  settings: {
+    title: 'Settings',
+    description: 'Configure and manage system settings',
+  },
 }
