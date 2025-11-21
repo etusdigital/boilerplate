@@ -36,15 +36,16 @@ export function UsersPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [userToDelete, setUserToDelete] = useState<User | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
 
-  // Fetch users on mount and when search or page changes
+  // Fetch users on mount and when search, page, or items per page changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchUsers({ page: currentPage, limit: 10, query: searchQuery })
+      fetchUsers({ page: currentPage, limit: itemsPerPage, query: searchQuery })
     }, 300) // Debounce search by 300ms
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery, currentPage, fetchUsers])
+  }, [searchQuery, currentPage, itemsPerPage, fetchUsers])
 
   // Handle search query change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +56,12 @@ export function UsersPage() {
   // Handle page change
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)
+  }, [])
+
+  // Handle items per page change
+  const handleItemsPerPageChange = useCallback((newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage)
+    setCurrentPage(1) // Reset to first page
   }, [])
 
   // TitleBar actions
@@ -92,7 +99,7 @@ export function UsersPage() {
       setDeleteDialogOpen(false)
       setUserToDelete(null)
       // Refresh the table
-      fetchUsers({ page: currentPage, limit: 10, query: searchQuery })
+      fetchUsers({ page: currentPage, limit: itemsPerPage, query: searchQuery })
     } catch (error) {
       console.error('Delete user error:', error)
       toast.error(t('users.deleteError'))
@@ -115,7 +122,7 @@ export function UsersPage() {
       setIsDrawerOpen(false)
       setEditingUser(null)
       // Refresh the table
-      fetchUsers({ page: currentPage, limit: 10, query: searchQuery })
+      fetchUsers({ page: currentPage, limit: itemsPerPage, query: searchQuery })
     } catch (error) {
       console.error('Save user error:', error)
       toast.error(editingUser ? t('users.updateError') : t('users.createError'))
@@ -144,6 +151,7 @@ export function UsersPage() {
         onEdit={handleEdit}
         onDelete={handleDeleteClick}
         onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
       />
 
       <UserDrawer
