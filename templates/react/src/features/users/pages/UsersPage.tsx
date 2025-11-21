@@ -40,7 +40,7 @@ export function UsersPage() {
   // Fetch users on mount and when search or page changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchUsers({ page: currentPage, limit: 10, search: searchQuery })
+      fetchUsers({ page: currentPage, limit: 10, query: searchQuery })
     }, 300) // Debounce search by 300ms
 
     return () => clearTimeout(timeoutId)
@@ -92,7 +92,7 @@ export function UsersPage() {
       setDeleteDialogOpen(false)
       setUserToDelete(null)
       // Refresh the table
-      fetchUsers({ page: currentPage, limit: 10, search: searchQuery })
+      fetchUsers({ page: currentPage, limit: 10, query: searchQuery })
     } catch (error) {
       console.error('Delete user error:', error)
       toast.error(t('users.deleteError'))
@@ -115,7 +115,7 @@ export function UsersPage() {
       setIsDrawerOpen(false)
       setEditingUser(null)
       // Refresh the table
-      fetchUsers({ page: currentPage, limit: 10, search: searchQuery })
+      fetchUsers({ page: currentPage, limit: 10, query: searchQuery })
     } catch (error) {
       console.error('Save user error:', error)
       toast.error(editingUser ? t('users.updateError') : t('users.createError'))

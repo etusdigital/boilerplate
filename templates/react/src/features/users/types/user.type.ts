@@ -47,5 +47,5 @@ export interface PaginatedUsersResponse {
 export interface UsersQueryParams {
   page?: number
   limit?: number
-  search?: string
+  query?: string
 }
