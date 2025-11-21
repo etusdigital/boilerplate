@@ -38,7 +38,7 @@ export function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white shadow-sm">
       <div className="flex h-16 items-center px-4 gap-3">
         {/* Logo Section */}
         <div className="flex items-center gap-2">
