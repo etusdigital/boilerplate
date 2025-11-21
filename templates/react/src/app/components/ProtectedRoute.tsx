@@ -6,9 +6,12 @@ interface ProtectedRouteProps {
 }
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth0()
+  const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0()
+
+  console.log('🔒 ProtectedRoute:', { isAuthenticated, isLoading })
 
   if (isLoading) {
+    console.log('⏳ Auth0 loading...')
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -19,9 +22,12 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />
+    console.log('🚫 Not authenticated, redirecting to Auth0...')
+    loginWithRedirect()
+    return null
   }
 
+  console.log('✅ Authenticated, rendering children')
   return <>{children}</>
 }
 
