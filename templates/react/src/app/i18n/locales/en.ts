@@ -80,6 +80,10 @@ export default {
   },
   accounts: {
     description: 'Manage accounts, their names, organizations and more.',
+    name: 'Name',
+    domain: 'Domain',
+    createdAt: 'Created At',
+    noAccounts: 'No accounts found',
   },
   settings: {
     title: 'Settings',

@@ -80,6 +80,10 @@ export default {
   },
   accounts: {
     description: 'Gerencie contas, seus nomes, organizações e mais.',
+    name: 'Nome',
+    domain: 'Domínio',
+    createdAt: 'Criado em',
+    noAccounts: 'Nenhuma conta encontrada',
   },
   settings: {
     title: 'Configurações',
