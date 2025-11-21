@@ -205,12 +205,33 @@ export class UsersService {
 
     const savedUser = await this.userRepository.save(newUser);
 
+    // Create user-account relationships
     if (user.userAccounts?.length) {
+      // If userAccounts provided, use them
       const userAccounts = user.userAccounts.map((account) => ({
         ...account,
         userId: savedUser.id,
       }));
       await this.createUserAccounts(userAccounts);
+    } else {
+      // Otherwise, associate with current user's account
+      const currentUser = this.cls.get<User>('user');
+      if (currentUser && !currentUser.isSuperAdmin) {
+        // Get current user's accounts
+        const currentUserAccounts = await this.userAccountRepository.find({
+          where: { userId: currentUser.id },
+        });
+
+        if (currentUserAccounts.length > 0) {
+          // Associate new user with the same account(s)
+          const newUserAccounts = currentUserAccounts.map((ua) => ({
+            userId: savedUser.id,
+            accountId: ua.accountId,
+            role: Role.VIEWER, // Default role for new users
+          }));
+          await this.createUserAccounts(newUserAccounts);
+        }
+      }
     }
 
     return savedUser;
