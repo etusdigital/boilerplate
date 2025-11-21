@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Account } from '../../entities/account.entity';
 import { CreateAccountDto, UpdateAccountDto } from './dto/account.dto';
 import { ClsService } from 'nestjs-cls';
@@ -57,11 +57,22 @@ export class AccountsService {
       throw new NotFoundException('User not found');
     }
 
-    const { page = 1, limit = 50 } = paginationQuery;
+    const { page = 1, limit = 50, query } = paginationQuery;
     const skip = (page - 1) * limit;
 
     if (user?.isSuperAdmin) {
+      const whereCondition: any = {};
+
+      // Add search filter if query is provided
+      if (query && query.trim()) {
+        whereCondition.or = [
+          { name: Like(`%${query}%`) },
+          { slug: Like(`%${query}%`) },
+        ];
+      }
+
       const [accounts, totalItems] = await this.accountRepository.findAndCount({
+        where: whereCondition.or ? whereCondition.or : undefined,
         skip,
         take: limit,
         order: { createdAt: 'DESC' },
@@ -76,13 +87,24 @@ export class AccountsService {
     }
 
     // For non-super admin users, get accounts through user-account relationship
-    const [userAccounts, totalItems] = await this.userAccountRepository.findAndCount({
-      where: { userId: user?.id },
-      relations: ['account'],
-      skip,
-      take: limit,
-      order: { account: { createdAt: 'DESC' } },
-    });
+    const queryBuilder = this.userAccountRepository
+      .createQueryBuilder('userAccount')
+      .leftJoinAndSelect('userAccount.account', 'account')
+      .where('userAccount.userId = :userId', { userId: user?.id });
+
+    // Add search filter if query is provided
+    if (query && query.trim()) {
+      queryBuilder.andWhere(
+        '(account.name LIKE :query OR account.slug LIKE :query)',
+        { query: `%${query}%` },
+      );
+    }
+
+    const [userAccounts, totalItems] = await queryBuilder
+      .skip(skip)
+      .take(limit)
+      .orderBy('account.createdAt', 'DESC')
+      .getManyAndCount();
 
     const accounts = userAccounts.map((userAccount) => userAccount.account) as Account[];
     const meta = createPaginationMeta(totalItems, page, limit);
