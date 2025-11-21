@@ -58,7 +58,7 @@ export class AccountMiddleware implements NestMiddleware {
     }
 
     this.cls.set('accountId', account);
-    this.cls.set('user', { ...user, userAccounts: null });
+    this.cls.set('user', user);
     this.cls.set('transactionId', uuidv7());
     this.cls.set('ip', req.ip);
     this.cls.set('userAgent', req.header('user-agent'));

@@ -58,6 +58,10 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Generated frontends (use scripts/add-react.sh or scripts/add-vue.sh)
+apps/frontend-react/
+apps/frontend-vue/
+
 # Misc
 .DS_Store
 *.pem

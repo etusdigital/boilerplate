@@ -9,7 +9,7 @@ export class Auth0Provider {
 
   constructor(private readonly configService: ConfigService) {
     this.managementClient = new ManagementClient({
-      domain: `${configService.get<string>('AUTH0_TENANT_ID')}.${configService.get<string>('AUTH0_REGION')}.auth0.com`,
+      domain: configService.get<string>('AUTH0_DOMAIN')!,
       clientId: configService.get<string>('AUTH0_CLIENT_ID')!,
       clientSecret: configService.get<string>('AUTH0_CLIENT_SECRET')!,
     });
