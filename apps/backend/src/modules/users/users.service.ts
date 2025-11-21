@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ClsService } from 'nestjs-cls';
 import { UserAccount } from '../../entities/user-accounts.entity';
 import { User } from '../../entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
 import { LoginDto } from './dto/login.dto';
@@ -42,6 +42,7 @@ export class UsersService {
       limit = 50,
       sortBy = 'createdAt',
       sortOrder = 'DESC',
+      query,
     } = paginationQuery;
     const skip = (page - 1) * limit;
 
@@ -72,7 +73,18 @@ export class UsersService {
       : 'DESC';
 
     if (user?.isSuperAdmin) {
+      const whereCondition: any = {};
+
+      // Add search filter if query is provided
+      if (query && query.trim()) {
+        whereCondition.or = [
+          { name: Like(`%${query}%`) },
+          { email: Like(`%${query}%`) },
+        ];
+      }
+
       const [users, totalItems] = await this.userRepository.findAndCount({
+        where: whereCondition.or ? whereCondition.or : undefined,
         skip,
         take: limit,
         order: { [validSortBy]: validSortOrder },
@@ -95,11 +107,21 @@ export class UsersService {
 
     const accountIds = userAccounts.map((ua) => ua.accountId);
 
-    const [users, totalItems] = await this.userRepository
+    const queryBuilder = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.userAccounts', 'userAccount')
       .leftJoinAndSelect('userAccount.account', 'account')
-      .where('userAccount.accountId IN (:...accountIds)', { accountIds })
+      .where('userAccount.accountId IN (:...accountIds)', { accountIds });
+
+    // Add search filter if query is provided
+    if (query && query.trim()) {
+      queryBuilder.andWhere(
+        '(user.name LIKE :query OR user.email LIKE :query)',
+        { query: `%${query}%` },
+      );
+    }
+
+    const [users, totalItems] = await queryBuilder
       .skip(skip)
       .take(limit)
       .orderBy(`user.${validSortBy}`, validSortOrder)
