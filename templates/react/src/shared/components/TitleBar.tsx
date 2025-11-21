@@ -26,13 +26,13 @@ export function TitleBar({ title, actions }: TitleBarProps) {
             <Button
               key={action.key}
               variant={action.variant || 'default'}
-              size={action.size || 'default'}
+              size={action.size || 'lg'}
               disabled={action.disabled}
               onClick={action.onClick}
               className="whitespace-nowrap"
             >
               {action.icon && (
-                <span className="material-symbols-rounded mr-2 text-base">{action.icon}</span>
+                <span className="material-symbols-rounded text-xl">{action.icon}</span>
               )}
               {action.text}
             </Button>
