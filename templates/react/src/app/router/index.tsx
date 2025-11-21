@@ -1,37 +1,43 @@
-import { createBrowserRouter, RouteObject } from 'react-router-dom'
-import { userRoutes } from '@/features/users'
-import { accountRoutes } from '@/features/accounts'
-import { settingsRoutes } from '@/features/settings'
+import { createBrowserRouter } from 'react-router-dom'
+import { Layout } from '../components/Layout'
+import { ProtectedRoute } from '../components/ProtectedRoute'
 import HomePage from '../pages/HomePage'
 import CallbackPage from '../pages/CallbackPage'
 import NotFoundPage from '../pages/NotFoundPage'
-import Layout from '../components/Layout'
-import ProtectedRoute from '../components/ProtectedRoute'
-
-const wrapWithProtectedRoute = (routes: RouteObject[]): RouteObject[] => {
-  return routes.map(route => ({
-    ...route,
-    element: <ProtectedRoute>{route.element}</ProtectedRoute>,
-  }))
-}
+import { UsersPage } from '@/features/users/pages/UsersPage'
+import { AccountsPage } from '@/features/accounts/pages/AccountsPage'
+import { SettingsPage } from '@/features/settings/pages/SettingsPage'
 
 const router = createBrowserRouter([
   {
+    path: '/callback',
+    element: <CallbackPage />,
+  },
+  {
     path: '/',
-    element: <Layout />,
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
         element: <HomePage />,
       },
-      ...wrapWithProtectedRoute(userRoutes),
-      ...wrapWithProtectedRoute(accountRoutes),
-      ...wrapWithProtectedRoute(settingsRoutes),
+      {
+        path: 'users',
+        element: <UsersPage />,
+      },
+      {
+        path: 'accounts',
+        element: <AccountsPage />,
+      },
+      {
+        path: 'settings',
+        element: <SettingsPage />,
+      },
     ],
-  },
-  {
-    path: '/callback',
-    element: <CallbackPage />,
   },
   {
     path: '*',
