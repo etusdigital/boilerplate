@@ -14,6 +14,9 @@ export default {
     search: 'Buscar',
     filter: 'Filtrar',
     actions: 'Ações',
+    previous: 'Anterior',
+    next: 'Próximo',
+    createdAt: 'Criado em',
   },
   auth: {
     processingLogin: 'Processando login...',
@@ -47,6 +50,14 @@ export default {
   },
   users: {
     description: 'Gerencie usuários, suas permissões e acesso ao sistema.',
+    name: 'Nome',
+    email: 'Email',
+    updatedAt: 'Atualizado em',
+    deletedAt: 'Excluído em',
+    noUsers: 'Nenhum usuário encontrado',
+  },
+  table: {
+    showingNofN: 'Exibindo {{min}}-{{max}} de {{total}}',
   },
   accounts: {
     description: 'Gerencie contas, seus nomes, organizações e mais.',

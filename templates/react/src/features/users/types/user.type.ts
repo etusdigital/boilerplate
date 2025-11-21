@@ -9,6 +9,7 @@ export interface User {
   userAccounts?: UserAccount[]
   createdAt?: string
   updatedAt?: string
+  deletedAt?: string | null
 }
 
 export interface UserAccount {

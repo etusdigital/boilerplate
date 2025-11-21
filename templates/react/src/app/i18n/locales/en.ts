@@ -14,6 +14,9 @@ export default {
     search: 'Search',
     filter: 'Filter',
     actions: 'Actions',
+    previous: 'Previous',
+    next: 'Next',
+    createdAt: 'Created at',
   },
   auth: {
     processingLogin: 'Processing login...',
@@ -47,6 +50,14 @@ export default {
   },
   users: {
     description: 'Manage users, their permissions and access to the system.',
+    name: 'Name',
+    email: 'Email',
+    updatedAt: 'Updated At',
+    deletedAt: 'Deleted At',
+    noUsers: 'No users found',
+  },
+  table: {
+    showingNofN: 'Showing {{min}}-{{max}} of {{total}}',
   },
   accounts: {
     description: 'Manage accounts, their names, organizations and more.',
