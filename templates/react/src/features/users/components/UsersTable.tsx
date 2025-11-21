@@ -102,14 +102,14 @@ export function UsersTable({
                     size="icon"
                     onClick={() => onEdit(user)}
                   >
-                    <span className="material-icons">edit</span>
+                    <span className="material-icons-outlined">edit</span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => onDelete(user)}
                   >
-                    <span className="material-icons text-red-600">delete</span>
+                    <span className="material-icons-outlined text-red-600">delete</span>
                   </Button>
                 </div>
               </TableCell>
@@ -159,7 +159,7 @@ export function UsersTable({
               disabled={pagination.currentPage === 1}
               onClick={() => onPageChange(pagination.currentPage - 1)}
             >
-              <span className="material-icons text-[20px]">chevron_left</span>
+              <span className="material-icons-outlined text-[20px]">chevron_left</span>
             </Button>
             <div className="flex items-center justify-center min-w-[32px] text-sm">
               {pagination.currentPage}
@@ -171,7 +171,7 @@ export function UsersTable({
               disabled={pagination.currentPage === pagination.totalPages}
               onClick={() => onPageChange(pagination.currentPage + 1)}
             >
-              <span className="material-icons text-[20px]">chevron_right</span>
+              <span className="material-icons-outlined text-[20px]">chevron_right</span>
             </Button>
           </div>
         </div>

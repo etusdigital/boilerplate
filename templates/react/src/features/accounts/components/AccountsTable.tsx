@@ -77,14 +77,14 @@ export function AccountsTable({
                     size="icon"
                     onClick={() => onEdit(account)}
                   >
-                    <span className="material-icons">edit</span>
+                    <span className="material-icons-outlined">edit</span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => onDelete(account)}
                   >
-                    <span className="material-icons text-red-600">delete</span>
+                    <span className="material-icons-outlined text-red-600">delete</span>
                   </Button>
                 </div>
               </TableCell>

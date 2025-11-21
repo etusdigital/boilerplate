@@ -47,7 +47,7 @@ function SettingsPage() {
             >
               <div className="p-6">
                 <div className="flex items-center gap-4 mb-4">
-                  <span className="material-icons text-4xl text-blue-600">
+                  <span className="material-icons-outlined text-4xl text-blue-600">
                     {route.icon}
                   </span>
                   <h2 className="text-xl font-semibold text-gray-900">
