@@ -7,6 +7,7 @@ import { ClsService } from 'nestjs-cls';
 import { UserAccount } from '../../entities/user-accounts.entity';
 import { User } from '../../entities/user.entity';
 import { PaginationQueryDto, createPaginationMeta } from 'src/utils';
+import { Role } from 'src/auth/enums/roles.enum';
 
 @Injectable()
 export class AccountsService {
@@ -29,7 +30,7 @@ export class AccountsService {
       const userAccount = this.userAccountRepository.create({
         userId: user.id,
         accountId: savedAccount.id,
-        role: 'admin', // Creator gets admin role by default
+        role: Role.ADMIN, // Creator gets admin role by default
       });
       await this.userAccountRepository.save(userAccount);
     }
