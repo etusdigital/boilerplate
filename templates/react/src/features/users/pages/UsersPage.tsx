@@ -44,7 +44,7 @@ export function UsersPage() {
     }, 300) // Debounce search by 300ms
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery, currentPage])
+  }, [searchQuery, currentPage, fetchUsers])
 
   // Handle search query change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
