@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next'
 export function Navbar() {
   const { logout, user: authUser } = useAuth0()
   const { t, i18n } = useTranslation()
-  const { userAccounts, selectedAccount, changeAccount } = useMainStore()
+  const { user, userAccounts, selectedAccount, changeAccount } = useMainStore()
 
   const handleLogout = () => {
     logout({ logoutParams: { returnTo: window.location.origin } })
@@ -78,14 +78,14 @@ export function Navbar() {
           {/* User Profile */}
           <div className="flex items-center gap-2">
             <Avatar className="h-9 w-9">
-              <AvatarImage src={authUser?.picture} alt={authUser?.name} />
+              <AvatarImage src={user?.profileImage || user?.picture || authUser?.picture} alt={user?.name} />
               <AvatarFallback className="text-xs">
-                {getInitials(authUser?.name || 'U')}
+                {getInitials(user?.name || authUser?.name || 'U')}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold">{authUser?.name}</span>
-              <span className="text-xs text-gray-600">{authUser?.email}</span>
+              <span className="text-sm font-semibold">{user?.name}</span>
+              <span className="text-xs text-gray-600">{user?.email}</span>
             </div>
             <Button
               variant="ghost"
