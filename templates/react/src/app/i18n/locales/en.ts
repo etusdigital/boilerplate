@@ -25,6 +25,9 @@ export default {
     clickToLogin: 'Click "Login" to authenticate',
     accountsAvailable: '{{count}} account(s) available',
   },
+  navbar: {
+    selectAccount: 'Select Account',
+  },
   navigation: {
     home: 'Home',
     users: 'Users',
