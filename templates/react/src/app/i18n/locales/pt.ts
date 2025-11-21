@@ -1,4 +1,6 @@
 export default {
+  greeting: 'Olá',
+  start_creating: 'Comece a criar seu app a partir daqui!',
   common: {
     appName: 'Etus Boilerplate',
     login: 'Entrar',

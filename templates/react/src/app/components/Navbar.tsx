@@ -39,7 +39,7 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-      <div className="flex h-16 items-center px-6 gap-4">
+      <div className="flex h-16 items-center px-4 gap-3">
         {/* Logo Section */}
         <div className="flex items-center gap-2">
           <img src="/etus-logo.ico" alt="Logo" className="h-8 w-8" />
@@ -47,9 +47,9 @@ export function Navbar() {
         </div>
 
         {/* Account Selector */}
-        <div className="flex-1 max-w-sm">
+        <div className="flex-1 max-w-xs">
           <Select value={selectedAccount?.id} onValueChange={handleAccountChange}>
-            <SelectTrigger>
+            <SelectTrigger className="h-9">
               <SelectValue placeholder={t('navbar.selectAccount')} />
             </SelectTrigger>
             <SelectContent>
@@ -63,10 +63,10 @@ export function Navbar() {
         </div>
 
         {/* Right Section */}
-        <div className="ml-auto flex items-center gap-4">
+        <div className="ml-auto flex items-center gap-3">
           {/* Language Selector */}
           <Select value={i18n.language} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-32 h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -76,10 +76,10 @@ export function Navbar() {
           </Select>
 
           {/* User Profile */}
-          <div className="flex items-center gap-3">
-            <Avatar>
+          <div className="flex items-center gap-2">
+            <Avatar className="h-9 w-9">
               <AvatarImage src={authUser?.picture} alt={authUser?.name} />
-              <AvatarFallback>
+              <AvatarFallback className="text-xs">
                 {getInitials(authUser?.name || 'U')}
               </AvatarFallback>
             </Avatar>
@@ -92,8 +92,9 @@ export function Navbar() {
               size="icon"
               onClick={handleLogout}
               title={t('common.logout')}
+              className="h-8 w-8"
             >
-              <span className="material-icons">logout</span>
+              <span className="material-icons text-[20px]">logout</span>
             </Button>
           </div>
         </div>
