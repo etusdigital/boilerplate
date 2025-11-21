@@ -82,8 +82,17 @@ export default {
     description: 'Manage accounts, their names, organizations and more.',
     name: 'Name',
     domain: 'Domain',
+    slug: 'Slug',
+    slugHint: 'Unique account identifier (lowercase letters, numbers and hyphens only)',
     createdAt: 'Created At',
     noAccounts: 'No accounts found',
+    inviteAccount: 'Invite Account',
+    editAccount: 'Edit Account',
+    validation: {
+      name: 'Name is required',
+      slug: 'Slug is required',
+      slugFormat: 'Slug must contain only lowercase letters, numbers and hyphens',
+    },
   },
   settings: {
     title: 'Settings',

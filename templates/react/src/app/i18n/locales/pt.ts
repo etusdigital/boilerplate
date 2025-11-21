@@ -82,8 +82,17 @@ export default {
     description: 'Gerencie contas, seus nomes, organizações e mais.',
     name: 'Nome',
     domain: 'Domínio',
+    slug: 'Slug',
+    slugHint: 'Identificador único da conta (apenas letras minúsculas, números e hífens)',
     createdAt: 'Criado em',
     noAccounts: 'Nenhuma conta encontrada',
+    inviteAccount: 'Convidar Conta',
+    editAccount: 'Editar Conta',
+    validation: {
+      name: 'Nome é obrigatório',
+      slug: 'Slug é obrigatório',
+      slugFormat: 'Slug deve conter apenas letras minúsculas, números e hífens',
+    },
   },
   settings: {
     title: 'Configurações',
