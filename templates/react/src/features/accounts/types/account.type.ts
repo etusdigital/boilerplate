@@ -23,5 +23,5 @@ export interface PaginatedAccountsResponse {
 export interface AccountsQueryParams {
   page?: number
   limit?: number
-  search?: string
+  query?: string
 }

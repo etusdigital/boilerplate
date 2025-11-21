@@ -42,7 +42,7 @@ export function AccountsPage() {
   // Fetch accounts on mount and when search or page changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchAccounts({ page: currentPage, limit: PAGE_SIZE, search: searchQuery })
+      fetchAccounts({ page: currentPage, limit: PAGE_SIZE, query: searchQuery })
     }, 300) // Debounce search by 300ms
 
     return () => clearTimeout(timeoutId)
@@ -94,7 +94,7 @@ export function AccountsPage() {
       setDeleteDialogOpen(false)
       setAccountToDelete(null)
       // Refresh the table
-      fetchAccounts({ page: currentPage, limit: PAGE_SIZE, search: searchQuery })
+      fetchAccounts({ page: currentPage, limit: PAGE_SIZE, query: searchQuery })
     } catch (error) {
       console.error('Delete account error:', error)
       toast.error(t('accounts.deleteError'))
@@ -117,7 +117,7 @@ export function AccountsPage() {
       setIsDrawerOpen(false)
       setEditingAccount(null)
       // Refresh the table
-      fetchAccounts({ page: currentPage, limit: PAGE_SIZE, search: searchQuery })
+      fetchAccounts({ page: currentPage, limit: PAGE_SIZE, query: searchQuery })
     } catch (error) {
       console.error('Save account error:', error)
       toast.error(editingAccount ? t('accounts.updateError') : t('accounts.createError'))
