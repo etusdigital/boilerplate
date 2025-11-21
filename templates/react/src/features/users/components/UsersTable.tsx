@@ -9,14 +9,7 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { User } from '../types/user.type'
-
-interface PaginationMeta {
-  currentPage: number
-  totalPages: number
-  totalItems: number
-  itemsPerPage: number
-}
+import { User, PaginationMeta } from '../types/user.type'
 
 interface UsersTableProps {
   users: User[]
@@ -35,11 +28,11 @@ export function UsersTable({
   onDelete,
   onPageChange,
 }: UsersTableProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const formatDate = (date: string | null | undefined) => {
     if (!date) return '-'
-    return new Date(date).toLocaleDateString('pt-BR')
+    return new Date(date).toLocaleDateString(i18n.language)
   }
 
   if (isLoading) {
@@ -113,16 +106,21 @@ export function UsersTable({
 
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
-        <div className="text-sm text-gray-600">
-          {t('table.showingNofN', {
-            min: (pagination.currentPage - 1) * pagination.itemsPerPage + 1,
-            max: Math.min(
-              pagination.currentPage * pagination.itemsPerPage,
-              pagination.totalItems
-            ),
-            total: pagination.totalItems,
-          })}
-        </div>
+        {pagination.totalItems > 0 && (
+          <div className="text-sm text-gray-600">
+            {t('table.showingNofN', {
+              min: (pagination.currentPage - 1) * pagination.limit + 1,
+              max: Math.min(
+                pagination.currentPage * pagination.limit,
+                pagination.totalItems
+              ),
+              total: pagination.totalItems,
+            })}
+          </div>
+        )}
+        {pagination.totalItems === 0 && (
+          <div className="text-sm text-gray-600" />
+        )}
         <div className="flex gap-2">
           <Button
             variant="outline"
