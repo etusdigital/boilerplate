@@ -14,8 +14,8 @@ export function Sidebar() {
   const menuItems: MenuItem[] = [
     { path: '/', label: t('navigation.home'), icon: 'home' },
     { path: '/users', label: t('navigation.users'), icon: 'people' },
-    { path: '/accounts', label: t('navigation.accounts'), icon: 'business' },
     { path: '/settings', label: t('navigation.settings'), icon: 'settings' },
+    { path: '/accounts', label: t('navigation.accounts'), icon: 'business' },
   ]
 
   return (
