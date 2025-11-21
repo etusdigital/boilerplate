@@ -1,12 +1,12 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { Layout } from '../components/Layout'
-import { ProtectedRoute } from '../components/ProtectedRoute'
+import ProtectedRoute from '../components/ProtectedRoute'
 import HomePage from '../pages/HomePage'
 import CallbackPage from '../pages/CallbackPage'
 import NotFoundPage from '../pages/NotFoundPage'
-import { UsersPage } from '@/features/users/pages/UsersPage'
-import { AccountsPage } from '@/features/accounts/pages/AccountsPage'
-import { SettingsPage } from '@/features/settings/pages/SettingsPage'
+import UsersPage from '@/features/users/pages/UsersPage'
+import AccountsPage from '@/features/accounts/pages/AccountsPage'
+import SettingsPage from '@/features/settings/pages/SettingsPage'
 
 const router = createBrowserRouter([
   {
