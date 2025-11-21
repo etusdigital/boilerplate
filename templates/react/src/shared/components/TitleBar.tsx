@@ -32,7 +32,7 @@ export function TitleBar({ title, actions }: TitleBarProps) {
               className="whitespace-nowrap"
             >
               {action.icon && (
-                <span className="material-icons-outlined mr-2 text-base">{action.icon}</span>
+                <span className="material-symbols-rounded mr-2 text-base">{action.icon}</span>
               )}
               {action.text}
             </Button>
