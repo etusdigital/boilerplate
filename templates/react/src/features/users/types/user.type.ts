@@ -25,7 +25,7 @@ export interface Account {
 }
 
 export interface UserPermission {
-  accountId: string
+  accountId: number
   accountName: string
   role: string
 }
