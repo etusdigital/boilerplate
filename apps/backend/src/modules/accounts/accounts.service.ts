@@ -19,8 +19,22 @@ export class AccountsService {
   ) {}
 
   async create(createAccountDto: CreateAccountDto): Promise<Account> {
+    const user = this.cls.get<User>('user');
+
     const account = this.accountRepository.create(createAccountDto);
-    return await this.accountRepository.save(account);
+    const savedAccount = await this.accountRepository.save(account);
+
+    // Create user-account relationship for the creator
+    if (user && !user.isSuperAdmin) {
+      const userAccount = this.userAccountRepository.create({
+        userId: user.id,
+        accountId: savedAccount.id,
+        role: 'admin', // Creator gets admin role by default
+      });
+      await this.userAccountRepository.save(userAccount);
+    }
+
+    return savedAccount;
   }
 
   async findAll(user: User | null = null): Promise<Account[]> {
