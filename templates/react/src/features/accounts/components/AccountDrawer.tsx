@@ -29,10 +29,10 @@ export function AccountDrawer({ open, account, onClose, onSave }: AccountDrawerP
   // Define Zod schema for validation
   const accountSchema = z.object({
     name: z.string().min(1, t('accounts.validation.name')),
-    slug: z
+    domain: z
       .string()
-      .min(1, t('accounts.validation.slug'))
-      .regex(/^[a-z0-9-]+$/, t('accounts.validation.slugFormat')),
+      .min(1, t('accounts.validation.domain'))
+      .regex(/^[a-z0-9-]+$/, t('accounts.validation.domainFormat')),
   })
 
   type AccountFormData = z.infer<typeof accountSchema>
@@ -46,7 +46,7 @@ export function AccountDrawer({ open, account, onClose, onSave }: AccountDrawerP
     resolver: zodResolver(accountSchema),
     defaultValues: {
       name: '',
-      slug: '',
+      domain: '',
     },
   })
 
@@ -55,12 +55,12 @@ export function AccountDrawer({ open, account, onClose, onSave }: AccountDrawerP
     if (account) {
       reset({
         name: account.name || '',
-        slug: account.slug || '',
+        domain: account.domain || '',
       })
     } else {
       reset({
         name: '',
-        slug: '',
+        domain: '',
       })
     }
   }, [account, reset])
@@ -115,21 +115,21 @@ export function AccountDrawer({ open, account, onClose, onSave }: AccountDrawerP
               )}
             </div>
 
-            {/* Account Slug/Domain Field */}
+            {/* Account Domain Field */}
             <div className="space-y-2">
-              <Label htmlFor="slug">
-                {t('accounts.slug')} <span className="text-red-600">*</span>
+              <Label htmlFor="domain">
+                {t('accounts.domain')} <span className="text-red-600">*</span>
               </Label>
               <Input
-                id="slug"
-                {...register('slug')}
-                placeholder={t('accounts.slug')}
+                id="domain"
+                {...register('domain')}
+                placeholder={t('accounts.domain')}
                 disabled={isSubmitting}
               />
-              {errors.slug && (
-                <p className="text-sm text-red-600">{errors.slug.message}</p>
+              {errors.domain && (
+                <p className="text-sm text-red-600">{errors.domain.message}</p>
               )}
-              <p className="text-xs text-gray-500">{t('accounts.slugHint')}</p>
+              <p className="text-xs text-gray-500">{t('accounts.domainHint')}</p>
             </div>
           </div>
 

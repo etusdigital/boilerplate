@@ -67,7 +67,7 @@ export class AccountsService {
       if (query && query.trim()) {
         whereCondition.or = [
           { name: Like(`%${query}%`) },
-          { slug: Like(`%${query}%`) },
+          { domain: Like(`%${query}%`) },
         ];
       }
 
@@ -95,7 +95,7 @@ export class AccountsService {
     // Add search filter if query is provided
     if (query && query.trim()) {
       queryBuilder.andWhere(
-        '(account.name LIKE :query OR account.slug LIKE :query)',
+        '(account.name LIKE :query OR account.domain LIKE :query)',
         { query: `%${query}%` },
       );
     }

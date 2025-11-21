@@ -1,7 +1,7 @@
 export interface Account {
   id: number
   name: string
-  slug?: string
+  domain?: string
   createdAt?: string
   updatedAt?: string
 }

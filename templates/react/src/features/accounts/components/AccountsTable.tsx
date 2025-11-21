@@ -68,7 +68,7 @@ export function AccountsTable({
           {accounts.map((account) => (
             <TableRow key={account.id}>
               <TableCell className="font-medium">{account.name}</TableCell>
-              <TableCell>{account.slug || '-'}</TableCell>
+              <TableCell>{account.domain || '-'}</TableCell>
               <TableCell>{formatDate(account.createdAt)}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
