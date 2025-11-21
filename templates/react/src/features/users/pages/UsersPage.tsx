@@ -134,13 +134,16 @@ export function UsersPage() {
     <div className="main-container">
       <TitleBar title={t('navigation.users')} actions={titleBarActions} />
 
-      <div className="mb-4">
+      <div className="mb-4 relative">
+        <span className="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+          search
+        </span>
         <Input
           type="search"
           placeholder={t('users.searchPlaceholder')}
           value={searchQuery}
           onChange={handleSearchChange}
-          className="max-w-sm"
+          className="pl-10"
         />
       </div>
 
