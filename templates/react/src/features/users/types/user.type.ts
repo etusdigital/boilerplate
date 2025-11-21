@@ -24,6 +24,12 @@ export interface Account {
   name: string
 }
 
+export interface UserPermission {
+  accountId: string
+  accountName: string
+  role: string
+}
+
 export interface PaginationMeta {
   currentPage: number
   limit: number

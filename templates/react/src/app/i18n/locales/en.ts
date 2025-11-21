@@ -55,6 +55,15 @@ export default {
     updatedAt: 'Updated At',
     deletedAt: 'Deleted At',
     noUsers: 'No users found',
+    inviteUser: 'Invite User',
+    editUser: 'Edit User',
+    isSuperAdmin: 'Is Super Admin',
+    permissions: 'User Permissions per Account',
+    selectAccount: 'Select account',
+    validation: {
+      name: 'Name is required',
+      email: 'Email is required and must be valid',
+    },
   },
   table: {
     showingNofN: 'Showing {{min}}-{{max}} of {{total}}',

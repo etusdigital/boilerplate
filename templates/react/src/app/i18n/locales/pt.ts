@@ -55,6 +55,15 @@ export default {
     updatedAt: 'Atualizado em',
     deletedAt: 'Excluído em',
     noUsers: 'Nenhum usuário encontrado',
+    inviteUser: 'Convidar Usuário',
+    editUser: 'Editar Usuário',
+    isSuperAdmin: 'É Super Admin',
+    permissions: 'Permissões do Usuário por Conta',
+    selectAccount: 'Selecionar conta',
+    validation: {
+      name: 'Nome é obrigatório',
+      email: 'Email é obrigatório e deve ser válido',
+    },
   },
   table: {
     showingNofN: 'Exibindo {{min}}-{{max}} de {{total}}',
