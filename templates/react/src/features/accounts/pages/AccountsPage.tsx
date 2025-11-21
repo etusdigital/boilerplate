@@ -1,117 +1,182 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { accountsApi } from '../api/accountsApi'
+import { toast } from 'sonner'
+import { TitleBar, TitleBarAction } from '@/shared/components/TitleBar'
+import { Input } from '@/components/ui/input'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { AccountsTable } from '../components/AccountsTable'
+import { AccountDrawer } from '../components/AccountDrawer'
+import { useAccounts } from '../hooks/useAccounts'
 import { Account } from '../types/account.type'
 
-function AccountsPage() {
-  const { t } = useTranslation()
-  const [accounts, setAccounts] = useState<Account[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+const PAGE_SIZE = 10
 
+export function AccountsPage() {
+  const { t } = useTranslation()
+  const {
+    accounts,
+    isLoading,
+    pagination,
+    fetchAccounts,
+    createAccount,
+    updateAccount,
+    deleteAccount,
+  } = useAccounts()
+
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [editingAccount, setEditingAccount] = useState<Account | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [accountToDelete, setAccountToDelete] = useState<Account | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  // Fetch accounts on mount and when search or page changes
   useEffect(() => {
-    loadAccounts()
+    const timeoutId = setTimeout(() => {
+      fetchAccounts({ page: currentPage, limit: PAGE_SIZE, search: searchQuery })
+    }, 300) // Debounce search by 300ms
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery, currentPage, fetchAccounts])
+
+  // Handle search query change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+    setCurrentPage(1) // Reset to first page when searching
+  }
+
+  // Handle page change
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page)
   }, [])
 
-  const loadAccounts = async () => {
+  // TitleBar actions
+  const titleBarActions: TitleBarAction[] = [
+    {
+      key: 'add-account',
+      text: t('accounts.addAccount'),
+      icon: 'add',
+      onClick: () => {
+        setEditingAccount(null)
+        setIsDrawerOpen(true)
+      },
+    },
+  ]
+
+  // Handle edit account
+  const handleEdit = (account: Account) => {
+    setEditingAccount(account)
+    setIsDrawerOpen(true)
+  }
+
+  // Handle delete account - open confirmation dialog
+  const handleDeleteClick = (account: Account) => {
+    setAccountToDelete(account)
+    setDeleteDialogOpen(true)
+  }
+
+  // Confirm delete account
+  const confirmDelete = async () => {
+    if (!accountToDelete) return
+
     try {
-      setIsLoading(true)
-      setError(null)
-      const response = await accountsApi.list({ page: 1, limit: 50 })
-      setAccounts(response.data)
-    } catch (err) {
-      setError('Failed to load accounts')
-      console.error('Error loading accounts:', err)
-    } finally {
-      setIsLoading(false)
+      await deleteAccount(String(accountToDelete.id))
+      toast.success(t('accounts.deleteSuccess'))
+      setDeleteDialogOpen(false)
+      setAccountToDelete(null)
+      // Refresh the table
+      fetchAccounts({ page: currentPage, limit: PAGE_SIZE, search: searchQuery })
+    } catch (error) {
+      console.error('Delete account error:', error)
+      toast.error(t('accounts.deleteError'))
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="p-8 flex items-center justify-center">
-        <div className="text-lg text-gray-600">{t('common.loading')}</div>
-      </div>
-    )
-  }
+  // Handle save account (create or update)
+  const handleSave = async (accountData: Partial<Account>) => {
+    try {
+      if (editingAccount && editingAccount.id) {
+        // Update existing account
+        await updateAccount(String(editingAccount.id), accountData)
+        toast.success(t('accounts.updateSuccess'))
+      } else {
+        // Create new account
+        await createAccount(accountData)
+        toast.success(t('accounts.createSuccess'))
+      }
 
-  if (error) {
-    return (
-      <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4 text-red-700">
-          {error}
-        </div>
-      </div>
-    )
+      setIsDrawerOpen(false)
+      setEditingAccount(null)
+      // Refresh the table
+      fetchAccounts({ page: currentPage, limit: PAGE_SIZE, search: searchQuery })
+    } catch (error) {
+      console.error('Save account error:', error)
+      toast.error(editingAccount ? t('accounts.updateError') : t('accounts.createError'))
+      throw error // Re-throw to let the drawer handle it
+    }
   }
 
   return (
-    <div className="p-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          {t('navigation.accounts')}
-        </h1>
+    <div className="main-container">
+      <TitleBar title={t('accounts.title')} actions={titleBarActions} />
 
-        <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Slug
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created At
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('common.actions')}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {accounts.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
-                    No accounts found
-                  </td>
-                </tr>
-              ) : (
-                accounts.map((account) => (
-                  <tr key={account.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{account.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{account.slug || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {account.createdAt ? new Date(account.createdAt).toLocaleDateString() : '-'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                        onClick={() => console.log('Edit account:', account.id)}
-                      >
-                        {t('common.edit')}
-                      </button>
-                      <button
-                        className="text-red-600 hover:text-red-900"
-                        onClick={() => console.log('Delete account:', account.id)}
-                      >
-                        {t('common.delete')}
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <div className="mb-4">
+        <Input
+          type="search"
+          placeholder={t('accounts.searchPlaceholder')}
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="max-w-sm"
+        />
       </div>
+
+      <AccountsTable
+        accounts={accounts}
+        isLoading={isLoading}
+        pagination={pagination}
+        onEdit={handleEdit}
+        onDelete={handleDeleteClick}
+        onPageChange={handlePageChange}
+      />
+
+      <AccountDrawer
+        open={isDrawerOpen}
+        account={editingAccount}
+        onClose={() => {
+          setIsDrawerOpen(false)
+          setEditingAccount(null)
+        }}
+        onSave={handleSave}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('accounts.deleteConfirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('accounts.deleteConfirmDescription', { name: accountToDelete?.name })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {t('common.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
