@@ -7,31 +7,25 @@ import { api } from '../api'
 function HomePage() {
   const { isAuthenticated, isLoading: authLoading, user: auth0User } = useAuth0()
   const { t } = useTranslation()
-  const { user, isLoading, setUser, setIsLoading } = useMainStore()
+  const { user, isLoading, setUser, setLoading } = useMainStore()
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (isAuthenticated && !user && !authLoading && auth0User?.email) {
         try {
-          setIsLoading(true)
+          setLoading(true)
           const userData = await api.post('/users/login', { email: auth0User.email })
-
-          const transformedUser = {
-            ...userData,
-            accounts: userData.userAccounts?.map((ua: any) => ua.account) || [],
-          }
-
-          setUser(transformedUser)
+          setUser(userData)
         } catch (error) {
           console.error('Error logging in user:', error)
         } finally {
-          setIsLoading(false)
+          setLoading(false)
         }
       }
     }
 
     fetchUserData()
-  }, [isAuthenticated, user, authLoading, auth0User, setUser, setIsLoading])
+  }, [isAuthenticated, user, authLoading, auth0User, setUser, setLoading])
 
   if (authLoading || isLoading) {
     return (
@@ -58,7 +52,7 @@ function HomePage() {
             <div className="space-y-2 text-sm text-gray-500">
               <p>✅ {t('auth.authenticated')}</p>
               <p>✅ {t('auth.userDataLoaded')}</p>
-              <p>✅ {t('auth.accountsAvailable', { count: user.accounts?.length || 0 })}</p>
+              <p>✅ {t('auth.accountsAvailable', { count: user.userAccounts?.length || 0 })}</p>
             </div>
           </div>
         ) : (

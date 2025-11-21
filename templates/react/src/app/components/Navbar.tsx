@@ -14,17 +14,14 @@ import { useTranslation } from 'react-i18next'
 export function Navbar() {
   const { logout, user: authUser } = useAuth0()
   const { t, i18n } = useTranslation()
-  const { user, selectedAccount, setSelectedAccount } = useMainStore()
+  const { userAccounts, selectedAccount, changeAccount } = useMainStore()
 
   const handleLogout = () => {
     logout({ logoutParams: { returnTo: window.location.origin } })
   }
 
   const handleAccountChange = (accountId: string) => {
-    const account = user?.accounts?.find((acc) => acc.id === parseInt(accountId))
-    if (account) {
-      setSelectedAccount(account)
-    }
+    changeAccount(accountId)
   }
 
   const handleLanguageChange = (lang: string) => {
@@ -51,17 +48,14 @@ export function Navbar() {
 
         {/* Account Selector */}
         <div className="flex-1 max-w-sm">
-          <Select
-            value={selectedAccount?.id?.toString()}
-            onValueChange={handleAccountChange}
-          >
+          <Select value={selectedAccount?.id} onValueChange={handleAccountChange}>
             <SelectTrigger>
               <SelectValue placeholder={t('navbar.selectAccount')} />
             </SelectTrigger>
             <SelectContent>
-              {user?.accounts?.map((account) => (
-                <SelectItem key={account.id} value={account.id.toString()}>
-                  {account.name}
+              {userAccounts?.map((ua) => (
+                <SelectItem key={ua.account.id} value={ua.account.id}>
+                  {ua.account.name}
                 </SelectItem>
               ))}
             </SelectContent>
