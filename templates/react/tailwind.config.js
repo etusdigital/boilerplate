@@ -8,7 +8,11 @@ export default {
     './src/**/*.{ts,tsx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      spacing: {
+        '70': '17.5rem', // 280px for sidebar width
+      },
+    },
   },
   plugins: [],
 }

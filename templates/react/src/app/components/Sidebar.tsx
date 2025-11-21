@@ -12,10 +12,10 @@ export function Sidebar() {
   const { t } = useTranslation()
 
   const menuItems: MenuItem[] = [
-    { path: '/', label: t('home'), icon: 'home' },
-    { path: '/users', label: t('users.title'), icon: 'people' },
-    { path: '/accounts', label: t('accounts.title'), icon: 'business' },
-    { path: '/settings', label: t('settings.title'), icon: 'settings' },
+    { path: '/', label: t('navigation.home'), icon: 'home' },
+    { path: '/users', label: t('navigation.users'), icon: 'people' },
+    { path: '/accounts', label: t('navigation.accounts'), icon: 'business' },
+    { path: '/settings', label: t('navigation.settings'), icon: 'settings' },
   ]
 
   return (
