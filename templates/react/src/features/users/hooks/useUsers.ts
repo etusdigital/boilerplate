@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { usersApi } from '../api/usersApi'
 import { User, UsersQueryParams, PaginationMeta } from '../types'
 
@@ -14,7 +14,7 @@ export function useUsers() {
     hasNextPage: false,
   })
 
-  const fetchUsers = async (params: UsersQueryParams) => {
+  const fetchUsers = useCallback(async (params: UsersQueryParams) => {
     setIsLoading(true)
     try {
       const response = await usersApi.list(params)
@@ -25,34 +25,34 @@ export function useUsers() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
-  const createUser = async (user: Partial<User>) => {
+  const createUser = useCallback(async (user: Partial<User>) => {
     try {
       await usersApi.create(user)
     } catch (error) {
       console.error('Failed to create user:', error)
       throw error
     }
-  }
+  }, [])
 
-  const updateUser = async (id: string, user: Partial<User>) => {
+  const updateUser = useCallback(async (id: string, user: Partial<User>) => {
     try {
       await usersApi.update(id, user)
     } catch (error) {
       console.error('Failed to update user:', error)
       throw error
     }
-  }
+  }, [])
 
-  const deleteUser = async (id: string) => {
+  const deleteUser = useCallback(async (id: string) => {
     try {
       await usersApi.delete(id)
     } catch (error) {
       console.error('Failed to delete user:', error)
       throw error
     }
-  }
+  }, [])
 
   return {
     users,
