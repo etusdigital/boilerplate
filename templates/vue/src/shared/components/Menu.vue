@@ -3,9 +3,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from 'vue'
+import { ref, inject, computed } from 'vue'
 import { routes } from '@/app/router'
 import type { RouteRecordRaw } from 'vue-router'
+import type { Ref } from 'vue'
 
 type MenuItem = {
   label: string
@@ -17,12 +18,18 @@ type MenuItem = {
 }
 
 const t = inject('t') as Function
+const locale = inject('locale') as Ref<string>
 
 const selectedItem = ref('')
 
-const options = ref<MenuItem[]>(parseRoutes(routes));
+// Make options reactive to language changes
+const options = computed<MenuItem[]>(() => {
+  // Access locale to create reactivity dependency
+  const _ = locale.value
+  return parseRoutes(routes)
+})
 
-function parseRoutes(routes: RouteRecordRaw[]) {
+function parseRoutes(routes: RouteRecordRaw[]): MenuItem[] {
   return routes
     .filter((route: RouteRecordRaw) => route.meta?.icon && route.meta?.title)
     .map((route: RouteRecordRaw) => ({
@@ -32,7 +39,7 @@ function parseRoutes(routes: RouteRecordRaw[]) {
       path: route.path,
       bottom: route.meta?.bottom,
       options: route.children ? parseRoutes(route.children) : [],
-    }));
+    }))
 }
 </script>
 
