@@ -43,7 +43,7 @@ export function Navbar() {
         {/* Logo Section */}
         <div className="flex items-center gap-2">
           <img src="/etus-logo.ico" alt="Logo" className="h-8 w-8" />
-          <span className="text-lg font-bold">Boilerplate</span>
+          <span className="text-lg font-bold text-brand">Boilerplate</span>
         </div>
 
         {/* Account Selector */}
