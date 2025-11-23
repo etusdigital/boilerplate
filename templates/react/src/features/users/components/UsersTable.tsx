@@ -120,6 +120,7 @@ export function UsersTable({
 
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
+        {/* Left: Items per page */}
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-600">{t('table.itemsPerPage')}:</span>
           <Select
@@ -138,43 +139,44 @@ export function UsersTable({
           </Select>
         </div>
 
-        <div className="flex items-center gap-4">
-          {pagination.totalItems > 0 && (
-            <div className="text-sm text-gray-600">
-              {t('table.showingNofN', {
-                min: (pagination.currentPage - 1) * pagination.limit + 1,
-                max: Math.min(
-                  pagination.currentPage * pagination.limit,
-                  pagination.totalItems
-                ),
-                total: pagination.totalItems,
-              })}
-            </div>
-          )}
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              disabled={pagination.currentPage === 1}
-              onClick={() => onPageChange(pagination.currentPage - 1)}
-            >
-              <span className="material-symbols-rounded text-[20px]">chevron_left</span>
-            </Button>
-            <div className="flex items-center justify-center min-w-[32px] text-sm">
-              {pagination.currentPage}
-            </div>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              disabled={pagination.currentPage === pagination.totalPages}
-              onClick={() => onPageChange(pagination.currentPage + 1)}
-            >
-              <span className="material-symbols-rounded text-[20px]">chevron_right</span>
-            </Button>
+        {/* Center: Navigation */}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            disabled={pagination.currentPage === 1}
+            onClick={() => onPageChange(pagination.currentPage - 1)}
+          >
+            <span className="material-symbols-rounded text-[20px]">chevron_left</span>
+          </Button>
+          <div className="flex items-center justify-center min-w-[32px] text-sm">
+            {pagination.currentPage}
           </div>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+            disabled={pagination.currentPage === pagination.totalPages}
+            onClick={() => onPageChange(pagination.currentPage + 1)}
+          >
+            <span className="material-symbols-rounded text-[20px]">chevron_right</span>
+          </Button>
         </div>
+
+        {/* Right: Showing info */}
+        {pagination.totalItems > 0 && (
+          <div className="text-sm text-gray-600">
+            {t('table.showingNofN', {
+              min: (pagination.currentPage - 1) * pagination.limit + 1,
+              max: Math.min(
+                pagination.currentPage * pagination.limit,
+                pagination.totalItems
+              ),
+              total: pagination.totalItems,
+            })}
+          </div>
+        )}
       </div>
     </div>
   )
