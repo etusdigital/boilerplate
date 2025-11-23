@@ -37,11 +37,14 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, inject } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useMainStore } from '../stores/index'
 import Menu from '@/shared/components/Menu.vue'
 
 const t = inject('t') as Function
 const mainStore = useMainStore()
+const router = useRouter()
+const route = useRoute()
 
 const profile = ref({
   name: mainStore.user.name,
@@ -67,6 +70,14 @@ const changeLanguage = async (language: string) => {
 const changeAccount = async (accountId: string) => {
   if (accountId == mainStore.selectedAccount.id) return
   await mainStore.changeAccount(accountId)
+
+  // Navigate to home to reload data for new account context
+  if (route.path !== '/') {
+    router.push('/')
+  } else {
+    // If already on home, force reload
+    router.go(0)
+  }
 }
 </script>
 

@@ -1,4 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,6 +16,8 @@ export function Navbar() {
   const { logout, user: authUser } = useAuth0()
   const { t, i18n } = useTranslation()
   const { user, userAccounts, selectedAccount, changeAccount } = useMainStore()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const handleLogout = () => {
     logout({ logoutParams: { returnTo: window.location.origin } })
@@ -22,6 +25,14 @@ export function Navbar() {
 
   const handleAccountChange = (accountId: string) => {
     changeAccount(accountId)
+    // Navigate to home to reload data for new account context
+    if (location.pathname !== '/') {
+      navigate('/')
+    } else {
+      // If already on home, force reload by navigating to self
+      navigate('/', { replace: true })
+      window.location.reload()
+    }
   }
 
   const handleLanguageChange = (lang: string) => {

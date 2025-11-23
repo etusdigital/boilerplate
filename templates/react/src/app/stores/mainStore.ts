@@ -54,7 +54,7 @@ export const useMainStore = create<MainStore>((set, get) => ({
     const account = userAccounts.find((ua) => ua.account.id === accountId)?.account
     if (account) {
       set({ selectedAccount: account })
-      // TODO: Reload data for new account context
+      // Data reload handled by navigation in Navbar component
     }
   },
 

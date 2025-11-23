@@ -85,6 +85,7 @@ function changeAccount(accountId: string) {
   if (window.localStorage) window.localStorage.setItem('selected_account', accountId)
 
   endLoading()
+  // Data reload handled by navigation in Canvas component
   return getSelectedAccount()
 }
 
