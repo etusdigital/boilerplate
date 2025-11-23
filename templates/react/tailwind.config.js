@@ -13,7 +13,7 @@ export default {
         '70': '17.5rem', // 280px for sidebar width
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        sans: ['Poppins', 'sans-serif'],
       },
     },
   },
