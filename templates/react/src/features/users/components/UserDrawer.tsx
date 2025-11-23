@@ -44,6 +44,8 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
   const { t } = useTranslation()
   const isEditing = !!user?.id
 
+  console.log('UserDrawer rendered with accounts:', accounts, 'length:', accounts?.length)
+
   // State for managing permissions
   const [permissions, setPermissions] = useState<UserPermission[]>([])
 
@@ -106,9 +108,14 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
 
   // Add permission
   const handleAddPermission = () => {
-    if (accounts.length === 0) return
+    console.log('handleAddPermission called, accounts:', accounts)
+    if (accounts.length === 0) {
+      console.log('No accounts available')
+      return
+    }
 
     const firstAccount = accounts[0]
+    console.log('Adding permission for account:', firstAccount)
     setPermissions([
       ...permissions,
       {
