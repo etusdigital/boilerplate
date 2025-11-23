@@ -16,7 +16,10 @@ import {
 import { UsersTable } from '../components/UsersTable'
 import { UserDrawer } from '../components/UserDrawer'
 import { useUsers } from '../hooks/useUsers'
+import { useTableSort } from '@/shared/hooks/useTableSort'
 import { User } from '../types/user.type'
+
+type UserSortColumn = 'name' | 'email' | 'createdAt' | 'updatedAt' | 'deletedAt'
 
 export function UsersPage() {
   const { t } = useTranslation()
@@ -38,14 +41,23 @@ export function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
 
-  // Fetch users on mount and when search, page, or items per page changes
+  // Use reusable sorting hook
+  const { sortBy, sortOrder, handleSortChange, getSortIcon } = useTableSort<UserSortColumn>('name')
+
+  // Fetch users on mount and when search, page, items per page, or sorting changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchUsers({ page: currentPage, limit: itemsPerPage, query: searchQuery })
+      fetchUsers({
+        page: currentPage,
+        limit: itemsPerPage,
+        query: searchQuery,
+        sortBy,
+        sortOrder
+      })
     }, 300) // Debounce search by 300ms
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery, currentPage, itemsPerPage, fetchUsers])
+  }, [searchQuery, currentPage, itemsPerPage, sortBy, sortOrder, fetchUsers])
 
   // Handle search query change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,10 +165,14 @@ export function UsersPage() {
         users={users}
         isLoading={isLoading}
         pagination={pagination}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        getSortIcon={getSortIcon}
         onEdit={handleEdit}
         onDelete={handleDeleteClick}
         onPageChange={handlePageChange}
         onItemsPerPageChange={handleItemsPerPageChange}
+        onSortChange={handleSortChange}
       />
 
       <UserDrawer

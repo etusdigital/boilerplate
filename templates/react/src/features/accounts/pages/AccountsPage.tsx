@@ -16,7 +16,10 @@ import {
 import { AccountsTable } from '../components/AccountsTable'
 import { AccountDrawer } from '../components/AccountDrawer'
 import { useAccounts } from '../hooks/useAccounts'
+import { useTableSort } from '@/shared/hooks/useTableSort'
 import { Account } from '../types/account.type'
+
+type AccountSortColumn = 'name' | 'domain' | 'createdAt' | 'updatedAt'
 
 const PAGE_SIZE = 10
 
@@ -39,14 +42,23 @@ export function AccountsPage() {
   const [accountToDelete, setAccountToDelete] = useState<Account | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
 
-  // Fetch accounts on mount and when search or page changes
+  // Use reusable sorting hook
+  const { sortBy, sortOrder, handleSortChange, getSortIcon } = useTableSort<AccountSortColumn>('name')
+
+  // Fetch accounts on mount and when search, page, or sorting changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchAccounts({ page: currentPage, limit: PAGE_SIZE, query: searchQuery })
+      fetchAccounts({
+        page: currentPage,
+        limit: PAGE_SIZE,
+        query: searchQuery,
+        sortBy,
+        sortOrder
+      })
     }, 300) // Debounce search by 300ms
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery, currentPage, fetchAccounts])
+  }, [searchQuery, currentPage, sortBy, sortOrder, fetchAccounts])
 
   // Handle search query change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,9 +155,13 @@ export function AccountsPage() {
         accounts={accounts}
         isLoading={isLoading}
         pagination={pagination}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        getSortIcon={getSortIcon}
         onEdit={handleEdit}
         onDelete={handleDeleteClick}
         onPageChange={handlePageChange}
+        onSortChange={handleSortChange}
       />
 
       <AccountDrawer

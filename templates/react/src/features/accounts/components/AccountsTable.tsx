@@ -9,24 +9,33 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { SortableTableHead } from '@/shared/components/SortableTableHead'
 import { Account, PaginationMeta } from '../types/account.type'
 
 interface AccountsTableProps {
   accounts: Account[]
   isLoading: boolean
   pagination: PaginationMeta
+  sortBy: string
+  sortOrder: 'ASC' | 'DESC'
+  getSortIcon: (column: string) => string
   onEdit: (account: Account) => void
   onDelete: (account: Account) => void
   onPageChange: (page: number) => void
+  onSortChange: (column: string) => void
 }
 
 export function AccountsTable({
   accounts,
   isLoading,
   pagination,
+  sortBy,
+  sortOrder,
+  getSortIcon,
   onEdit,
   onDelete,
   onPageChange,
+  onSortChange,
 }: AccountsTableProps) {
   const { t, i18n } = useTranslation()
 
@@ -58,9 +67,27 @@ export function AccountsTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t('accounts.name')}</TableHead>
-            <TableHead>{t('accounts.domain')}</TableHead>
-            <TableHead>{t('accounts.createdAt')}</TableHead>
+            <SortableTableHead
+              label={t('accounts.name')}
+              column="name"
+              currentSortColumn={sortBy}
+              sortIcon={getSortIcon('name')}
+              onSort={onSortChange}
+            />
+            <SortableTableHead
+              label={t('accounts.domain')}
+              column="domain"
+              currentSortColumn={sortBy}
+              sortIcon={getSortIcon('domain')}
+              onSort={onSortChange}
+            />
+            <SortableTableHead
+              label={t('accounts.createdAt')}
+              column="createdAt"
+              currentSortColumn={sortBy}
+              sortIcon={getSortIcon('createdAt')}
+              onSort={onSortChange}
+            />
             <TableHead className="text-right">{t('common.actions')}</TableHead>
           </TableRow>
         </TableHeader>

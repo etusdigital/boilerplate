@@ -24,4 +24,6 @@ export interface AccountsQueryParams {
   page?: number
   limit?: number
   query?: string
+  sortBy?: 'name' | 'domain' | 'createdAt' | 'updatedAt'
+  sortOrder?: 'ASC' | 'DESC'
 }

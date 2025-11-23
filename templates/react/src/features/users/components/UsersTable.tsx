@@ -16,26 +16,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { SortableTableHead } from '@/shared/components/SortableTableHead'
 import { User, PaginationMeta } from '../types/user.type'
 
 interface UsersTableProps {
   users: User[]
   isLoading: boolean
   pagination: PaginationMeta
+  sortBy: string
+  sortOrder: 'ASC' | 'DESC'
+  getSortIcon: (column: string) => string
   onEdit: (user: User) => void
   onDelete: (user: User) => void
   onPageChange: (page: number) => void
   onItemsPerPageChange?: (itemsPerPage: number) => void
+  onSortChange: (column: string) => void
 }
 
 export function UsersTable({
   users,
   isLoading,
   pagination,
+  sortBy,
+  sortOrder,
+  getSortIcon,
   onEdit,
   onDelete,
   onPageChange,
   onItemsPerPageChange,
+  onSortChange,
 }: UsersTableProps) {
   const { t, i18n } = useTranslation()
 
@@ -72,10 +81,34 @@ export function UsersTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t('table.name')}</TableHead>
-            <TableHead>{t('table.email')}</TableHead>
-            <TableHead>{t('table.updatedAt')}</TableHead>
-            <TableHead>{t('table.deletedAt')}</TableHead>
+            <SortableTableHead
+              label={t('table.name')}
+              column="name"
+              currentSortColumn={sortBy}
+              sortIcon={getSortIcon('name')}
+              onSort={onSortChange}
+            />
+            <SortableTableHead
+              label={t('table.email')}
+              column="email"
+              currentSortColumn={sortBy}
+              sortIcon={getSortIcon('email')}
+              onSort={onSortChange}
+            />
+            <SortableTableHead
+              label={t('table.updatedAt')}
+              column="updatedAt"
+              currentSortColumn={sortBy}
+              sortIcon={getSortIcon('updatedAt')}
+              onSort={onSortChange}
+            />
+            <SortableTableHead
+              label={t('table.deletedAt')}
+              column="deletedAt"
+              currentSortColumn={sortBy}
+              sortIcon={getSortIcon('deletedAt')}
+              onSort={onSortChange}
+            />
             <TableHead className="text-right">{t('common.actions')}</TableHead>
           </TableRow>
         </TableHeader>

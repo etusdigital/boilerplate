@@ -48,4 +48,6 @@ export interface UsersQueryParams {
   page?: number
   limit?: number
   query?: string
+  sortBy?: 'name' | 'email' | 'createdAt' | 'updatedAt' | 'deletedAt'
+  sortOrder?: 'ASC' | 'DESC'
 }
