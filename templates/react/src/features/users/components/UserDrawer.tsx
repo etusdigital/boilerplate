@@ -251,7 +251,7 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
                   variant="default"
                   className="rounded-full h-8 w-8"
                   onClick={handleAddPermission}
-                  disabled={isSubmitting || accounts.length === 0}
+                  disabled={isSubmitting}
                 >
                   <span className="material-symbols-rounded text-[18px]">add</span>
                 </Button>
