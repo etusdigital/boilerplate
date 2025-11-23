@@ -17,11 +17,22 @@ export function SortableTableHead({
   onSort,
   className,
 }: SortableTableHeadProps) {
+  const isActive = currentSortColumn === column
+
   return (
-    <TableHead className={className}>
+    <TableHead className={`p-0 ${className || ''}`}>
       <button
         onClick={() => onSort(column)}
-        className="flex items-center gap-1 hover:text-gray-900 transition-colors"
+        className={`
+          flex items-center gap-1
+          w-full h-full
+          px-5 py-4
+          text-left
+          transition-all duration-200
+          hover:bg-gray-100
+          active:bg-gray-200
+          ${isActive ? 'text-primary font-bold' : 'text-gray-700 hover:text-gray-900'}
+        `}
       >
         {label}
         <span className="material-symbols-rounded text-[20px]">
