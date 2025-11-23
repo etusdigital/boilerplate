@@ -243,80 +243,70 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
                 <Label className="text-base font-semibold">
                   {t('users.permissions')}
                 </Label>
-                {accounts.length > 0 && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={handleAddPermission}
-                    disabled={isSubmitting}
-                  >
-                    <span className="material-symbols-rounded text-[18px]">add</span>
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAddPermission}
+                  disabled={isSubmitting || accounts.length === 0}
+                >
+                  <span className="material-symbols-rounded text-[18px]">add</span>
+                </Button>
               </div>
 
-              {permissions.length === 0 ? (
-                <div className="p-4 border rounded-md bg-gray-50">
-                  <p className="text-sm text-gray-600">
-                    {t('users.noPermissions')}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {permissions.map((permission, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      {/* Account Select */}
-                      <Select
-                        value={String(permission.accountId)}
-                        onValueChange={(value) => handleUpdateAccount(index, value)}
-                        disabled={isSubmitting}
-                      >
-                        <SelectTrigger className="flex-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {accounts.map((account) => (
-                            <SelectItem key={account.id} value={String(account.id)}>
-                              {account.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+              <div className="space-y-3">
+                {permissions.map((permission, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    {/* Account Select */}
+                    <Select
+                      value={String(permission.accountId)}
+                      onValueChange={(value) => handleUpdateAccount(index, value)}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {accounts.map((account) => (
+                          <SelectItem key={account.id} value={String(account.id)}>
+                            {account.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                      {/* Role Select */}
-                      <Select
-                        value={permission.role}
-                        onValueChange={(value) => handleUpdateRole(index, value as RoleType)}
-                        disabled={isSubmitting}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roleOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    {/* Role Select */}
+                    <Select
+                      value={permission.role}
+                      onValueChange={(value) => handleUpdateRole(index, value as RoleType)}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roleOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                      {/* Remove Button */}
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleRemovePermission(index)}
-                        disabled={isSubmitting}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <span className="material-symbols-rounded text-[20px]">delete</span>
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    {/* Remove Button */}
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleRemovePermission(index)}
+                      disabled={isSubmitting}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <span className="material-symbols-rounded text-[20px]">delete</span>
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
