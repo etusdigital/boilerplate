@@ -60,6 +60,7 @@ export default {
     addUser: 'Add User',
     isSuperAdmin: 'Is Super Admin',
     permissions: 'User Permissions per Account',
+    noPermissions: 'No permissions added yet. Click the + button to add account permissions.',
     selectAccount: 'Select account',
     searchPlaceholder: 'Search',
     deleteConfirmTitle: 'Confirm Deletion',

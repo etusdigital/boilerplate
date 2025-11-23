@@ -16,6 +16,7 @@ import {
 import { UsersTable } from '../components/UsersTable'
 import { UserDrawer } from '../components/UserDrawer'
 import { useUsers } from '../hooks/useUsers'
+import { useAccounts } from '@/features/accounts/hooks/useAccounts'
 import { useTableSort } from '@/shared/hooks/useTableSort'
 import { User } from '../types/user.type'
 
@@ -33,6 +34,8 @@ export function UsersPage() {
     deleteUser,
   } = useUsers()
 
+  const { accounts, fetchAccounts } = useAccounts()
+
   const [searchQuery, setSearchQuery] = useState('')
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
@@ -43,6 +46,11 @@ export function UsersPage() {
 
   // Use reusable sorting hook
   const { sortBy, sortOrder, handleSortChange, getSortIcon } = useTableSort<UserSortColumn>('name')
+
+  // Fetch accounts on mount
+  useEffect(() => {
+    fetchAccounts({ page: 1, limit: 100 }) // Fetch all accounts for dropdown
+  }, [fetchAccounts])
 
   // Fetch users on mount and when search, page, items per page, or sorting changes
   useEffect(() => {
@@ -178,6 +186,7 @@ export function UsersPage() {
       <UserDrawer
         open={isDrawerOpen}
         user={editingUser}
+        accounts={accounts}
         onClose={() => {
           setIsDrawerOpen(false)
           setEditingUser(null)
