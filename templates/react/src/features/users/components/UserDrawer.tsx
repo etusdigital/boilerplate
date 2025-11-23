@@ -198,6 +198,7 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
                 {...register('name')}
                 placeholder={t('users.name')}
                 disabled={isSubmitting}
+                className="border border-gray-300"
               />
               {errors.name && (
                 <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -215,6 +216,7 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
                 {...register('email')}
                 placeholder={t('users.email')}
                 disabled={isEditing || isSubmitting}
+                className="border border-gray-300"
               />
               {errors.email && (
                 <p className="text-sm text-red-600">{errors.email.message}</p>
@@ -245,8 +247,8 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
                 </Label>
                 <Button
                   type="button"
-                  size="sm"
-                  variant="outline"
+                  size="icon"
+                  className="rounded-full bg-primary hover:bg-primary/90 text-white h-8 w-8"
                   onClick={handleAddPermission}
                   disabled={isSubmitting || accounts.length === 0}
                 >
