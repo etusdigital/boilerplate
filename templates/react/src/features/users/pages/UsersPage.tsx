@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useAuth0 } from '@auth0/auth0-react'
 import { toast } from 'sonner'
 import { TitleBar, TitleBarAction } from '@/shared/components/TitleBar'
 import { Input } from '@/components/ui/input'
@@ -24,6 +25,7 @@ type UserSortColumn = 'name' | 'email' | 'createdAt' | 'updatedAt' | 'deletedAt'
 
 export function UsersPage() {
   const { t } = useTranslation()
+  const { isLoading: authLoading } = useAuth0()
   const {
     users,
     isLoading,
@@ -47,10 +49,12 @@ export function UsersPage() {
   // Use reusable sorting hook
   const { sortBy, sortOrder, handleSortChange, getSortIcon } = useTableSort<UserSortColumn>('name')
 
-  // Fetch accounts on mount
+  // Fetch accounts on mount, but wait for auth to complete
   useEffect(() => {
-    fetchAccounts({ page: 1, limit: 100 }) // Fetch all accounts for dropdown
-  }, [fetchAccounts])
+    if (!authLoading) {
+      fetchAccounts({ page: 1, limit: 100 }) // Fetch all accounts for dropdown
+    }
+  }, [authLoading, fetchAccounts])
 
   // Fetch users on mount and when search, page, items per page, or sorting changes
   useEffect(() => {
