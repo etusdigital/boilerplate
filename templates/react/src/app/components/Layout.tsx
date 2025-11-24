@@ -30,20 +30,20 @@ export function Layout() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="text-2xl text-gray-600">Carregando...</div>
+          <div className="text-2xl text-muted-foreground">Carregando...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FA]">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <div className="flex flex-1">
         <Sidebar />
-        <main className="flex-1 p-4 overflow-auto">
+        <main className="flex-1 p-4 overflow-auto bg-[#F8F9FA] dark:bg-[#0f0f10]">
           <div className="main-container">
             <Outlet />
           </div>

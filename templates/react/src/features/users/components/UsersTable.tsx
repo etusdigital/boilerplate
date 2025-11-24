@@ -70,7 +70,7 @@ export function UsersTable({
 
   if (users.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-gray-500">
+      <div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
         <p>{t('users.noUsers')}</p>
       </div>
     )
@@ -121,7 +121,7 @@ export function UsersTable({
                 <div className="flex flex-col">
                   <span>{formatDate(user.updatedAt)}</span>
                   {user.createdAt && (
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                       {t('table.createdAt')} {formatDate(user.createdAt)}
                     </span>
                   )}
@@ -155,7 +155,7 @@ export function UsersTable({
       <div className="flex items-center justify-between mt-4">
         {/* Left: Items per page */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">{t('table.itemsPerPage')}:</span>
+          <span className="text-sm text-muted-foreground">{t('table.itemsPerPage')}:</span>
           <Select
             value={String(pagination.limit)}
             onValueChange={(value) => onItemsPerPageChange?.(Number(value))}
@@ -199,7 +199,7 @@ export function UsersTable({
 
         {/* Right: Showing info */}
         {pagination.totalItems > 0 && (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             {t('table.showingNofN', {
               min: (pagination.currentPage - 1) * pagination.limit + 1,
               max: Math.min(

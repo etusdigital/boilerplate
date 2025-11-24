@@ -22,26 +22,43 @@
   --color-card-foreground: #09090b;
 }
 
-/* Dark mode colors */
+/* Dark mode colors - Following best practices for accessibility */
 .dark {
-  --color-background: #0a0a0a;
-  --color-foreground: #fafafa;
-  --color-primary: #329771;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #1e293b;
-  --color-secondary-foreground: #f8fafc;
-  --color-destructive: #dc2626;
-  --color-destructive-foreground: #fafafa;
-  --color-muted: #1e293b;
-  --color-muted-foreground: #94a3b8;
-  --color-accent: #1e293b;
-  --color-accent-foreground: #f8fafc;
-  --color-border: #27272a;
+  /* Main backgrounds - Soft dark gray, not pure black to avoid eye strain */
+  --color-background: #18181b;
+  --color-foreground: #e4e4e7;
+
+  /* Primary - Keep brand green with good contrast */
+  --color-primary: #34d399;
+  --color-primary-foreground: #18181b;
+
+  /* Secondary - Muted blues/grays */
+  --color-secondary: #27272a;
+  --color-secondary-foreground: #d4d4d8;
+
+  /* Destructive - Softer red for dark mode */
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #18181b;
+
+  /* Muted - For subtle elements */
+  --color-muted: #27272a;
+  --color-muted-foreground: #a1a1aa;
+
+  /* Accent - For hover states */
+  --color-accent: #27272a;
+  --color-accent-foreground: #e4e4e7;
+
+  /* Borders - Subtle but visible */
+  --color-border: #3f3f46;
   --color-input: #27272a;
   --color-ring: #14b8a6;
-  --color-brand: #329771;
-  --color-card: #18181b;
-  --color-card-foreground: #fafafa;
+
+  /* Brand - Consistent with primary */
+  --color-brand: #34d399;
+
+  /* Cards - Slightly elevated from background */
+  --color-card: #1f1f23;
+  --color-card-foreground: #e4e4e7;
 }
 
 :root {
@@ -99,11 +116,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
 .dark body {
-  background-color: #0f0f0f;
+  background-color: #0f0f10;
+  color: #e4e4e7;
 }
 
 .main-container {
