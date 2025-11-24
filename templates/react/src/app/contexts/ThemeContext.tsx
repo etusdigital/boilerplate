@@ -1,12 +1,11 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
-type Theme = 'light' | 'dark' | 'system'
-type ResolvedTheme = 'light' | 'dark'
+type Theme = 'light' | 'dark'
 
 interface ThemeContextValue {
   theme: Theme
-  resolvedTheme: ResolvedTheme
   setTheme: (theme: Theme) => void
+  toggleTheme: () => void
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
@@ -14,27 +13,9 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 const STORAGE_KEY = 'app-theme'
 
 /**
- * Gets the system color scheme preference
- */
-function getSystemTheme(): ResolvedTheme {
-  if (typeof window === 'undefined') return 'light'
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-/**
- * Resolves the actual theme to apply based on user preference
- */
-function resolveTheme(theme: Theme): ResolvedTheme {
-  if (theme === 'system') {
-    return getSystemTheme()
-  }
-  return theme
-}
-
-/**
  * Updates the document to apply the theme
  */
-function applyTheme(theme: ResolvedTheme) {
+function applyTheme(theme: Theme) {
   const root = window.document.documentElement
   root.classList.remove('light', 'dark')
   root.classList.add(theme)
@@ -49,62 +30,32 @@ interface ThemeProviderProps {
  * Theme Provider Component
  *
  * Manages theme state and persistence.
- * Supports three modes:
- * - 'light': Force light mode
- * - 'dark': Force dark mode
- * - 'system': Follow OS preference
+ * Supports two modes:
+ * - 'light': Light mode
+ * - 'dark': Dark mode
  *
  * @example
  * ```tsx
- * <ThemeProvider defaultTheme="system">
+ * <ThemeProvider defaultTheme="light">
  *   <App />
  * </ThemeProvider>
  * ```
  */
-export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultTheme = 'light' }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(() => {
     // Try to load from localStorage, fallback to default
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(STORAGE_KEY) as Theme | null
-      if (stored && ['light', 'dark', 'system'].includes(stored)) {
+      if (stored && ['light', 'dark'].includes(stored)) {
         return stored
       }
     }
     return defaultTheme
   })
 
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolveTheme(theme))
-
-  // Update resolved theme when theme changes or system preference changes
+  // Apply theme when it changes
   useEffect(() => {
-    const updateResolvedTheme = () => {
-      const resolved = resolveTheme(theme)
-      setResolvedTheme(resolved)
-      applyTheme(resolved)
-    }
-
-    updateResolvedTheme()
-
-    // Listen for system theme changes if theme is 'system'
-    if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      const handleChange = () => {
-        const resolved = resolveTheme('system')
-        setResolvedTheme(resolved)
-        applyTheme(resolved)
-      }
-
-      // Modern browsers
-      if (mediaQuery.addEventListener) {
-        mediaQuery.addEventListener('change', handleChange)
-        return () => mediaQuery.removeEventListener('change', handleChange)
-      }
-      // Legacy browsers
-      else if (mediaQuery.addListener) {
-        mediaQuery.addListener(handleChange)
-        return () => mediaQuery.removeListener(handleChange)
-      }
-    }
+    applyTheme(theme)
   }, [theme])
 
   const setTheme = (newTheme: Theme) => {
@@ -112,8 +63,12 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
     localStorage.setItem(STORAGE_KEY, newTheme)
   }
 
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light')
+  }
+
   return (
-    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   )
@@ -125,11 +80,11 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
  * @example
  * ```tsx
  * function MyComponent() {
- *   const { theme, resolvedTheme, setTheme } = useTheme()
+ *   const { theme, toggleTheme } = useTheme()
  *
  *   return (
- *     <button onClick={() => setTheme('dark')}>
- *       Current: {resolvedTheme}
+ *     <button onClick={toggleTheme}>
+ *       Current: {theme}
  *     </button>
  *   )
  * }

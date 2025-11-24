@@ -14,7 +14,7 @@ function App() {
   }, [getAccessTokenSilently])
 
   return (
-    <ThemeProvider defaultTheme="system">
+    <ThemeProvider defaultTheme="light">
       <RouterProvider router={router} />
       <Toaster position="top-right" richColors />
     </ThemeProvider>

@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button'
 /**
  * Theme Toggle Component
  *
- * Cycles through theme options: light → dark → system
- * Shows appropriate icon for current theme
+ * Toggles between light and dark themes
+ * Shows sun icon in dark mode, moon icon in light mode
  *
  * @example
  * ```tsx
@@ -13,50 +13,19 @@ import { Button } from '@/components/ui/button'
  * ```
  */
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
-
-  const cycleTheme = () => {
-    const next = {
-      light: 'dark',
-      dark: 'system',
-      system: 'light',
-    } as const
-    setTheme(next[theme])
-  }
-
-  const getIcon = () => {
-    switch (theme) {
-      case 'light':
-        return 'light_mode'
-      case 'dark':
-        return 'dark_mode'
-      case 'system':
-        return 'brightness_auto'
-    }
-  }
-
-  const getLabel = () => {
-    switch (theme) {
-      case 'light':
-        return 'Light mode'
-      case 'dark':
-        return 'Dark mode'
-      case 'system':
-        return 'System theme'
-    }
-  }
+  const { theme, toggleTheme } = useTheme()
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={cycleTheme}
+      onClick={toggleTheme}
       className="h-9 w-9"
-      title={getLabel()}
-      aria-label={getLabel()}
+      title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+      aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
     >
       <span className="material-symbols-rounded text-[20px]">
-        {getIcon()}
+        {theme === 'light' ? 'dark_mode' : 'light_mode'}
       </span>
     </Button>
   )
