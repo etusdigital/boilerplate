@@ -14,11 +14,15 @@ const STORAGE_KEY = 'app-theme'
 
 /**
  * Updates the document to apply the theme
+ * Light mode is the default (no class), dark mode adds 'dark' class
  */
 function applyTheme(theme: Theme) {
   const root = window.document.documentElement
-  root.classList.remove('light', 'dark')
-  root.classList.add(theme)
+  if (theme === 'dark') {
+    root.classList.add('dark')
+  } else {
+    root.classList.remove('dark')
+  }
 }
 
 interface ThemeProviderProps {
@@ -53,10 +57,15 @@ export function ThemeProvider({ children, defaultTheme = 'light' }: ThemeProvide
     return defaultTheme
   })
 
-  // Apply theme when it changes
+  // Apply theme immediately on mount and when it changes
   useEffect(() => {
     applyTheme(theme)
   }, [theme])
+
+  // Apply theme on initial mount to ensure it's set
+  useEffect(() => {
+    applyTheme(theme)
+  }, [])
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme)

@@ -129,7 +129,7 @@ export function AccountDrawer({ open, account, onClose, onSave }: AccountDrawerP
               {errors.domain && (
                 <p className="text-sm text-red-600">{errors.domain.message}</p>
               )}
-              <p className="text-xs text-gray-500">{t('accounts.domainHint')}</p>
+              <p className="text-xs text-muted-foreground">{t('accounts.domainHint')}</p>
             </div>
           </div>
 

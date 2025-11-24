@@ -198,7 +198,6 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
                 {...register('name')}
                 placeholder={t('users.name')}
                 disabled={isSubmitting}
-                className="border border-gray-300 rounded-md"
               />
               {errors.name && (
                 <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -216,7 +215,6 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
                 {...register('email')}
                 placeholder={t('users.email')}
                 disabled={isEditing || isSubmitting}
-                className="border border-gray-300 rounded-md"
               />
               {errors.email && (
                 <p className="text-sm text-red-600">{errors.email.message}</p>
@@ -303,7 +301,7 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
                       variant="ghost"
                       onClick={() => handleRemovePermission(index)}
                       disabled={isSubmitting}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
                     >
                       <span className="material-symbols-rounded text-[20px]">delete</span>
                     </Button>

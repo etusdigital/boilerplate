@@ -30,7 +30,7 @@ export function Sidebar() {
                 'flex items-center gap-2 px-2 py-2 rounded-md text-sm font-medium transition-colors',
                 'hover:bg-accent hover:text-accent-foreground',
                 isActive
-                  ? 'bg-primary/10 text-primary dark:bg-primary/20'
+                  ? 'bg-primary/10 text-primary'
                   : 'text-foreground'
               )
             }

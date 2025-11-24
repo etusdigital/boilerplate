@@ -56,7 +56,7 @@ export function AccountsTable({
 
   if (accounts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-gray-500">
+      <div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
         <p>{t('accounts.noAccounts')}</p>
       </div>
     )
@@ -111,7 +111,7 @@ export function AccountsTable({
                     size="icon"
                     onClick={() => onDelete(account)}
                   >
-                    <span className="material-symbols-rounded text-red-600">delete</span>
+                    <span className="material-symbols-rounded text-destructive">delete</span>
                   </Button>
                 </div>
               </TableCell>
@@ -123,7 +123,7 @@ export function AccountsTable({
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
         {pagination.totalItems > 0 && (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             {t('table.showingNofN', {
               min: (pagination.currentPage - 1) * pagination.limit + 1,
               max: Math.min(
@@ -135,7 +135,7 @@ export function AccountsTable({
           </div>
         )}
         {pagination.totalItems === 0 && (
-          <div className="text-sm text-gray-600" />
+          <div className="text-sm text-muted-foreground" />
         )}
         <div className="flex gap-2">
           <Button
