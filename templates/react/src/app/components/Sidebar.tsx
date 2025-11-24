@@ -20,7 +20,7 @@ export function Sidebar() {
 
   return (
     <aside className="sticky top-16 w-43 h-[calc(100vh-4rem)] border-r border-border py-md px-xs bg-background">
-      <nav className="flex flex-col gap-0.5 p-2">
+      <nav className="flex flex-col gap-base">
         {menuItems.map((item) => (
           <NavLink
             key={item.path}
