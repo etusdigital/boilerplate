@@ -63,8 +63,8 @@ export function Navbar() {
           <div className="flex items-center gap-base">
             {/* Logo */}
             <div className="flex items-center gap-4 text-lg leading-lg font-light">
-              <img src="/etus-logo.ico" alt="Logo" className="h-xl w-xl" />
-              <span className="text-lg" style={{ color: 'rgb(24, 77, 59)' }}>Boilerplate</span>
+              <img src="/etus-logo.png" alt="Logo" className="h-xl w-xl" />
+              <span className="text-lg font-bold" style={{ color: 'rgb(24, 77, 59)' }}>Boilerplate</span>
             </div>
 
             {/* Divider */}
