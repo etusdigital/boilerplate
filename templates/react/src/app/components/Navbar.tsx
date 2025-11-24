@@ -9,6 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useMainStore } from '../stores/mainStore'
 import { useTranslation } from 'react-i18next'
 import { ThemeToggle } from './ThemeToggle'
@@ -50,70 +56,86 @@ export function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background shadow-sm">
-      <div className="flex h-16 items-center px-4 gap-3">
-        {/* Logo Section */}
-        <div className="flex items-center gap-2">
-          <img src="/etus-logo.ico" alt="Logo" className="h-8 w-8" />
-          <span className="text-lg font-bold text-brand">Boilerplate</span>
-        </div>
-
-        {/* Account Selector */}
-        <div className="flex-1 max-w-xs">
-          <Select value={selectedAccount?.id} onValueChange={handleAccountChange}>
-            <SelectTrigger className="h-9">
-              <SelectValue placeholder={t('navbar.selectAccount')} />
-            </SelectTrigger>
-            <SelectContent>
-              {userAccounts?.map((ua) => (
-                <SelectItem key={ua.account.id} value={ua.account.id}>
-                  {ua.account.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Right Section */}
-        <div className="ml-auto flex items-center gap-3">
-          {/* Language Selector */}
-          <Select value={i18n.language} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-32 h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pt">Português</SelectItem>
-              <SelectItem value="en">English</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Theme Toggle */}
-          <ThemeToggle />
-
-          {/* User Profile */}
-          <div className="flex items-center gap-2">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={user?.profileImage || user?.picture || authUser?.picture} alt={user?.name} />
-              <AvatarFallback className="text-xs">
-                {getInitials(user?.name || authUser?.name || 'U')}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">{user?.name}</span>
-              <span className="text-xs text-muted-foreground">{user?.email}</span>
+    <TooltipProvider>
+      <nav className="sticky top-0 z-50 w-full border-b border-border bg-background">
+        <div className="flex h-16 items-center justify-between p-lg">
+          {/* Left Section: Logo + Divider + Account Selector */}
+          <div className="flex items-center gap-base">
+            {/* Logo */}
+            <div className="flex items-center gap-4 text-lg leading-lg font-light">
+              <img src="/etus-logo.ico" alt="Logo" className="h-xl w-xl" />
+              <span className="text-lg" style={{ color: 'rgb(24, 77, 59)' }}>Boilerplate</span>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLogout}
-              title={t('common.logout')}
-              className="h-8 w-8"
-            >
-              <span className="material-symbols-rounded">logout</span>
-            </Button>
+
+            {/* Divider */}
+            <div className="border-r border-border h-lg" />
+
+            {/* Account Selector */}
+            <div className="flex items-center gap-4">
+              <Select value={selectedAccount?.id} onValueChange={handleAccountChange}>
+                <SelectTrigger className="h-10 min-w-[18em] text-muted-foreground shadow-none">
+                  <SelectValue placeholder={t('navbar.selectAccount')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {userAccounts?.map((ua) => (
+                    <SelectItem key={ua.account.id} value={ua.account.id}>
+                      {ua.account.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Right Section: Language Selector + User Profile */}
+          <div className="flex items-center gap-base">
+            {/* Language Selector */}
+            <Select value={i18n.language} onValueChange={handleLanguageChange}>
+              <SelectTrigger className="h-10 min-w-[15em] text-muted-foreground shadow-none">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pt">Português</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Theme Toggle - Hidden temporarily */}
+            <div className="hidden">
+              <ThemeToggle />
+            </div>
+
+            {/* User Profile */}
+            <div className="flex items-center gap-sm">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user?.profileImage || user?.picture || authUser?.picture} alt={user?.name} />
+                <AvatarFallback className="text-xs">
+                  {getInitials(user?.name || authUser?.name || 'U')}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col mr-base">
+                <span className="text-sm font-medium text-muted-foreground">{user?.name}</span>
+                <span className="text-xs text-muted-foreground leading-tight">{user?.email}</span>
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleLogout}
+                    className="h-8 w-8"
+                  >
+                    <span className="material-symbols-rounded">logout</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>{t('common.logout')}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </TooltipProvider>
   )
 }
