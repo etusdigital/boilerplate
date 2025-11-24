@@ -73,7 +73,7 @@ export function Navbar() {
             {/* Account Selector */}
             <div className="flex items-center gap-4">
               <Select value={selectedAccount?.id} onValueChange={handleAccountChange}>
-                <SelectTrigger className="h-10 min-w-[18em] text-muted-foreground shadow-none">
+                <SelectTrigger className="h-11 min-w-[20em] text-muted-foreground shadow-none">
                   <SelectValue placeholder={t('navbar.selectAccount')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -91,7 +91,7 @@ export function Navbar() {
           <div className="flex items-center gap-base">
             {/* Language Selector */}
             <Select value={i18n.language} onValueChange={handleLanguageChange}>
-              <SelectTrigger className="h-10 min-w-[15em] text-muted-foreground shadow-none">
+              <SelectTrigger className="h-11 min-w-[22em] text-muted-foreground shadow-none">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -114,8 +114,8 @@ export function Navbar() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col mr-base">
-                <span className="text-sm font-medium text-muted-foreground">{user?.name}</span>
-                <span className="text-xs text-muted-foreground leading-tight">{user?.email}</span>
+                <span className="text-sm font-bold">{user?.name}</span>
+                <span className="text-sm leading-tight">{user?.email}</span>
               </div>
               <Tooltip>
                 <TooltipTrigger asChild>

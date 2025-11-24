@@ -19,7 +19,7 @@ export function Sidebar() {
   ]
 
   return (
-    <aside className="sticky top-16 w-56 h-[calc(100vh-4rem)] border-r border-border bg-background">
+    <aside className="sticky top-16 w-43 h-[calc(100vh-4rem)] border-r border-border py-md px-xs bg-background">
       <nav className="flex flex-col gap-0.5 p-2">
         {menuItems.map((item) => (
           <NavLink
