@@ -10,7 +10,7 @@
         @update:modelValue="changeAccount"
       />
       <template #logo>
-        <img src="/etus-logo.ico" alt="etus-logo" class="etus-logo" />
+        <img src="/etus-logo.png" alt="etus-logo" class="etus-logo" />
         <span class="text-lg font-bold">Boilerplate</span>
       </template>
       <template #actions>
