@@ -1,6 +1,6 @@
 <template>
   <div class="main-container">
-    <TitleBar :title="t('users')" :actions="titleBarActions" />
+    <TitleBar :title="t('users.users')" :actions="titleBarActions" />
 
     <Input v-model="searchQuery" type="search" :placeholder="t('search')" @input="handleSearchChange" />
 
@@ -24,7 +24,7 @@
             <span class="w-full text-left">{{ formatDisplayDate(item.updatedAt) }}</span>
             <br />
             <span v-if="item?.updatedAt && item?.createdAt" class="text-xxs w-full text-center"
-              >{{ t('createdAt') }} {{ formatDisplayDate(item.createdAt) }}</span
+              >{{ t('table.createdAt') }} {{ formatDisplayDate(item.createdAt) }}</span
             >
           </template>
           <template v-else-if="metric.value === 'deletedAt'">
@@ -268,8 +268,8 @@ async function onEdit(val: any, index: number) {
 
 async function onDelete(user: User) {
   const result = await confirm({
-    title: t('deleteUser'),
-    message: `${t('deleteUserConfirm')}: ${user.name}?`,
+    title: t('users.deleteMsg.title'),
+    message: `${t('users.deleteMsg.deleteUserConfirm')}: ${user.name}?`,
     acceptLabel: t('delete'),
     cancelLabel: t('cancel'),
   })

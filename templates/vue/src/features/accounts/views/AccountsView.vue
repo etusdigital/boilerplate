@@ -167,8 +167,8 @@ async function onSave(editingAccount: Account, isEditing: boolean): Promise<void
 
 async function onDelete(val: Account): Promise<void> {
   const result = await confirm({
-    title: t('deleteAccount'),
-    message: `${t('deleteAccountConfirm')}: ${val.name}?`,
+    title: t('accounts.deleteMsg.title'),
+    message: `${t('accounts.deleteMsg.deleteAccountConfirm')}: ${val.name}?`,
     acceptLabel: t('delete'),
     cancelLabel: t('cancel'),
   })
