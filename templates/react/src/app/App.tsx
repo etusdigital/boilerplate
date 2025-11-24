@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { Toaster } from 'sonner'
 import router from './router'
 import { setupInterceptors } from './api/client'
+import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
   const { getAccessTokenSilently } = useAuth0()
@@ -13,10 +14,10 @@ function App() {
   }, [getAccessTokenSilently])
 
   return (
-    <>
+    <ThemeProvider defaultTheme="system">
       <RouterProvider router={router} />
       <Toaster position="top-right" richColors />
-    </>
+    </ThemeProvider>
   )
 }
 

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select'
 import { useMainStore } from '../stores/mainStore'
 import { useTranslation } from 'react-i18next'
+import { ThemeToggle } from './ThemeToggle'
 
 export function Navbar() {
   const { logout, user: authUser } = useAuth0()
@@ -49,7 +50,7 @@ export function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white shadow-sm">
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background shadow-sm">
       <div className="flex h-16 items-center px-4 gap-3">
         {/* Logo Section */}
         <div className="flex items-center gap-2">
@@ -86,6 +87,9 @@ export function Navbar() {
             </SelectContent>
           </Select>
 
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
           {/* User Profile */}
           <div className="flex items-center gap-2">
             <Avatar className="h-9 w-9">
@@ -95,8 +99,8 @@ export function Navbar() {
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold">{user?.name}</span>
-              <span className="text-xs text-gray-600">{user?.email}</span>
+              <span className="text-sm font-semibold text-foreground">{user?.name}</span>
+              <span className="text-xs text-muted-foreground">{user?.email}</span>
             </div>
             <Button
               variant="ghost"
