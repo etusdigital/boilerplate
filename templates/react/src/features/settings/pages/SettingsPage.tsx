@@ -34,7 +34,7 @@ function SettingsPage() {
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+        <h1 className="text-3xl font-bold text-foreground mb-8">
           {t('settings.title')}
         </h1>
 
@@ -43,19 +43,19 @@ function SettingsPage() {
             <div
               key={route.path}
               onClick={() => handleCardClick(route.path)}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-105 overflow-hidden"
+              className="bg-card rounded-lg shadow-sm border border-border cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-105 overflow-hidden"
             >
               <div className="p-6">
                 <div className="flex items-center gap-4 mb-4">
-                  <span className="material-symbols-rounded text-4xl text-blue-600">
-                    {route.icon}
-                  </span>
-                  <h2 className="text-xl font-semibold text-gray-900">
+                  {route.icon && (
+                    <span className="material-symbols-rounded text-primary text-5xl">{route.icon}</span>
+                  )}
+                  <h2 className="text-xl font-semibold text-card-foreground">
                     {route.label}
                   </h2>
                 </div>
-                <div className="border-t border-gray-200 my-4"></div>
-                <p className="text-gray-600 text-sm">{route.description}</p>
+                <div className="border-t border-border my-4"></div>
+                <p className="text-muted-foreground text-sm">{route.description}</p>
               </div>
             </div>
           ))}

@@ -251,7 +251,7 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
                   onClick={handleAddPermission}
                   disabled={isSubmitting}
                 >
-                  <span className="material-symbols-rounded text-[18px]">add</span>
+                  <span className="material-symbols-rounded">add</span>
                 </Button>
               </div>
 
@@ -303,7 +303,7 @@ export function UserDrawer({ open, user, accounts, onClose, onSave }: UserDrawer
                       disabled={isSubmitting}
                       className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
                     >
-                      <span className="material-symbols-rounded text-[20px]">delete</span>
+                      <span className="material-symbols-rounded">delete</span>
                     </Button>
                   </div>
                 ))}

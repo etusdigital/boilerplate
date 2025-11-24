@@ -160,9 +160,7 @@ export function UsersPage() {
 
       <div className="mb-4">
         <div className="relative bg-white rounded-md" style={{ outline: '1px solid rgb(227, 231, 234)' }}>
-          <span className="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-            search
-          </span>
+          <span className="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-xl">search</span>
           <Input
             type="search"
             placeholder={t('users.searchPlaceholder')}

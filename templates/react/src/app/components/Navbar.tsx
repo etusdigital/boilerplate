@@ -109,7 +109,7 @@ export function Navbar() {
               title={t('common.logout')}
               className="h-8 w-8"
             >
-              <span className="material-symbols-rounded text-[20px]">logout</span>
+              <span className="material-symbols-rounded">logout</span>
             </Button>
           </div>
         </div>

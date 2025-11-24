@@ -24,9 +24,11 @@ export function ThemeToggle() {
       title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
       aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
     >
-      <span className="material-symbols-rounded text-[20px]">
-        {theme === 'light' ? 'dark_mode' : 'light_mode'}
-      </span>
+      {theme === 'light' ? (
+        <span className="material-symbols-rounded">dark_mode</span>
+      ) : (
+        <span className="material-symbols-rounded">light_mode</span>
+      )}
     </Button>
   )
 }

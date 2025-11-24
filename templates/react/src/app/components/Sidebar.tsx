@@ -35,7 +35,7 @@ export function Sidebar() {
               )
             }
           >
-            <span className="material-symbols-rounded text-[20px]">{item.icon}</span>
+            <span className="material-symbols-rounded text-xl">{item.icon}</span>
             <span>{item.label}</span>
           </NavLink>
         ))}

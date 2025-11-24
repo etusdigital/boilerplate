@@ -29,15 +29,13 @@ export function SortableTableHead({
           px-5 py-4
           text-left
           transition-all duration-200
-          hover:bg-gray-100
-          active:bg-gray-200
-          ${isActive ? 'text-primary font-bold' : 'text-gray-700 hover:text-gray-900'}
+          hover:bg-accent
+          active:bg-accent/80
+          ${isActive ? 'text-primary font-bold' : 'text-foreground'}
         `}
       >
         {label}
-        <span className="material-symbols-rounded text-[20px]">
-          {sortIcon}
-        </span>
+        <span className="material-symbols-rounded text-lg">{sortIcon}</span>
       </button>
     </TableHead>
   )
