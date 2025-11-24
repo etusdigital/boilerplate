@@ -43,7 +43,7 @@ export function Layout() {
       <Navbar />
       <div className="flex flex-1">
         <Sidebar />
-        <main className="flex-1 p-4 overflow-auto">
+        <main className="flex-1 p-base overflow-auto">
           <div className="main-container">
             <Outlet />
           </div>

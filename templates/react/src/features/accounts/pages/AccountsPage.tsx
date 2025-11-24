@@ -138,7 +138,7 @@ export function AccountsPage() {
   }
 
   return (
-    <div className="main-container">
+    <div className="main-container p-md">
       <TitleBar title={t('accounts.title')} actions={titleBarActions} />
 
       <div className="mb-4">

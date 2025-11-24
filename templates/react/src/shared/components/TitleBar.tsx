@@ -19,7 +19,7 @@ interface TitleBarProps {
 export function TitleBar({ title, actions }: TitleBarProps) {
   return (
     <div className="flex justify-between items-center mb-6">
-      <h1 className="text-4xl font-bold capitalize">{title}</h1>
+      <h1 className="text-3xl font-bold">{title}</h1>
       {actions && actions.length > 0 && (
         <div className="flex items-center gap-2">
           {actions.map((action) => (
