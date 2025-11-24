@@ -93,7 +93,7 @@ export function UsersPage() {
     {
       key: 'add-user',
       text: t('users.addUser'),
-      icon: 'add',
+      icon: 'add_circle',
       onClick: () => {
         setEditingUser(null)
         setIsDrawerOpen(true)
