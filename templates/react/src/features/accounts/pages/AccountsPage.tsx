@@ -76,7 +76,7 @@ export function AccountsPage() {
     {
       key: 'add-account',
       text: t('accounts.addAccount'),
-      icon: 'add_circle',
+      icon: 'add',
       onClick: () => {
         setEditingAccount(null)
         setIsDrawerOpen(true)
