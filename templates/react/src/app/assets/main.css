@@ -22,11 +22,11 @@
   /* Table spacing */
   --spacing-table-head-y: 0.55rem;
   /* 8.8px - padding vertical do header da tabela */
-  --spacing-table-cell-y: 1rem;
+  --spacing-table-cell-y: 0.55rem;
   /* 11.2px - padding vertical das células da tabela */
 
   /* Border Width */
-  --border-width-xxs: 1px;
+  --border-width-xxs: px;
   /* border-xxs - thin borders */
   --border-width-xs: 2px;
   /* border-xs */
@@ -62,7 +62,7 @@
   --color-card-foreground: #09090b;
   --color-popover: #ffffff;
   --color-popover-foreground: #09090b;
-  --color-primary: #329771;
+  --color-primary: #066e3e;
   --color-primary-hover: #22795A;
   --color-primary-foreground: #ffffff;
   --color-secondary: #f1f5f9;
