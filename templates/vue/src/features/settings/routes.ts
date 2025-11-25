@@ -4,13 +4,13 @@ export const settingsRoutes: Route[] = [
   {
     path: '/settings',
     name: 'Settings',
-    bottom: true,
     component: () => import('./views/SettingsView.vue'),
     meta: {
       requiresAuth: true,
       title: 'settings.settings',
       icon: 'settings',
       adminOnly: true,
+      bottom: true,
     },
   },
   // e.g., /products/new, /products/:id/edit
