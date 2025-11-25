@@ -31,7 +31,7 @@ export function TitleBar({ title, actions }: TitleBarProps) {
               onClick={action.onClick}
               className="whitespace-nowrap"
             >
-              {action.icon && <span className="material-symbols-rounded mr-1">{action.icon}</span>}
+              {action.icon && <span className="material-symbols-rounded">{action.icon}</span>}
               {action.text}
             </Button>
           ))}

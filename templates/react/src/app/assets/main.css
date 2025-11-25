@@ -8,7 +8,7 @@
   /* 8px  - gap-xs, p-xs, m-xs */
   --spacing-sm: 0.75rem;
   /* 12px - gap-sm, p-sm, m-sm */
-  --spacing-base: 1rem;
+  --spacing-base: 1.08rem;
   /* 16px - gap-base, p-base, m-base */
   --spacing-md: 1.25rem;
   /* 20px - gap-md, p-md, m-md */
@@ -18,6 +18,12 @@
   /* 32px - gap-xl, p-xl, m-xl */
   --spacing-2xl: 2.5rem;
   /* 40px - gap-2xl, p-2xl, m-2xl */
+
+  /* Table spacing */
+  --spacing-table-head-y: 0.55rem;
+  /* 8.8px - padding vertical do header da tabela */
+  --spacing-table-cell-y: 1rem;
+  /* 11.2px - padding vertical das células da tabela */
 
   /* Border Width */
   --border-width-xxs: 1px;
@@ -50,7 +56,7 @@
   /* leading-xl */
 
   /* Colors - Light mode (default) */
-  --color-background: #ffffff;
+  --color-background: #fbfcfd;
   --color-foreground: #09090b;
   --color-card: #ffffff;
   --color-card-foreground: #09090b;
@@ -71,6 +77,7 @@
   --color-input: #e2e8f0;
   --color-ring: #14b8a6;
   --color-brand: #184D3B;
+  --color-table-text: rgb(95, 113, 123);
 
   /* Explicit color mappings for text utilities */
   --color-destructive-text: var(--color-destructive);
@@ -93,7 +100,7 @@
   --color-muted-foreground: #a1a1aa;
   --color-accent: #27272a;
   --color-accent-foreground: #fafafa;
-  --color-destructive: #7f1d1d;
+  --color-destructive: #ff1d1d;
   --color-destructive-foreground: #fafafa;
   --color-border: #27272a;
   --color-input: #27272a;
@@ -148,11 +155,16 @@ body {
 /* Google Material Symbols - Outlined with Rounded corners */
 .material-symbols-rounded {
   font-size: 20px;
-  opacity: 0.9;
+  opacity: 1;
   font-variation-settings:
     'FILL' 0,
-    'wght' 450,
+    'wght' 400,
     'GRAD' 0,
     'opsz' 24;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Destructive icons with separate opacity control */
+.material-symbols-rounded.text-destructive {
+  opacity: 1;
 }

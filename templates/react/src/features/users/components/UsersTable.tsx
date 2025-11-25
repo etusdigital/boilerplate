@@ -87,6 +87,7 @@ export function UsersTable({
               currentSortColumn={sortBy}
               sortIcon={getSortIcon('name')}
               onSort={onSortChange}
+              className="w-[50%]"
             />
             <SortableTableHead
               label={t('table.email')}
@@ -115,13 +116,13 @@ export function UsersTable({
         <TableBody>
           {users.map((user) => (
             <TableRow key={user.id}>
-              <TableCell>{user.name}</TableCell>
+              <TableCell className="w-[50%]">{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
                 <div className="flex flex-col">
                   <span>{formatDate(user.updatedAt)}</span>
                   {user.createdAt && (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs">
                       {t('table.createdAt')} {formatDate(user.createdAt)}
                     </span>
                   )}

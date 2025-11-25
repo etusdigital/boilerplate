@@ -26,12 +26,10 @@ export function SortableTableHead({
         className={`
           flex items-center gap-1
           w-full h-full
-          px-5 py-4
+          px-5 py-table-head-y
           text-left
           transition-all duration-200
-          hover:bg-accent
           active:bg-accent/80
-          ${isActive ? 'text-primary font-bold' : 'text-foreground'}
         `}
       >
         {label}

@@ -73,6 +73,7 @@ export function AccountsTable({
               currentSortColumn={sortBy}
               sortIcon={getSortIcon('name')}
               onSort={onSortChange}
+              className="w-[50%]"
             />
             <SortableTableHead
               label={t('accounts.domain')}
@@ -94,7 +95,7 @@ export function AccountsTable({
         <TableBody>
           {accounts.map((account) => (
             <TableRow key={account.id}>
-              <TableCell className="font-medium">{account.name}</TableCell>
+              <TableCell className="font-medium w-[50%]">{account.name}</TableCell>
               <TableCell>{account.domain || '-'}</TableCell>
               <TableCell>{formatDate(account.createdAt)}</TableCell>
               <TableCell className="text-right">
