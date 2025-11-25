@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SortableTableHead } from '@/shared/components/SortableTableHead'
+import { TablePagination } from '@/shared/components/TablePagination'
 import { Account, PaginationMeta } from '../types/account.type'
 
 interface AccountsTableProps {
@@ -122,41 +123,13 @@ export function AccountsTable({
       </Table>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between mt-4">
-        {pagination.totalItems > 0 && (
-          <div className="text-sm text-muted-foreground">
-            {t('table.showingNofN', {
-              min: (pagination.currentPage - 1) * pagination.limit + 1,
-              max: Math.min(
-                pagination.currentPage * pagination.limit,
-                pagination.totalItems
-              ),
-              total: pagination.totalItems,
-            })}
-          </div>
-        )}
-        {pagination.totalItems === 0 && (
-          <div className="text-sm text-muted-foreground" />
-        )}
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={pagination.currentPage === 1}
-            onClick={() => onPageChange(pagination.currentPage - 1)}
-          >
-            {t('common.previous')}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={pagination.currentPage === pagination.totalPages}
-            onClick={() => onPageChange(pagination.currentPage + 1)}
-          >
-            {t('common.next')}
-          </Button>
-        </div>
-      </div>
+      <TablePagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalItems={pagination.totalItems}
+        itemsPerPage={pagination.limit}
+        onPageChange={onPageChange}
+      />
     </div>
   )
 }

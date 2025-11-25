@@ -9,14 +9,8 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { SortableTableHead } from '@/shared/components/SortableTableHead'
+import { TablePagination } from '@/shared/components/TablePagination'
 import { User, PaginationMeta } from '../types/user.type'
 
 interface UsersTableProps {
@@ -153,65 +147,14 @@ export function UsersTable({
       </Table>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between mt-4">
-        {/* Left: Items per page */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">{t('table.itemsPerPage')}:</span>
-          <Select
-            value={String(pagination.limit)}
-            onValueChange={(value) => onItemsPerPageChange?.(Number(value))}
-          >
-            <SelectTrigger className="w-20 h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="25">25</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Center: Navigation */}
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-9 w-9"
-            disabled={pagination.currentPage === 1}
-            onClick={() => onPageChange(pagination.currentPage - 1)}
-          >
-            <span className="material-symbols-rounded">chevron_left</span>
-          </Button>
-          <div className="flex items-center justify-center min-w-[32px] text-sm">
-            {pagination.currentPage}
-          </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-9 w-9"
-            disabled={pagination.currentPage === pagination.totalPages}
-            onClick={() => onPageChange(pagination.currentPage + 1)}
-          >
-            <span className="material-symbols-rounded">chevron_right</span>
-          </Button>
-        </div>
-
-        {/* Right: Showing info */}
-        {pagination.totalItems > 0 && (
-          <div className="text-sm text-muted-foreground">
-            {t('table.showingNofN', {
-              min: (pagination.currentPage - 1) * pagination.limit + 1,
-              max: Math.min(
-                pagination.currentPage * pagination.limit,
-                pagination.totalItems
-              ),
-              total: pagination.totalItems,
-            })}
-          </div>
-        )}
-      </div>
+      <TablePagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalItems={pagination.totalItems}
+        itemsPerPage={pagination.limit}
+        onPageChange={onPageChange}
+        onItemsPerPageChange={onItemsPerPageChange}
+      />
     </div>
   )
 }
