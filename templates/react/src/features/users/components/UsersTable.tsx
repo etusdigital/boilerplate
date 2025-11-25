@@ -144,17 +144,18 @@ export function UsersTable({
             </TableRow>
           ))}
         </TableBody>
-      </Table>
 
-      {/* Pagination */}
-      <TablePagination
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
-        totalItems={pagination.totalItems}
-        itemsPerPage={pagination.limit}
-        onPageChange={onPageChange}
-        onItemsPerPageChange={onItemsPerPageChange}
-      />
+        {/* Pagination */}
+        <TablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.totalItems}
+          itemsPerPage={pagination.limit}
+          colSpan={5}
+          onPageChange={onPageChange}
+          onItemsPerPageChange={onItemsPerPageChange}
+        />
+      </Table>
     </div>
   )
 }

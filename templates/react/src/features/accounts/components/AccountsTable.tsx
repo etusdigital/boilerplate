@@ -120,16 +120,17 @@ export function AccountsTable({
             </TableRow>
           ))}
         </TableBody>
-      </Table>
 
-      {/* Pagination */}
-      <TablePagination
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
-        totalItems={pagination.totalItems}
-        itemsPerPage={pagination.limit}
-        onPageChange={onPageChange}
-      />
+        {/* Pagination */}
+        <TablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.totalItems}
+          itemsPerPage={pagination.limit}
+          colSpan={4}
+          onPageChange={onPageChange}
+        />
+      </Table>
     </div>
   )
 }

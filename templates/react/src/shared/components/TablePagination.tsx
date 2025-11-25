@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { TableFooter } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 
 interface TablePaginationProps {
@@ -14,6 +15,7 @@ interface TablePaginationProps {
   totalPages: number
   totalItems: number
   itemsPerPage: number
+  colSpan: number
   onPageChange: (page: number) => void
   onItemsPerPageChange?: (itemsPerPage: number) => void
 }
@@ -23,6 +25,7 @@ export function TablePagination({
   totalPages,
   totalItems,
   itemsPerPage,
+  colSpan,
   onPageChange,
   onItemsPerPageChange,
 }: TablePaginationProps) {
@@ -75,91 +78,97 @@ export function TablePagination({
   const showingMax = Math.min(currentPage * itemsPerPage, totalItems)
 
   return (
-    <div className="flex items-center justify-between mt-4">
-      {/* Left: Showing info */}
-      <div className="text-sm text-muted-foreground">
-        {totalItems > 0 ? (
-          t('table.showingNofN', {
-            min: showingMin,
-            max: showingMax,
-            total: totalItems,
-          })
-        ) : (
-          t('table.showingNofN', { min: 0, max: 0, total: 0 })
-        )}
-      </div>
-
-      {/* Center: Items per page */}
-      {onItemsPerPageChange && (
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">{t('table.itemsPerPage')}:</span>
-          <Select value={String(itemsPerPage)} onValueChange={(value) => onItemsPerPageChange(Number(value))}>
-            <SelectTrigger className="w-20 h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="25">25</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      {/* Right: Page navigation */}
-      <div className="flex items-center gap-1">
-        {/* Previous button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9"
-          disabled={currentPage === 1}
-          onClick={() => onPageChange(currentPage - 1)}
-        >
-          <span className="material-symbols-rounded text-lg">chevron_left</span>
-        </Button>
-
-        {/* Page numbers */}
-        {pageNumbers.map((page, index) => {
-          if (page === '...') {
-            return (
-              <div key={`ellipsis-${index}`} className="flex items-center justify-center min-w-[32px] h-9 text-sm">
-                ...
-              </div>
-            )
-          }
-
-          const pageNum = page as number
-          const isActive = pageNum === currentPage
-
-          return (
-            <Button
-              key={pageNum}
-              variant="ghost"
-              size="icon"
-              className={cn(
-                'h-9 w-9 text-sm',
-                isActive && 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
+    <TableFooter>
+      <tr>
+        <td colSpan={colSpan} className="px-5 py-6">
+          <div className="flex items-center justify-between">
+            {/* Left: Showing info */}
+            <div className="text-sm text-muted-foreground">
+              {totalItems > 0 ? (
+                t('table.showingNofN', {
+                  min: showingMin,
+                  max: showingMax,
+                  total: totalItems,
+                })
+              ) : (
+                t('table.showingNofN', { min: 0, max: 0, total: 0 })
               )}
-              onClick={() => onPageChange(pageNum)}
-            >
-              {pageNum}
-            </Button>
-          )
-        })}
+            </div>
 
-        {/* Next button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9"
-          disabled={currentPage === totalPages}
-          onClick={() => onPageChange(currentPage + 1)}
-        >
-          <span className="material-symbols-rounded text-lg">chevron_right</span>
-        </Button>
-      </div>
-    </div>
+            {/* Center: Items per page */}
+            {onItemsPerPageChange && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">{t('table.itemsPerPage')}:</span>
+                <Select value={String(itemsPerPage)} onValueChange={(value) => onItemsPerPageChange(Number(value))}>
+                  <SelectTrigger className="w-20 h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Right: Page navigation */}
+            <div className="flex items-center gap-1">
+              {/* Previous button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                disabled={currentPage === 1}
+                onClick={() => onPageChange(currentPage - 1)}
+              >
+                <span className="material-symbols-rounded text-lg">chevron_left</span>
+              </Button>
+
+              {/* Page numbers */}
+              {pageNumbers.map((page, index) => {
+                if (page === '...') {
+                  return (
+                    <div key={`ellipsis-${index}`} className="flex items-center justify-center min-w-[32px] h-9 text-sm">
+                      ...
+                    </div>
+                  )
+                }
+
+                const pageNum = page as number
+                const isActive = pageNum === currentPage
+
+                return (
+                  <Button
+                    key={pageNum}
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      'h-9 w-9 text-sm',
+                      isActive && 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
+                    )}
+                    onClick={() => onPageChange(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                )
+              })}
+
+              {/* Next button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                disabled={currentPage === totalPages}
+                onClick={() => onPageChange(currentPage + 1)}
+              >
+                <span className="material-symbols-rounded text-lg">chevron_right</span>
+              </Button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </TableFooter>
   )
 }
