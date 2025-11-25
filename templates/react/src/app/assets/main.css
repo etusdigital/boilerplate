@@ -71,6 +71,10 @@
   --color-input: #e2e8f0;
   --color-ring: #14b8a6;
   --color-brand: #184D3B;
+
+  /* Explicit color mappings for text utilities */
+  --color-destructive-text: var(--color-destructive);
+  --color-primary-text: var(--color-primary);
 }
 
 /* Dark mode color overrides */
@@ -144,10 +148,10 @@ body {
 /* Google Material Symbols - Outlined with Rounded corners */
 .material-symbols-rounded {
   font-size: 20px;
-  color: rgb(70, 80, 88);
+  opacity: 0.9;
   font-variation-settings:
     'FILL' 0,
-    'wght' 400,
+    'wght' 450,
     'GRAD' 0,
     'opsz' 24;
   -webkit-font-smoothing: antialiased;
