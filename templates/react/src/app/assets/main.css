@@ -133,6 +133,11 @@
 }
 
 /* Layout */
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background-color: #FBFCFD;
   font-family: 'Poppins', sans-serif;
@@ -140,6 +145,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  height: 100%;
+  overflow-x: hidden;
 }
 
 .dark body {

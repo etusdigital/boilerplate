@@ -39,11 +39,11 @@ export function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-full bg-background flex flex-col">
       <Navbar />
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <main className="flex-1 p-base overflow-auto">
+        <main className="flex-1 p-base overflow-y-auto">
           <div className="main-container">
             <Outlet />
           </div>
