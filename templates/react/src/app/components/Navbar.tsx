@@ -57,7 +57,7 @@ export function Navbar() {
 
   return (
     <TooltipProvider>
-      <nav className="sticky top-0 z-50 w-full border-b border-border bg-white">
+      <nav className="sticky top-0 z-50 w-full border-b border-border bg-background">
         <div className="flex h-16 items-center justify-between px-lg py-sm">
           {/* Left Section: Logo + Divider + Account Selector */}
           <div className="flex items-center gap-base">

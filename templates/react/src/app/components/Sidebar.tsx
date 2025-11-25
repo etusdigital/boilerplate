@@ -24,7 +24,7 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="sticky top-16 w-43 h-[calc(100vh-4rem)] border-r border-border py-md px-sm bg-background">
+    <aside className="sticky top-16 w-43 h-[calc(100vh-4rem)] border-r border-border py-md px-sm bg-white">
       <nav className="flex flex-col h-full">
         <div className="flex flex-col gap-base">
           {mainMenuItems.map((item) => (
@@ -33,10 +33,10 @@ export function Sidebar() {
               to={item.path}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-2 px-2 py-2 rounded-md text-sm font-medium transition-colors',
+                  'flex items-center gap-2 px-2 py-3 rounded-sm text-sm font-medium transition-colors',
                   'hover:bg-accent hover:text-accent-foreground',
                   isActive
-                    ? 'bg-primary/10 text-primary'
+                    ? 'bg-primary-active text-primary'
                     : 'text-foreground'
                 )
               }
@@ -56,7 +56,7 @@ export function Sidebar() {
                 'flex items-center gap-2 px-2 py-2 rounded-md text-sm font-medium transition-colors',
                 'hover:bg-accent hover:text-accent-foreground',
                 isActive
-                  ? 'bg-primary/10 text-primary'
+                  ? 'bg-primary-active text-primary'
                   : 'text-foreground'
               )
             }

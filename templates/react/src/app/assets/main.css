@@ -56,7 +56,7 @@
   /* leading-xl */
 
   /* Colors - Light mode (default) */
-  --color-background: #fbfcfd;
+  --color-background: #fbfaf9;
   --color-foreground: #09090b;
   --color-card: #ffffff;
   --color-card-foreground: #09090b;
@@ -78,6 +78,7 @@
   --color-ring: #14b8a6;
   --color-brand: #184D3B;
   --color-table-text: rgb(95, 113, 123);
+  --color-primary-active: #E7FFDF;
 
   /* Explicit color mappings for text utilities */
   --color-destructive-text: var(--color-destructive);
@@ -133,14 +134,15 @@
 }
 
 /* Layout */
-html, body {
+html,
+body {
   height: 100%;
   overflow-x: hidden;
 }
 
 body {
   background-color: #FBFCFD;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
