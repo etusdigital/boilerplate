@@ -95,7 +95,7 @@ export function AccountsTable({
         <TableBody>
           {accounts.map((account) => (
             <TableRow key={account.id}>
-              <TableCell className="font-medium w-[50%]">{account.name}</TableCell>
+              <TableCell className="font-medium w-[50%] text-primary">{account.name}</TableCell>
               <TableCell>{account.domain || '-'}</TableCell>
               <TableCell>{formatDate(account.createdAt)}</TableCell>
               <TableCell className="text-right">

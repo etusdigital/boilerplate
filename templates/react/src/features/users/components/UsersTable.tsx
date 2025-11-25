@@ -116,7 +116,7 @@ export function UsersTable({
         <TableBody>
           {users.map((user) => (
             <TableRow key={user.id}>
-              <TableCell className="w-[50%]">{user.name}</TableCell>
+              <TableCell className="w-[50%] text-primary font-medium">{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
                 <div className="flex flex-col">
