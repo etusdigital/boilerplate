@@ -73,7 +73,7 @@ export function Navbar() {
             {/* Account Selector */}
             <div className="flex items-center gap-4">
               <Select value={selectedAccount?.id} onValueChange={handleAccountChange}>
-                <SelectTrigger className="h-11 min-w-[20em] text-muted-foreground shadow-none">
+                <SelectTrigger className="h-10 min-w-[20em] shadow-none">
                   <SelectValue placeholder={t('navbar.selectAccount')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -91,7 +91,7 @@ export function Navbar() {
           <div className="flex items-center gap-base">
             {/* Language Selector */}
             <Select value={i18n.language} onValueChange={handleLanguageChange}>
-              <SelectTrigger className="h-11 min-w-[22em] text-muted-foreground shadow-none">
+              <SelectTrigger className="h-11 min-w-[22em] shadow-none">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
