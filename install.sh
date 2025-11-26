@@ -11,8 +11,8 @@ NC='\033[0m' # No Color
 
 # Configuration
 GITHUB_REPO="etusdigital/boilerplate"
-# Auto-detect branch from the script URL or default to master
-GITHUB_BRANCH="${GITHUB_BRANCH:-master}"
+# This should match the branch name where this script is located
+GITHUB_BRANCH="${GITHUB_BRANCH:-add-nextjs-template}"
 REQUIRED_NODE_VERSION=18
 
 # Function to print colored output
