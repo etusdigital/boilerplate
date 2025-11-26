@@ -11,7 +11,8 @@ NC='\033[0m' # No Color
 
 # Configuration
 GITHUB_REPO="etusdigital/boilerplate"
-GITHUB_BRANCH="master"
+# Auto-detect branch from the script URL or default to master
+GITHUB_BRANCH="${GITHUB_BRANCH:-master}"
 REQUIRED_NODE_VERSION=18
 
 # Function to print colored output
