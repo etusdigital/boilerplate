@@ -9,10 +9,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetFooter,
-} from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+  Button,
+  Input,
+  Label,
+} from '@boilerplate/ui-react'
 import { Account } from '../types/account.type'
 
 interface AccountDrawerProps {

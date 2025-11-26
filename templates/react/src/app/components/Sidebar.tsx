@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { cn } from '@/lib/utils'
+import { cn } from '@boilerplate/ui-react'
 
 interface MenuItem {
   path: string

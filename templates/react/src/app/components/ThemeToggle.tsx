@@ -1,5 +1,5 @@
 import { useTheme } from '../contexts/ThemeContext'
-import { Button } from '@/components/ui/button'
+import { Button } from '@boilerplate/ui-react'
 
 /**
  * Theme Toggle Component

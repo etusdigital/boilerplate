@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { TitleBar, TitleBarAction } from '@/shared/components/TitleBar'
-import { Input } from '@/components/ui/input'
 import {
+  TitleBar,
+  TitleBarAction,
+  Input,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -12,7 +13,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from '@boilerplate/ui-react'
 import { AccountsTable } from '../components/AccountsTable'
 import { AccountDrawer } from '../components/AccountDrawer'
 import { useAccounts } from '../hooks/useAccounts'

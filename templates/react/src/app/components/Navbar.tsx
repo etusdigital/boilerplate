@@ -1,20 +1,20 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from '@boilerplate/ui-react'
 import { useMainStore } from '../stores/mainStore'
 import { useTranslation } from 'react-i18next'
 import { ThemeToggle } from './ThemeToggle'

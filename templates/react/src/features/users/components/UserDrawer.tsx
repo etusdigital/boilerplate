@@ -9,18 +9,16 @@ import {
   SheetHeader,
   SheetTitle,
   SheetFooter,
-} from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
+  Button,
+  Input,
+  Label,
+  Checkbox,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@boilerplate/ui-react'
 import { User, UserAccount } from '../types/user.type'
 import { Account } from '@/features/accounts/types/account.type'
 

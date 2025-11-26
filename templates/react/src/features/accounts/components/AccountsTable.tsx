@@ -6,11 +6,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { SortableTableHead } from '@/shared/components/SortableTableHead'
-import { TablePagination } from '@/shared/components/TablePagination'
+  Button,
+  Skeleton,
+  SortableTableHead,
+  TablePagination,
+} from '@boilerplate/ui-react'
 import { Account, PaginationMeta } from '../types/account.type'
 
 interface AccountsTableProps {

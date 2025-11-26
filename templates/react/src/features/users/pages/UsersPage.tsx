@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth0 } from '@auth0/auth0-react'
 import { toast } from 'sonner'
-import { TitleBar, TitleBarAction } from '@/shared/components/TitleBar'
-import { Input } from '@/components/ui/input'
 import {
+  TitleBar,
+  TitleBarAction,
+  Input,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -13,7 +14,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from '@boilerplate/ui-react'
 import { UsersTable } from '../components/UsersTable'
 import { UserDrawer } from '../components/UserDrawer'
 import { useUsers } from '../hooks/useUsers'

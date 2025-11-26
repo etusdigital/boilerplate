@@ -282,10 +282,13 @@ main() {
     echo "Which frontend would you like to install?"
     echo "1) React (React 18 + Zustand + TailwindCSS)"
     echo "2) Vue (Vue 3 + Pinia + Design System)"
-    echo "3) Both (React + Vue)"
-    echo "4) Skip (install frontend later)"
+    echo "3) Next.js (Next.js 15 + App Router + TailwindCSS)"
+    echo "4) React + Vue"
+    echo "5) React + Next.js"
+    echo "6) All (React + Vue + Next.js)"
+    echo "7) Skip (install frontend later)"
     echo ""
-    read -p "Choose (1/2/3/4): " FRONTEND_CHOICE
+    read -p "Choose (1/2/3/4/5/6/7): " FRONTEND_CHOICE
 
     FRONTEND_INSTALLED=""
 
@@ -303,6 +306,12 @@ main() {
             fi
             ;;
         3)
+            print_info "Installing Next.js frontend..."
+            if bash scripts/add-nextjs.sh; then
+                FRONTEND_INSTALLED="Next.js"
+            fi
+            ;;
+        4)
             print_info "Installing React frontend..."
             if bash scripts/add-react.sh; then
                 print_info "Installing Vue frontend..."
@@ -311,17 +320,40 @@ main() {
                 fi
             fi
             ;;
-        4)
+        5)
+            print_info "Installing React frontend..."
+            if bash scripts/add-react.sh; then
+                print_info "Installing Next.js frontend..."
+                if bash scripts/add-nextjs.sh; then
+                    FRONTEND_INSTALLED="React and Next.js"
+                fi
+            fi
+            ;;
+        6)
+            print_info "Installing all frontends..."
+            if bash scripts/add-react.sh; then
+                print_info "Installing Vue frontend..."
+                if bash scripts/add-vue.sh; then
+                    print_info "Installing Next.js frontend..."
+                    if bash scripts/add-nextjs.sh; then
+                        FRONTEND_INSTALLED="React, Vue, and Next.js"
+                    fi
+                fi
+            fi
+            ;;
+        7)
             print_info "Skipping frontend installation"
             print_info "You can install a frontend later with:"
             echo "  bash scripts/add-react.sh"
             echo "  bash scripts/add-vue.sh"
+            echo "  bash scripts/add-nextjs.sh"
             ;;
         *)
             print_warning "Invalid choice. Skipping frontend installation."
             print_info "You can install a frontend later with:"
             echo "  bash scripts/add-react.sh"
             echo "  bash scripts/add-vue.sh"
+            echo "  bash scripts/add-nextjs.sh"
             ;;
     esac
 
