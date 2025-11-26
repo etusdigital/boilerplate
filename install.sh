@@ -291,6 +291,9 @@ main() {
     echo ""
     read -p "Choose (1/2/3/4/5/6/7): " FRONTEND_CHOICE
 
+    # Debug: Show what was chosen
+    print_info "You selected option: $FRONTEND_CHOICE"
+
     FRONTEND_INSTALLED=""
 
     case $FRONTEND_CHOICE in
