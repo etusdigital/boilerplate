@@ -65,3 +65,4 @@ apps/frontend-vue/
 # Misc
 .DS_Store
 *.pem
+templates/nextjs/.env
