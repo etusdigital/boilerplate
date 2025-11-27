@@ -19,7 +19,7 @@ import { UsersTable } from '../components/UsersTable'
 import { UserDrawer } from '../components/UserDrawer'
 import { useUsers } from '../hooks/useUsers'
 import { useAccounts } from '@/features/accounts/hooks/useAccounts'
-import { useTableSort } from '@/shared/hooks/useTableSort'
+import { useTableSort } from '@/features/shared/hooks/useTableSort'
 import { User } from '../types/user.type'
 
 type UserSortColumn = 'name' | 'email' | 'createdAt' | 'updatedAt' | 'deletedAt'

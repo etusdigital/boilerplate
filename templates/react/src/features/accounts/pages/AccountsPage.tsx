@@ -17,7 +17,7 @@ import {
 import { AccountsTable } from '../components/AccountsTable'
 import { AccountDrawer } from '../components/AccountDrawer'
 import { useAccounts } from '../hooks/useAccounts'
-import { useTableSort } from '@/shared/hooks/useTableSort'
+import { useTableSort } from '@/features/shared/hooks/useTableSort'
 import { Account } from '../types/account.type'
 
 type AccountSortColumn = 'name' | 'domain' | 'createdAt' | 'updatedAt'
