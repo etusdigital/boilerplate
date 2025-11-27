@@ -11,8 +11,8 @@ NC='\033[0m' # No Color
 
 # Configuration
 GITHUB_REPO="etusdigital/boilerplate"
-# This should match the branch name where this script is located
-GITHUB_BRANCH="${GITHUB_BRANCH:-add-nextjs-template}"
+# Auto-detect branch from environment or default to master
+GITHUB_BRANCH="${GITHUB_BRANCH:-master}"
 REQUIRED_NODE_VERSION=18
 
 # Function to print colored output
@@ -290,9 +290,6 @@ main() {
     echo "7) Skip (install frontend later)"
     echo ""
     read -p "Choose (1/2/3/4/5/6/7): " FRONTEND_CHOICE
-
-    # Debug: Show what was chosen
-    print_info "You selected option: $FRONTEND_CHOICE"
 
     FRONTEND_INSTALLED=""
 
