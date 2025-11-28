@@ -167,8 +167,8 @@ body {
 }
 
 /* Google Material Symbols - Outlined with Rounded corners */
-.material-symbols-rounded {
-  font-size: 22px;
+span.material-symbols-rounded {
+  font-size: 20px;
   opacity: 1;
   font-variation-settings:
     'FILL' 0,

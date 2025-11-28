@@ -6,7 +6,11 @@ module.exports = {
     '../../packages/ui-react/src/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }

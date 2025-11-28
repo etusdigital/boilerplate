@@ -71,6 +71,41 @@ main() {
     print_info "Copying Next.js template to apps/frontend-nextjs..."
     cp -r templates/nextjs apps/frontend-nextjs
 
+    # Make template standalone by copying shared UI components
+    print_info "Making template standalone (copying shared UI components)..."
+
+    # Create lib/ui directory structure
+    mkdir -p apps/frontend-nextjs/src/lib/ui
+
+    # Copy all contents from packages/ui-react/src to apps/frontend-nextjs/src/lib/ui
+    if [ -d "packages/ui-react/src" ]; then
+        cp -r packages/ui-react/src/* apps/frontend-nextjs/src/lib/ui/
+        print_success "Copied shared UI components"
+    else
+        print_warning "packages/ui-react/src not found. Skipping UI components copy."
+    fi
+
+    # Rewrite imports in all TypeScript/TSX files
+    print_info "Rewriting imports to use local UI components..."
+
+    # Find all .ts, .tsx, .js, .jsx, and .css files and replace imports
+    find apps/frontend-nextjs -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.css" \) -exec sed -i '' \
+        -e "s|from '@boilerplate/ui-react'|from '@/lib/ui'|g" \
+        -e 's|from "@boilerplate/ui-react"|from "@/lib/ui"|g' \
+        -e "s|@import '@boilerplate/ui-react/styles'|@import '@/lib/ui/assets/main.css'|g" \
+        -e 's|@import "@boilerplate/ui-react/styles"|@import "@/lib/ui/assets/main.css"|g' \
+        {} +
+
+    # Remove workspace dependency and transpilePackages from package.json
+    print_info "Removing workspace dependency from package.json..."
+    sed -i '' '/"@boilerplate\/ui-react": "workspace:\*",/d' apps/frontend-nextjs/package.json
+
+    # Remove transpilePackages from next.config.js
+    print_info "Updating next.config.js..."
+    sed -i '' "/transpilePackages: \['@boilerplate\/ui-react'\],/d" apps/frontend-nextjs/next.config.js
+
+    print_success "Template is now standalone!"
+
     # Setup environment file
     print_info "Setting up environment files..."
     if [ -f "apps/frontend-nextjs/.env.example" ]; then
