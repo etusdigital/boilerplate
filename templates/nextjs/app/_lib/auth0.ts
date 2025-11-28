@@ -6,4 +6,9 @@ export const auth0 = initAuth0({
   baseURL: process.env.AUTH0_BASE_URL!,
   clientID: process.env.AUTH0_CLIENT_ID!,
   clientSecret: process.env.AUTH0_CLIENT_SECRET!,
+  authorizationParams: {
+    // Request access token for API
+    audience: process.env.AUTH0_AUDIENCE || process.env.VITE_AUTH0_AUDIENCE,
+    scope: 'openid profile email',
+  },
 })
