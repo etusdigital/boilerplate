@@ -26,7 +26,7 @@
   /* 11.2px - padding vertical das células da tabela */
 
   /* Border Width */
-  --border-width-xxs: px;
+  --border-width-xxs: 1px;
   /* border-xxs - thin borders */
   --border-width-xs: 2px;
   /* border-xs */
