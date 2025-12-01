@@ -15,6 +15,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  Button,
 } from '@boilerplate/ui-react'
 import { UsersTable } from './UsersTable'
 import { UserDrawer } from './UserDrawer'

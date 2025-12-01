@@ -17,7 +17,6 @@ export function setupInterceptors(getToken: () => Promise<string>) {
 
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    console.log('[api-client] Interceptor - making request to:', config.url)
 
     // Add auth token
     if (getAccessToken) {
@@ -25,7 +24,6 @@ api.interceptors.request.use(
         const token = await getAccessToken()
         if (token) {
           config.headers.Authorization = `Bearer ${token}`
-          console.log('[api-client] Added Authorization header')
         } else {
           console.warn('[api-client] No token returned from getAccessToken')
         }
@@ -40,9 +38,7 @@ api.interceptors.request.use(
     const selectedAccount = useMainStore.getState().selectedAccount
     if (selectedAccount) {
       config.headers['account-id'] = selectedAccount.id
-      console.log('[api-client] Added account-id header:', selectedAccount.id)
     } else {
-      console.log('[api-client] No selected account in store')
     }
 
     return config

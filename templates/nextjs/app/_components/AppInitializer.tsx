@@ -65,35 +65,20 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function loadUserData() {
-      console.log('[AppInitializer] loadUserData called', {
-        auth0Loading,
-        hasAuth0User: !!auth0User,
-        email: auth0User?.email,
-      })
-
       if (auth0Loading || !auth0User) {
-        console.log('[AppInitializer] Skipping load - waiting for auth0')
         return
       }
 
       try {
         setLoading(true)
-        console.log('[AppInitializer] Calling POST /users/login with email:', auth0User.email)
 
         // Login/fetch user data from backend using Auth0 email
         const response = await api.post<User>('/users/login', {
           email: auth0User.email,
         })
 
-        console.log('[AppInitializer] Received user data:', {
-          id: response.data.id,
-          email: response.data.email,
-          accountsCount: response.data.userAccounts?.length || 0,
-        })
-
         // Set user in store (will auto-set selectedAccount)
         setUser(response.data)
-        console.log('[AppInitializer] User set in store successfully')
       } catch (error) {
         console.error('[AppInitializer] Failed to load user data:', error)
       } finally {
