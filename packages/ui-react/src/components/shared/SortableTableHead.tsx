@@ -26,7 +26,7 @@ export function SortableTableHead({
         className={`
           flex items-center gap-1
           w-full h-full
-          px-5 py-table-head-y
+          py-sm
           text-left
           transition-all duration-200
           active:bg-accent/80
