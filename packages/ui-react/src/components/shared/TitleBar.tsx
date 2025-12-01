@@ -19,7 +19,7 @@ interface TitleBarProps {
 export function TitleBar({ title, actions }: TitleBarProps) {
   return (
     <div className="flex justify-between items-center mb-6">
-      <h1 className="text-3xl font-bold">{title}</h1>
+      <h1 className="text-2xl font-bold">{title}</h1>
       {actions && actions.length > 0 && (
         <div className="flex items-center gap-2">
           {actions.map((action) => (
@@ -31,8 +31,10 @@ export function TitleBar({ title, actions }: TitleBarProps) {
               onClick={action.onClick}
               className="whitespace-nowrap"
             >
-              {action.icon && <span className="material-symbols-rounded">{action.icon}</span>}
-              {action.text}
+              <div className="flex items-center gap-xxs">
+                {action.icon && <span className="material-symbols-rounded">{action.icon}</span>}
+                <span className="text-base">{action.text}</span>
+              </div>
             </Button>
           ))}
         </div>
