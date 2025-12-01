@@ -1,1 +1,7 @@
-@import '@boilerplate/ui-react/styles';
+@import "tailwindcss";
+@config "../tailwind.config.js";
+@source "../../../packages/ui-react/src";
+@source "../app";
+@source "../features";
+
+@import '@boilerplate/ui-react/styles' layer(components);
