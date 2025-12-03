@@ -80,7 +80,7 @@ export function TablePagination({
   return (
     <TableFooter>
       <tr>
-        <td colSpan={colSpan} className="px-sm py-sm">
+        <td colSpan={colSpan} className="px-sm py-xl">
           <div className="flex items-center justify-between">
             {/* Left: Showing info */}
             <div className="text-sm text-muted-foreground">

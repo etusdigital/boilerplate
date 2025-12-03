@@ -20,7 +20,7 @@ export function SortableTableHead({
   const isActive = currentSortColumn === column
 
   return (
-    <TableHead className={`p-0 ${className || ''}`}>
+    <TableHead className={`py-sm ${className || ''}`}>
       <button
         onClick={() => onSort(column)}
         className={`
