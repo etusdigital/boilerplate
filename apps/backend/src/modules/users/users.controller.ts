@@ -15,12 +15,13 @@ import {
 import { UsersService } from './users.service';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
-import { ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiBody, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { MinRole } from '../../auth/decorators/min-role.decorator';
 import { Role } from '../../auth/enums/roles.enum';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { LoginDto } from './dto/login.dto';
+import { GoogleOAuthDto, OAuthTokenResponse } from './dto/google-oauth.dto';
 import { PaginationQueryDto } from 'src/utils';
 
 @ApiTags('users')
@@ -58,6 +59,23 @@ export class UsersController {
     @Req() request: { user: { userId: string; [key: string]: any } },
   ) {
     return await this.usersService.login(userLogin, request.user);
+  }
+
+  @Post('/oauth/google')
+  @UseGuards() // Remove JWT guard for this endpoint
+  @UsePipes(new ValidationPipe())
+  @ApiOperation({ summary: 'Authenticate with Google OAuth' })
+  @ApiResponse({
+    status: 201,
+    description: 'Successfully authenticated with Google',
+    type: OAuthTokenResponse,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid Google token.' })
+  @ApiResponse({ status: 403, description: 'User not found or not allowed.' })
+  async googleOAuth(
+    @Body() googleOAuthDto: GoogleOAuthDto,
+  ): Promise<OAuthTokenResponse> {
+    return await this.usersService.loginWithGoogle(googleOAuthDto.idToken);
   }
 
   @Post('/accounts')

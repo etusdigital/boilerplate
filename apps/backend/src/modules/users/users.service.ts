@@ -2,6 +2,7 @@ import {
   Injectable,
   ForbiddenException,
   BadRequestException,
+  Optional,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClsService } from 'nestjs-cls';
@@ -11,7 +12,10 @@ import { Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
 import { LoginDto } from './dto/login.dto';
+import { OAuthTokenResponse } from './dto/google-oauth.dto';
 import { Auth0Provider } from './providers/auth0.provider';
+import { GoogleProvider } from '../../auth/providers';
+import { JwtTokenService } from '../../auth/jwt';
 import { AccountsService } from '../accounts/accounts.service';
 import { Role } from 'src/auth/enums/roles.enum';
 import { v7 as uuidv7 } from 'uuid';
@@ -27,6 +31,8 @@ export class UsersService {
     private readonly cls: ClsService,
     private readonly auth0Provider: Auth0Provider,
     private readonly accountsService: AccountsService,
+    @Optional() private readonly googleProvider: GoogleProvider | null,
+    @Optional() private readonly jwtTokenService: JwtTokenService | null,
   ) {}
 
   async find() {
@@ -307,6 +313,103 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  /**
+   * Authenticate a user via Google OAuth.
+   * Verifies the Google ID token, finds or creates the user,
+   * and returns self-issued JWT tokens.
+   */
+  async loginWithGoogle(idToken: string): Promise<OAuthTokenResponse> {
+    if (!this.googleProvider) {
+      throw new BadRequestException(
+        'Google OAuth is not configured. Set GOOGLE_CLIENT_ID in environment.',
+      );
+    }
+
+    if (!this.jwtTokenService || !this.jwtTokenService.isAvailable()) {
+      throw new BadRequestException(
+        'JWT token service is not available. Run `npm run generate:keys`.',
+      );
+    }
+
+    // Verify the Google ID token
+    const googleUser = await this.googleProvider.verifyToken(idToken);
+
+    // Set transaction ID for audit
+    this.cls.set('transactionId', uuidv7());
+
+    // Find user by provider ID or email
+    let user = await this.findByProviderId(googleUser.providerId);
+
+    if (!user) {
+      // Try to find by email (user might exist from Auth0 or invitation)
+      user = await this.userRepository.findOne({
+        where: { email: googleUser.email },
+        relations: ['userAccounts'],
+      });
+    }
+
+    if (!user) {
+      throw new ForbiddenException(
+        'User not found. Please contact an administrator to create your account.',
+      );
+    }
+
+    // Update user status and add Google provider ID if not already present
+    if (user.status !== 'accepted') {
+      user.status = 'accepted';
+    }
+
+    if (!user.providerIds.includes(googleUser.providerId)) {
+      user.addProvider(googleUser.providerId);
+    }
+
+    // Update profile image if not set
+    if (!user.profileImage && googleUser.picture) {
+      user.profileImage = googleUser.picture;
+    }
+
+    await this.userRepository.save(user);
+
+    // Reload user with relations
+    user = await this.userRepository.findOne({
+      where: { id: user.id },
+      relations: ['userAccounts', 'userAccounts.account'],
+    });
+
+    if (!user) {
+      throw new ForbiddenException('User not found after save.');
+    }
+
+    // Determine account and role for token
+    let accountId: string;
+    let role: Role;
+
+    if (user.isSuperAdmin) {
+      const accounts = await this.accountsService.findAll(user);
+      accountId = accounts[0]?.id || 'no-account';
+      role = Role.ADMIN;
+    } else if (user.userAccounts?.length) {
+      accountId = user.userAccounts[0].accountId;
+      role = user.userAccounts[0].role;
+    } else {
+      throw new ForbiddenException('User has no account access.');
+    }
+
+    // Generate tokens
+    const tokens = this.jwtTokenService.generateTokenPair(user, accountId, role);
+
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      expiresIn: tokens.expiresIn,
+      user: {
+        id: user.id,
+        email: user.email || googleUser.email,
+        name: user.name,
+      },
+    };
   }
 
   async createUserAccounts(userAccounts: UserAccountDto[]) {
