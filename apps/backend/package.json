@@ -43,7 +43,8 @@
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.21",
     "typeorm-extension": "^3.7.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

@@ -10,10 +10,14 @@ import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { validateEnv } from './config/env.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      validate: validateEnv,
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot(AppDataSource.options),
     AuthModule,
     AccountsModule,
