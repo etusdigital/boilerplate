@@ -7,7 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ClsService } from 'nestjs-cls';
 import { UserAccount } from '../../entities/user-accounts.entity';
 import { User } from '../../entities/user.entity';
-import { Repository } from 'typeorm';
+import { UserProvider } from '../../entities/user-provider.entity';
+import { Repository, In } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { UserAccountDto } from './dto/user-account.dto';
 import { LoginDto } from './dto/login.dto';
@@ -24,6 +25,8 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserAccount)
     private readonly userAccountRepository: Repository<UserAccount>,
+    @InjectRepository(UserProvider)
+    private readonly userProviderRepository: Repository<UserProvider>,
     private readonly cls: ClsService,
     private readonly auth0Provider: Auth0Provider,
     private readonly accountsService: AccountsService,
@@ -119,36 +122,83 @@ export class UsersService {
     });
   }
 
+  /**
+   * Find a user by their identity provider ID.
+   * Uses a database-agnostic JOIN query through the user_providers table.
+   *
+   * @param providerId - Provider ID in format "provider|userId" (e.g., "google|123456")
+   */
   async findByProviderId(providerId: string | string[]): Promise<User | null> {
     const providerIds = Array.isArray(providerId) ? providerId : [providerId];
+
+    // Parse provider IDs into name/userId pairs for the JOIN query
+    const parsed = providerIds.map((id) => UserProvider.parseProviderId(id));
+
+    // Build query using standard JOIN - works on any database
     const queryBuilder = this.userRepository
       .createQueryBuilder('user')
+      .innerJoin('user_providers', 'provider', 'provider.user_id = user.id')
       .leftJoinAndSelect('user.userAccounts', 'userAccount');
 
-    // Detect database type and adapt query accordingly
-    const databaseType = this.userRepository.manager.connection.options.type;
+    // Build OR conditions for each provider ID
+    const conditions = parsed.map((_, index) => {
+      return `(provider.provider_name = :providerName${index} AND provider.provider_user_id = :providerUserId${index})`;
+    });
 
-    if (databaseType === 'postgres') {
-      // Use array overlap operator (&&) for PostgreSQL to leverage GIN index for optimal performance
-      queryBuilder.where('user.provider_ids && :providerIds', { providerIds });
-    } else {
-      // For SQLite and other databases, use string-based matching since simple-array becomes comma-separated
-      const conditions = providerIds
-        .map((_, index) => `user.provider_ids LIKE :providerId${index}`)
-        .join(' OR ');
+    const parameters = parsed.reduce(
+      (acc, { providerName, providerUserId }, index) => {
+        acc[`providerName${index}`] = providerName;
+        acc[`providerUserId${index}`] = providerUserId;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
-      const parameters = providerIds.reduce(
-        (acc, id, index) => {
-          acc[`providerId${index}`] = `%${id}%`;
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
-
-      queryBuilder.where(`(${conditions})`, parameters);
-    }
+    queryBuilder.where(`(${conditions.join(' OR ')})`, parameters);
 
     return await queryBuilder.getOne();
+  }
+
+  /**
+   * Add a provider to a user.
+   * Creates a record in the user_providers join table.
+   *
+   * @param user - User entity or user ID
+   * @param providerId - Provider ID in format "provider|userId"
+   */
+  async addProviderToUser(
+    userOrId: User | string,
+    providerId: string,
+  ): Promise<UserProvider> {
+    const userId = typeof userOrId === 'string' ? userOrId : userOrId.id;
+    const { providerName, providerUserId } =
+      UserProvider.parseProviderId(providerId);
+
+    const provider = this.userProviderRepository.create({
+      userId,
+      providerName,
+      providerUserId,
+    });
+
+    return await this.userProviderRepository.save(provider);
+  }
+
+  /**
+   * Remove a provider from a user.
+   */
+  async removeProviderFromUser(
+    userOrId: User | string,
+    providerId: string,
+  ): Promise<void> {
+    const userId = typeof userOrId === 'string' ? userOrId : userOrId.id;
+    const { providerName, providerUserId } =
+      UserProvider.parseProviderId(providerId);
+
+    await this.userProviderRepository.delete({
+      userId,
+      providerName,
+      providerUserId,
+    });
   }
 
   async create(user: UserDto) {

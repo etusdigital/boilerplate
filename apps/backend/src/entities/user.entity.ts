@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index } from 'typeorm';
 import { UserAccount } from './user-accounts.entity';
+import { UserProvider } from './user-provider.entity';
 import { InteractiveEntity } from './base.entity';
 
 @Entity('users')
@@ -53,17 +54,46 @@ export class User extends InteractiveEntity {
   })
   userAccounts?: UserAccount[];
 
+  /**
+   * Identity providers linked to this user (Google, Auth0, etc.)
+   * This replaces the legacy providerIds array for database-agnostic queries.
+   */
+  @OneToMany(() => UserProvider, (provider) => provider.user)
+  providers?: UserProvider[];
+
+  /**
+   * @deprecated Use providers relation instead. Kept for backwards compatibility.
+   */
   hasProvider(providerId: string): boolean {
     return this.providerIds.includes(providerId);
   }
 
+  /**
+   * @deprecated Use UserProvider entity instead. Kept for backwards compatibility.
+   */
   addProvider(providerId: string): void {
     if (!this.hasProvider(providerId)) {
       this.providerIds.push(providerId);
     }
   }
 
+  /**
+   * @deprecated Use UserProvider entity instead. Kept for backwards compatibility.
+   */
   removeProvider(providerId: string): void {
     this.providerIds = this.providerIds.filter((id) => id !== providerId);
+  }
+
+  /**
+   * Get all provider IDs from the providers relation.
+   * Falls back to legacy providerIds array if relation not loaded.
+   */
+  getProviderIds(): string[] {
+    if (this.providers?.length) {
+      return this.providers.map((p) =>
+        UserProvider.toProviderId(p.providerName, p.providerUserId),
+      );
+    }
+    return this.providerIds || [];
   }
 }
