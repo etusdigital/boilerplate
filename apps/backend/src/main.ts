@@ -3,15 +3,22 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
+import {
+  getCorsOrigins,
+  createCorsOriginCallback,
+  corsOptions,
+} from './config/cors.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
@@ -24,11 +31,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  //TODO: Fazer um cors decente
+  const allowedOrigins = getCorsOrigins();
+
   app.enableCors({
-    origin: '*', // Substitua pela URL do seu frontend
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
+    origin: createCorsOriginCallback(allowedOrigins),
+    ...corsOptions,
   });
 
   await app.listen(process.env.PORT ?? 3000);
